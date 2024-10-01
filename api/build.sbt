@@ -20,6 +20,7 @@ lazy val root = (project in file("."))
       "org.http4s" %% "http4s-circe" % http4sVersion,
       "io.circe" %% "circe-generic" % circeVersion,
       "io.circe" %% "circe-literal" % circeVersion,
+      "ch.qos.logback" % "logback-classic" % "1.5.6"
     ),
     Compile / run / fork := true,
   )

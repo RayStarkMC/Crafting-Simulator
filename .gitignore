@@ -1,4 +1,8 @@
 .idea
-*.iml
 target/
 .bsp/
+
+*.iml
+*.png
+node_modules/
+.vscode/
