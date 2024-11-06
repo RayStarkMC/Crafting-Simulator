@@ -24,3 +24,5 @@ jobs:
         run: ls -al
       - name: pwd
         run: pwd
+      - name: wc
+        run: wc -l .
