@@ -1,3 +1,5 @@
+enablePlugins(JavaAppPackaging)
+
 val http4sVersion = "0.23.30"
 val circeVersion = "0.14.10"
 
@@ -23,3 +25,6 @@ lazy val root = (project in file("."))
     ),
     Compile / run / fork := true
   )
+
+Docker / packageName := "crafting-simulator"
+Docker / dockerExposedPorts := Seq(8080)
