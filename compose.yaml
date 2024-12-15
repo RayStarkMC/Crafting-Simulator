@@ -67,3 +67,22 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
+  flyway:
+    container_name: flyway
+    image: flyway/flyway:11-alpine
+    volumes:
+      - type: bind
+        source: ./flyway/db/migration
+        target: /flyway/db/migration
+      - type: bind
+        source: ./flyway/conf
+        target: /flyway/conf
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    depends_on:
+      - db
+    tty: true
+    profiles:
+      - tools
