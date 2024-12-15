@@ -1,9 +1,26 @@
 services:
   api:
     container_name: api
-    image: crafting-simulator:0.1.0-SNAPSHOT
+    image: sbtscala/scala-sbt:amazoncorretto-al2023-21.0.5_1.10.6_3.6.2
+    expose:
+      - "8080"
     ports:
       - "8080:8080"
+    working_dir: /api
+    volumes:
+      - type: bind
+        source: ./api/project/build.properties
+        target: /api/project/build.properties
+      - type: bind
+        source: ./api/project/plugins.sbt
+        target: /api/project/plugins.sbt
+      - type: bind
+        source: ./api/src
+        target: /api/src
+      - type: bind
+        source: ./api/build.sbt
+        target: /api/build.sbt
+    command: sbt ~run
   angular:
     container_name: angular
     image: node:22.12.0

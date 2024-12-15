@@ -12,7 +12,7 @@ object Main extends IOApp {
       .default[IO]
       .withHost(ipv4"0.0.0.0")
       .withPort(port"8080")
-      .withHttpApp(app)
+      .withHttpApp(withErrorLogging.orNotFound)
       .withShutdownTimeout(1.second)
       .build
       .useForever
