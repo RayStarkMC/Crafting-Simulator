@@ -5,7 +5,7 @@ val circeVersion = "0.14.10"
 
 ThisBuild / organization := "net.raystarkmc"
 ThisBuild / version := "0.1.0-SNAPSHOT"
-ThisBuild / scalaVersion := "3.4.2"
+ThisBuild / scalaVersion := "3.3.4"
 ThisBuild / scalacOptions ++= Seq(
   "-Wnonunit-statement",
   "-Yexplicit-nulls",

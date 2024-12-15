@@ -1,6 +1,5 @@
 package net.raystarkmc.craftingsimulator
 
-import cats.data.OptionT
 import cats.effect.{IO, Sync}
 import cats.syntax.all.given
 import io.circe.generic.auto.given
@@ -8,7 +7,7 @@ import io.circe.syntax.given
 import org.http4s.circe.*
 import org.http4s.dsl.io.*
 import org.http4s.server.middleware.{ErrorAction, ErrorHandling}
-import org.http4s.{HttpRoutes, Request, Response}
+import org.http4s.{HttpRoutes, Request}
 import org.typelevel.log4cats.Logger
 import org.typelevel.log4cats.slf4j.Slf4jLogger
 
