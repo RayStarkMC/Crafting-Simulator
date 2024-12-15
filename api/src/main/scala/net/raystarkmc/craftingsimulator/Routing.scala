@@ -9,7 +9,7 @@ import org.http4s.{HttpApp, HttpRoutes, Request, Response}
 
 case class Hello(message: String)
 
-def app: HttpApp[IO] = {
+val app: HttpApp[IO] = {
   val routes = HttpRoutes.of[IO] {
     case req@POST -> Root / "hello" => hello(req)
   }
