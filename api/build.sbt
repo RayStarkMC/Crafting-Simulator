@@ -1,5 +1,5 @@
-val http4sVersion = "0.23.27"
-val circeVersion = "0.14.7"
+val http4sVersion = "0.23.30"
+val circeVersion = "0.14.10"
 
 ThisBuild / organization := "net.raystarkmc"
 ThisBuild / version := "0.1.0-SNAPSHOT"
@@ -20,7 +20,7 @@ lazy val root = (project in file("."))
       "org.http4s" %% "http4s-circe" % http4sVersion,
       "io.circe" %% "circe-generic" % circeVersion,
       "io.circe" %% "circe-literal" % circeVersion,
-      "ch.qos.logback" % "logback-classic" % "1.5.6"
+      "ch.qos.logback" % "logback-classic" % "1.5.12"
     ),
     Compile / run / fork := true,
   )
