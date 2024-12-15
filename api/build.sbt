@@ -23,7 +23,6 @@ lazy val root = (project in file("."))
       "io.circe" %% "circe-generic" % circeVersion,
       "io.circe" %% "circe-literal" % circeVersion,
     ),
-    Compile / run / fork := true,
     dockerBaseImage := "amazoncorretto:21",
     dockerExposedPorts := Seq(8080)
   )
