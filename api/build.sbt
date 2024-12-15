@@ -23,9 +23,11 @@ lazy val root = (project in file("."))
       "io.circe" %% "circe-generic" % circeVersion,
       "io.circe" %% "circe-literal" % circeVersion,
     ),
-    Compile / run / fork := true
+    Compile / run / fork := true,
+    dockerBaseImage := "amazoncorretto:21",
+    dockerExposedPorts := Seq(8080)
   )
 
 Docker / packageName := "crafting-simulator"
-dockerBaseImage := "amazoncorretto:21"
-dockerExposedPorts := Seq(8080)
+Docker / daemonUserUid := None
+Docker / daemonUser := "daemon"
