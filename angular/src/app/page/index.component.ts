@@ -21,6 +21,6 @@ export class IndexComponent implements OnInit {
       message: "Hello!!!!!!!!!!!"
     }
 
-    this.httpClient.post<Hello>('/hello', hello).subscribe(hello => this.hello = hello)
+    this.httpClient.post<Hello>('api/hello', hello).subscribe(hello => this.hello = hello)
   }
 }

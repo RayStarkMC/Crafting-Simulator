@@ -11,7 +11,7 @@ case class Hello(message: String)
 
 val app: HttpApp[IO] = {
   val routes = HttpRoutes.of[IO] {
-    case req@POST -> Root / "hello" => hello(req)
+    case req@POST -> Root / "api" / "hello" => hello(req)
   }
   
   routes.orNotFound
