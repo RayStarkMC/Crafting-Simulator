@@ -27,4 +27,5 @@ lazy val root = (project in file("."))
   )
 
 Docker / packageName := "crafting-simulator"
+Docker / dockerBaseImage := "amazoncorretto:21"
 Docker / dockerExposedPorts := Seq(8080)
