@@ -22,7 +22,9 @@ lazy val root = (project in file("."))
       "org.http4s" %% "http4s-circe" % http4sVersion,
       "io.circe" %% "circe-generic" % circeVersion,
       "io.circe" %% "circe-literal" % circeVersion,
-      "ch.qos.logback" % "logback-classic" % "1.5.12"
+      "ch.qos.logback" % "logback-classic" % "1.5.12",
+      "org.tpolecat" %% "doobie-core"      % "1.0.0-RC6",
+      "org.tpolecat" %% "doobie-postgres"  % "1.0.0-RC6",
     ),
     dockerBaseImage := "amazoncorretto:21",
     dockerExposedPorts := Seq(8080),
