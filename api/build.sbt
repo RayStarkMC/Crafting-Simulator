@@ -2,6 +2,8 @@ enablePlugins(JavaAppPackaging)
 
 val http4sVersion = "0.23.30"
 val circeVersion = "0.14.10"
+val doobieVersion = "1.0.0-RC6"
+val scalaTestVersion = "3.2.19"
 
 ThisBuild / organization := "net.raystarkmc"
 ThisBuild / version := "0.1.0-SNAPSHOT"
@@ -23,8 +25,10 @@ lazy val root = (project in file("."))
       "io.circe" %% "circe-generic" % circeVersion,
       "io.circe" %% "circe-literal" % circeVersion,
       "ch.qos.logback" % "logback-classic" % "1.5.12",
-      "org.tpolecat" %% "doobie-core"      % "1.0.0-RC6",
-      "org.tpolecat" %% "doobie-postgres"  % "1.0.0-RC6",
+      "org.tpolecat" %% "doobie-core"      % doobieVersion,
+      "org.tpolecat" %% "doobie-postgres"  % doobieVersion,
+      "org.scalatest" %% "scalatest" % scalaTestVersion % "test",
+      "org.scalatest" %% "scalatest-freespec" % scalaTestVersion % "test"
     ),
     dockerBaseImage := "amazoncorretto:21",
     dockerExposedPorts := Seq(8080),
