@@ -5,5 +5,5 @@
 ## 環境構築
 
 ```shell
-docker compose up -d
+docker compose run --rm flyway migrate ; docker compose up -d
 ```
