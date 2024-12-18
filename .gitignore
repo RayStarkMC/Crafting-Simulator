@@ -1,4 +1,4 @@
-.idea
+.idea/
 target/
 .bsp/
 
@@ -6,3 +6,6 @@ target/
 *.png
 node_modules/
 .vscode/
+.metals/
+.bloop/
+metals.sbt
