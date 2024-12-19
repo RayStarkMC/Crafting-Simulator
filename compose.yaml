@@ -12,15 +12,19 @@ services:
       - type: bind
         source: ./api/project/build.properties
         target: /api/project/build.properties
+        read_only: true
       - type: bind
         source: ./api/project/plugins.sbt
         target: /api/project/plugins.sbt
+        read_only: true
       - type: bind
         source: ./api/src
         target: /api/src
+        read_only: true
       - type: bind
         source: ./api/build.sbt
         target: /api/build.sbt
+        read_only: true
     command: sbt run
   angular:
     container_name: angular
@@ -34,30 +38,39 @@ services:
       - type: bind
         source: ./angular/public
         target: /angular/public
+        read_only: true
       - type: bind
         source: ./angular/src
         target: /angular/src
+        read_only: true
       - type: bind
         source: ./angular/angular.json
         target: /angular/angular.json
+        read_only: true
       - type: bind
         source: ./angular/package.json
         target: /angular/package.json
+        read_only: true
       - type: bind
         source: ./angular/package-lock.json
         target: /angular/package-lock.json
+        read_only: true
       - type: bind
         source: ./angular/tsconfig.app.json
         target: /angular/tsconfig.app.json
+        read_only: true
       - type: bind
         source: ./angular/tsconfig.json
         target: /angular/tsconfig.json
+        read_only: true
       - type: bind
         source: ./angular/tsconfig.spec.json
         target: /angular/tsconfig.spec.json
+        read_only: true
       - type: bind
         source: ./angular/proxy.conf.json
         target: /angular/proxy.conf.json
+        read_only: true
     command: sh -c "npm install ; npm run start -- --host '0.0.0.0' --poll=1000"
   db:
     container_name: db
@@ -75,9 +88,11 @@ services:
       - type: bind
         source: ./flyway/db/migration
         target: /flyway/db/migration
+        read_only: true
       - type: bind
         source: ./flyway/conf
         target: /flyway/conf
+        read_only: true
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
