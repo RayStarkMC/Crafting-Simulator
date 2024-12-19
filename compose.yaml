@@ -21,7 +21,7 @@ services:
       - type: bind
         source: ./api/build.sbt
         target: /api/build.sbt
-    command: sbt ~run
+    command: sbt run
   angular:
     container_name: angular
     image: node:22.12.0
