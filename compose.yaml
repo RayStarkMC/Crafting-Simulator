@@ -2,6 +2,7 @@ services:
   api:
     container_name: api
     image: sbtscala/scala-sbt:amazoncorretto-al2023-21.0.5_1.10.6_3.6.2
+    platform: linux/x86_64
     expose:
       - "8080"
     ports:
