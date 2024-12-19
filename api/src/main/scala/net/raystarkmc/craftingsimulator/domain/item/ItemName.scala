@@ -1,11 +1,12 @@
 package net.raystarkmc.craftingsimulator.domain.item
 
 import cats.{Hash, Show}
+import cats.derived.*
 
 opaque type ItemName = String
 
 object ItemName:
-  enum Error:
+  enum Error derives Hash, Show:
     case IsBlank
     case ContainsControlCharacter
 
