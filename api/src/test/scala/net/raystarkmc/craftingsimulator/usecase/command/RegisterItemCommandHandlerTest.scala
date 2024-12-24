@@ -27,26 +27,26 @@ class RegisterItemCommandHandlerTest extends AnyFreeSpec:
       def resolveById(itemId: ItemId): TestState[Option[Item]] =
         if itemId.value eqv testUUID then State.get else fail()
       def save(item: Item): TestState[Unit] =
-        State.set(Some(item))
+        State.set(item.some)
 
     given UUIDGen[TestState] with
       def randomUUID: TestState[UUID] = testUUID.pure
 
     val handler = summon[RegisterItemCommandHandler[TestState]]
 
-    val state = handler.run(
-      RegisterItemCommandHandler.Command(name = "")
-    )
+    val initialState = None
 
-    val result = state.run(None).value
+    val result = handler
+      .run(
+        RegisterItemCommandHandler.Command(name = "")
+      )
+      .run(initialState)
+      .value
     val expected = (
       Option.empty[Item],
-      Left(
-        RegisterItemCommandHandler.Error(
-          detail = ItemName.Error.IsBlank
-        )
-      )
-        .withRight[RegisterItemCommandHandler.Output]
+      RegisterItemCommandHandler
+        .Error(detail = ItemName.Error.IsBlank)
+        .asLeft[RegisterItemCommandHandler.Output]
     )
 
     assert(expected eqv result)
