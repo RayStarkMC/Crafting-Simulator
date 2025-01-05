@@ -18,7 +18,8 @@ object ItemName:
     else if "\\p{Cntrl}".r.findFirstIn(value).isDefined then Left(Error.ContainsControlCharacter)
     else Right(value)
 
-object ItemNameGivens:
-  given Hash[ItemName] = Hash.by(_.value)
-  given Show[ItemName] = Show.show(_.value)
+  private val hash: Hash[String] = summon
+  private val show: Show[String] = summon
 
+  given Hash[ItemName] = hash
+  given Show[ItemName] = show
