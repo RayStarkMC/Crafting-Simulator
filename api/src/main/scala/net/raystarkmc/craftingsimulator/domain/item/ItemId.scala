@@ -17,6 +17,8 @@ object ItemId:
   def generate[F[_] : UUIDGen : Functor]: F[ItemId] =
     UUIDGen.randomUUID
 
-object ItemIdGivens:
-  given Hash[ItemId] = Hash.by(_.value)
-  given Show[ItemId] = Show.show(_.value.toString())
+  private val hash: Hash[UUID] = summon
+  private val show: Show[UUID] = summon
+
+  given Hash[ItemId] = hash
+  given Show[ItemId] = show

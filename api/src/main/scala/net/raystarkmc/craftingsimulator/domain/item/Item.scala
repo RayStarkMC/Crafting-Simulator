@@ -6,7 +6,6 @@ import cats.{Functor, Hash, Show}
 import cats.derived.*
 import net.raystarkmc.craftingsimulator.domain.item.Item.Data
 import net.raystarkmc.craftingsimulator.domain.item.ItemName
-import ItemIdGivens.given
 
 opaque type Item = Data
 
