@@ -6,16 +6,13 @@ import org.scalatest.freespec.AnyFreeSpec
 import RegisterItemCommandGivens.given
 import cats.data.State
 import net.raystarkmc.craftingsimulator.domain.item.Item
-import net.raystarkmc.craftingsimulator.domain.item.ItemGivens.given
 import net.raystarkmc.craftingsimulator.domain.item.ItemRepository
 import net.raystarkmc.craftingsimulator.domain.item.ItemId
-import net.raystarkmc.craftingsimulator.domain.item.ItemIdGivens.given
 import java.util.UUID
 import cats.syntax.set
 import cats.effect.std.UUIDGen
 import cats.derived.auto.pure
 import net.raystarkmc.craftingsimulator.domain.item.ItemName
-import net.raystarkmc.craftingsimulator.domain.item.ItemNameGivens.given
 import cats.kernel.Eq
 import cats.kernel.instances.TupleOrderInstances
 

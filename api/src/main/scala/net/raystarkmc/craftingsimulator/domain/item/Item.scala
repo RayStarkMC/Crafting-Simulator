@@ -23,7 +23,6 @@ object Item:
   def restore(data: Data): Item = data
   def create[F[_] : Functor : UUIDGen](name: ItemName): F[Item] =
     ItemId.generate.map(Data(_, name))
-
-object ItemGivens:
-  given Hash[Item] = Hash.by(_.data)
-  given Show[Item] = Show.show(_.data.show)
+  
+  given Hash[Item] = Hash.fromUniversalHashCode
+  given Show[Item] = Show.fromToString
