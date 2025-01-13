@@ -19,7 +19,7 @@ import net.raystarkmc.craftingsimulator.usecase.command.RegisterItemCommandHandl
 import java.util.UUID
 
 trait RegisterItemCommandHandler[F[_]: Monad: ItemRepository: UUIDGen]:
-  val itemRepository = summon[ItemRepository[F]]
+  private val itemRepository = summon[ItemRepository[F]]
 
   def run(command: Command): F[Either[RegisterItemCommandHandler.Error, Output]] =
     val eitherT = for {
