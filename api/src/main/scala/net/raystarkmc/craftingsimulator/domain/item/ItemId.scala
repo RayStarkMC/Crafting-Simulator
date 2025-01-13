@@ -9,7 +9,7 @@ import java.util.UUID
 
 opaque type ItemId = UUID
 
-object ItemId:
+object ItemId extends ItemIdGivens:
   extension (self: ItemId)
     def value: UUID = self
   def apply(self: UUID): ItemId = self
@@ -17,5 +17,6 @@ object ItemId:
   def generate[F[_] : UUIDGen : Functor]: F[ItemId] =
     UUIDGen.randomUUID
 
-  given Hash[ItemId] = Hash.fromUniversalHashCode
-  given Show[ItemId] = Show.fromToString
+trait ItemIdGivens:
+  given Hash[ItemId] = Hash.by(_.value)
+  given Show[ItemId] = Show.show(_.value.show)

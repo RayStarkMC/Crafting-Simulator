@@ -2,10 +2,11 @@ package net.raystarkmc.craftingsimulator.domain.item
 
 import cats.{Hash, Show}
 import cats.derived.*
+import cats.syntax.all.given
 
 opaque type ItemName = String
 
-object ItemName:
+object ItemName extends ItemNameGivens:
   enum Error derives Hash, Show:
     case IsBlank
     case ContainsControlCharacter
@@ -18,5 +19,6 @@ object ItemName:
     else if "\\p{Cntrl}".r.findFirstIn(value).isDefined then Left(Error.ContainsControlCharacter)
     else Right(value)
 
-  given Hash[ItemName] = Hash.fromUniversalHashCode
-  given Show[ItemName] = Show.fromToString
+trait ItemNameGivens:
+  given Hash[ItemName] = Hash.by(_.value)
+  given Show[ItemName] = Show.show(_.value.show)

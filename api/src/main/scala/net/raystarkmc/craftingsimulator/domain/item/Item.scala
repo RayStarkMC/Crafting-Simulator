@@ -9,7 +9,7 @@ import net.raystarkmc.craftingsimulator.domain.item.ItemName
 
 opaque type Item = Data
 
-object Item:
+object Item extends ItemGivens:
   case class Data(
     id: ItemId,
     name: ItemName,
@@ -23,6 +23,8 @@ object Item:
   def restore(data: Data): Item = data
   def create[F[_] : Functor : UUIDGen](name: ItemName): F[Item] =
     ItemId.generate.map(Data(_, name))
-  
-  given Hash[Item] = Hash.fromUniversalHashCode
-  given Show[Item] = Show.fromToString
+
+trait ItemGivens:
+  given Hash[Item] = Hash.by(_.data)
+
+  given Show[Item] = Show.show(_.data.show)
