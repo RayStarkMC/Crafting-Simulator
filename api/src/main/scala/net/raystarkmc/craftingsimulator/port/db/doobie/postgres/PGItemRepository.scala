@@ -1,28 +1,65 @@
 package net.raystarkmc.craftingsimulator.port.db.doobie.postgres
 
-import cats.Monad
-import net.raystarkmc.craftingsimulator.domain.item.{Item, ItemId, ItemRepository}
+import net.raystarkmc.craftingsimulator.domain.item.{
+  Item,
+  ItemId,
+  ItemName,
+  ItemRepository
+}
 import cats.syntax.all.given
 import cats.instances.all.given
 import cats.data.*
-import cats.effect.Async
+import cats.*
+import cats.effect.{Async, IO}
+import cats.free.Free
 import doobie.*
 import doobie.implicits.given
 
-trait PGItemRepository[F[_]: Async] extends ItemRepository[F]:
-  //FIXME: 実際のDBにアクセスしてアイテムを取得する
-  override def resolveById(itemId: ItemId): F[Option[Item]] =
-    val program = Option.empty[Item].pure[ConnectionIO]
-    program.transact[F](xa)
+import java.util.UUID
 
-  //FIXME: 実際のDBにアクセスしてアイテムを登録する
-  override def save(item: Item): F[Unit] =
-    val program = ().pure[ConnectionIO]
-    program.transact[F](xa)
+trait PGItemRepository extends ItemRepository[IO]:
+  //FIXME: メソッド内トランザクション解除
+  override def resolveById(itemId: ItemId): IO[Option[Item]] =
+    val query =
+      sql"select item.id, item.name from item where id = ${itemId.value.toString}"
+        .query[(String, String)]
+        .option
+
+    val optionT = for {
+      (id, name) <- OptionT(query.transact[IO](xa))
+      itemId = ItemId(UUID.fromString(id).nn)
+      itemName: ItemName <-
+        ItemName.either(name) match {
+          case Left(err) =>
+            OptionT.liftF(
+              ApplicativeError[IO, Throwable].raiseError[ItemName](
+                new RuntimeException(err.show)
+              )
+            )
+          case Right(v) =>
+            OptionT[IO, ItemName](
+              IO.pure(Option(v))
+            )
+        }
+    } yield {
+      Item.restore(
+        data = Item.Data(
+          id = itemId,
+          name = itemName
+        )
+      )
+    }
+    optionT.value
+
+  override def save(item: Item): IO[Unit] =
+    val insertSql =
+      sql"insert into item (id, name) values (${item.data.id.value.toString}::uuid, ${item.data.name.value})".update.run
+
+    insertSql.void.transact[IO](xa)
 
 object PGItemRepository extends PGItemRepositoryGivens
 
 trait PGItemRepositoryGivens:
-  given [F[_] : Async]: PGItemRepository[F] =
-    object repository extends PGItemRepository[F]
+  given ItemRepository[IO] =
+    object repository extends PGItemRepository
     repository

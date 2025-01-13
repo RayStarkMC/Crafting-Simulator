@@ -1,19 +1,18 @@
 package net.raystarkmc.craftingsimulator.usecase.command
 
+import cats.data.State
+import cats.effect.std.UUIDGen
 import cats.instances.all.given
 import cats.syntax.all.given
+import net.raystarkmc.craftingsimulator.domain.item.{
+  Item,
+  ItemId,
+  ItemName,
+  ItemRepository
+}
 import org.scalatest.freespec.AnyFreeSpec
-import cats.data.State
-import net.raystarkmc.craftingsimulator.domain.item.Item
-import net.raystarkmc.craftingsimulator.domain.item.ItemRepository
-import net.raystarkmc.craftingsimulator.domain.item.ItemId
+
 import java.util.UUID
-import cats.syntax.set
-import cats.effect.std.UUIDGen
-import cats.derived.auto.pure
-import net.raystarkmc.craftingsimulator.domain.item.ItemName
-import cats.kernel.Eq
-import cats.kernel.instances.TupleOrderInstances
 
 class RegisterItemCommandHandlerTest extends AnyFreeSpec:
   "名前が不正な場合エラーが返される" in:
