@@ -33,14 +33,12 @@ trait RegisterItemCommandHandler[F[_]: Monad: ItemRepository: UUIDGen]:
 
     eitherT.value
 
-object RegisterItemCommandHandler {
+object RegisterItemCommandHandler extends RegisterItemCommandHandlerGivens:
   case class Command(name: String) derives Hash, Show
   case class Output(id: UUID) derives Hash, Show
   case class Error(detail: ItemName.Error) derives Hash, Show
-}
 
-object RegisterItemCommandGivens {
+trait RegisterItemCommandHandlerGivens:
   given [F[_] : Monad: ItemRepository: UUIDGen]: RegisterItemCommandHandler[F] =
     object command extends RegisterItemCommandHandler[F]
     command
-}

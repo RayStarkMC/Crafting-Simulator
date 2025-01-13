@@ -3,7 +3,6 @@ package net.raystarkmc.craftingsimulator.usecase.command
 import cats.instances.all.given
 import cats.syntax.all.given
 import org.scalatest.freespec.AnyFreeSpec
-import RegisterItemCommandGivens.given
 import cats.data.State
 import net.raystarkmc.craftingsimulator.domain.item.Item
 import net.raystarkmc.craftingsimulator.domain.item.ItemRepository

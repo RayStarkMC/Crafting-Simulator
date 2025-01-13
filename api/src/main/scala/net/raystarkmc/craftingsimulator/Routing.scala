@@ -12,9 +12,9 @@ import org.typelevel.log4cats.Logger
 import org.typelevel.log4cats.slf4j.Slf4jLogger
 import doobie.*
 import doobie.implicits.given
-import doobie.util.transactor.Transactor
+import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.xa
 
-given logger[F[_] : Sync]: Logger[F] = Slf4jLogger.getLogger[F]
+given logger[F[_]: Sync]: Logger[F] = Slf4jLogger.getLogger[F]
 
 case class Hello(message: String)
 
@@ -22,9 +22,11 @@ val app: HttpRoutes[IO] = HttpRoutes.of[IO] {
   case req @ POST -> Root / "api" / "hello" => hello(req)
   case req @ GET -> Root / "api" / "error" => throw new RuntimeException("wow!")
   case req @ GET -> Root / "api" / "dbtest" => dbtest(req)
+
+  case req @ POST -> Root / "api" / "items" => postItems(req)
 }
 
-def errorHandler[F[_]: Sync : Logger](t: Throwable, msg: => String): F[Unit] = {
+def errorHandler[F[_]: Sync: Logger](t: Throwable, msg: => String): F[Unit] = {
   for {
     logger <- Slf4jLogger.create[F]
     _ <- logger.error(t)(msg)
@@ -53,22 +55,28 @@ def hello(req: Request[IO]): IO[Response[IO]] = {
 case class SqlResponse(value: String)
 
 def dbtest(req: Request[IO]): IO[Response[IO]] = {
-  val program: ConnectionIO[String] = sql"select current_user".query[String].unique
-
-  val xa: Transactor.Aux[IO, Unit] = Transactor.fromDriverManager[IO](
-    driver = "org.postgresql.Driver",
-    url = "jdbc:postgresql://db/crafting_simulator",
-    user = "admin",
-    password = "admin",
-    logHandler = None
-  )
+  val program = sql"select current_user".query[String].unique
 
   for {
-    i <- program.transact(xa)
+    i <- program.transact(xa[IO])
     res <- Ok(SqlResponse(i).asJson)
   } yield {
     res
   }
 }
 
+def postItems(req: Request[IO]): IO[Response[IO]] = {
+  import net.raystarkmc.craftingsimulator.usecase.command.RegisterItemCommandHandler
+  import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.PGItemRepository.given
 
+  val commandHandler = summon[RegisterItemCommandHandler[IO]]
+
+  val command = RegisterItemCommandHandler.Command(
+    name = "sample_item"
+  )
+
+  for {
+    a <- commandHandler.run(command)
+    res <- Ok(a.toString.asJson)
+  } yield res
+}
