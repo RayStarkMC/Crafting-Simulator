@@ -1,19 +1,18 @@
-package net.raystarkmc.craftingsimulator.port.db.doobie.postgres
+package net.raystarkmc.craftingsimulator.port.db.doobie.postgres.repository
 
+import cats.*
+import cats.data.*
+import cats.effect.IO
+import cats.syntax.all.given
+import doobie.*
+import doobie.implicits.given
 import net.raystarkmc.craftingsimulator.domain.item.{
   Item,
   ItemId,
   ItemName,
   ItemRepository
 }
-import cats.syntax.all.given
-import cats.instances.all.given
-import cats.data.*
-import cats.*
-import cats.effect.{Async, IO}
-import cats.free.Free
-import doobie.*
-import doobie.implicits.given
+import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.xa
 
 import java.util.UUID
 

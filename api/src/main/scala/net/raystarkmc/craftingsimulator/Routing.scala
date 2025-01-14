@@ -37,7 +37,7 @@ val withErrorLogging: HttpRoutes[IO] = ErrorHandling.Recover.total(
 )
 
 def postItems(req: Request[IO]): IO[Response[IO]] =
-  import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.PGItemRepository.given
+  import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.repository.PGItemRepository.given
 
   val commandHandler = summon[RegisterItemCommandHandler[IO]]
 
