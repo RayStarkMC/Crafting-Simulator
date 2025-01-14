@@ -6,39 +6,37 @@ import cats.effect.IO
 import cats.syntax.all.given
 import doobie.*
 import doobie.implicits.given
+import doobie.postgres.implicits.given
 import net.raystarkmc.craftingsimulator.domain.item.{
   Item,
   ItemId,
   ItemName,
   ItemRepository
 }
+import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.table.ItemTableRecord
 import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.xa
 
 import java.util.UUID
 
 trait PGItemRepository extends ItemRepository[IO]:
-  //FIXME: メソッド内トランザクション解除
+  // FIXME: メソッド内トランザクション解除
   override def resolveById(itemId: ItemId): IO[Option[Item]] =
     val query =
       sql"select item.id, item.name from item where id = ${itemId.value.toString}"
-        .query[(String, String)]
+        .query[ItemTableRecord]
         .option
 
     val optionT = for {
-      (id, name) <- OptionT(query.transact[IO](xa))
-      itemId = ItemId(UUID.fromString(id).nn)
+      ItemTableRecord(id, name) <- OptionT(query.transact[IO](xa))
+      itemId = ItemId(id)
       itemName: ItemName <-
         ItemName.either(name) match {
           case Left(err) =>
             OptionT.liftF(
-              ApplicativeError[IO, Throwable].raiseError[ItemName](
-                new RuntimeException(err.show)
-              )
+              new RuntimeException(err.show).raiseError[IO, ItemName]
             )
           case Right(v) =>
-            OptionT[IO, ItemName](
-              IO.pure(Option(v))
-            )
+            OptionT.some[IO](v)
         }
     } yield {
       Item.restore(
@@ -52,7 +50,7 @@ trait PGItemRepository extends ItemRepository[IO]:
 
   override def save(item: Item): IO[Unit] =
     val insertSql =
-      sql"insert into item (id, name) values (${item.data.id.value.toString}::uuid, ${item.data.name.value})".update.run
+      sql"insert into item (id, name) values (${item.data.id.value}, ${item.data.name.value})".update.run
 
     insertSql.void.transact[IO](xa)
 
