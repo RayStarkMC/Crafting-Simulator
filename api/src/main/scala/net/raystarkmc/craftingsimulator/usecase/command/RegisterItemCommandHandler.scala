@@ -2,29 +2,35 @@ package net.raystarkmc.craftingsimulator.usecase.command
 
 import cats.*
 import cats.data.*
+import cats.derived.*
 import cats.effect.std.UUIDGen
 import cats.instances.all.given
-import cats.syntax.all.given
-import cats.derived.*
-import doobie.*
-import doobie.implicits.given
-import net.raystarkmc.craftingsimulator.domain.item.{Item, ItemName, ItemRepository}
-import net.raystarkmc.craftingsimulator.usecase.command.RegisterItemCommandHandler.{Command, Output}
+import net.raystarkmc.craftingsimulator.domain.item.{
+  Item,
+  ItemName,
+  ItemRepository
+}
+import net.raystarkmc.craftingsimulator.usecase.command.RegisterItemCommandHandler.{
+  Command,
+  Output
+}
 
 import java.util.UUID
 
-trait RegisterItemCommandHandler[F[_]: Monad: UUIDGen : ItemRepository]:
-  private val itemRepository = summon[ItemRepository[F]]
+trait RegisterItemCommandHandler[F[_]: Monad: UUIDGen: ItemRepository]:
+  private val itemRepository: ItemRepository[F] = summon
 
-  def run(command: Command): F[Either[RegisterItemCommandHandler.Error, Output]] =
+  def run(
+      command: Command
+  ): F[Either[RegisterItemCommandHandler.Error, Output]] =
     val eitherT = for {
       name <- EitherT
-        .fromEither(ItemName.either(command.name))
+        .fromEither[F](ItemName.either(command.name))
         .leftMap(RegisterItemCommandHandler.Error.apply)
-      item <- EitherT.right(
+      item <- EitherT.right[RegisterItemCommandHandler.Error](
         Item.create(name)
       )
-      _ <- EitherT.right(
+      _ <- EitherT.right[RegisterItemCommandHandler.Error](
         itemRepository.save(item)
       )
     } yield Output(item.data.id.value)
@@ -37,6 +43,6 @@ object RegisterItemCommandHandler extends RegisterItemCommandHandlerGivens:
   case class Error(detail: ItemName.Error) derives Hash, Show
 
 trait RegisterItemCommandHandlerGivens:
-  given [F[_] : Monad: UUIDGen : ItemRepository]: RegisterItemCommandHandler[F] =
+  given [F[_]: Monad: UUIDGen: ItemRepository]: RegisterItemCommandHandler[F] =
     object command extends RegisterItemCommandHandler[F]
     command
