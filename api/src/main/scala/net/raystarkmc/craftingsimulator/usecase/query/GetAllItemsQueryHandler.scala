@@ -7,7 +7,6 @@ trait GetAllItemsQueryHandler[F[_]]:
   def run(): F[AllItems]
 
 object GetAllItemsQueryHandler:
-  case class Query()
   case class AllItems(
     list: Seq[Item]
   )
