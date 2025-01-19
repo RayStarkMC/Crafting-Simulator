@@ -2,8 +2,11 @@ package net.raystarkmc.craftingsimulator.port.db.doobie.postgres.repository
 
 import cats.*
 import cats.data.*
-import cats.effect.IO
+import cats.instances.all.given
 import cats.syntax.all.given
+import cats.effect.*
+import cats.effect.instances.all.given
+import cats.effect.syntax.all.given
 import doobie.*
 import doobie.implicits.given
 import doobie.postgres.implicits.given
@@ -18,24 +21,24 @@ import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.xa
 
 import java.util.UUID
 
-trait PGItemRepository extends ItemRepository[IO]:
-  override def resolveById(itemId: ItemId): IO[Option[Item]] =
+trait PGItemRepository[F[_]: Async] extends ItemRepository[F]:
+  override def resolveById(itemId: ItemId): F[Option[Item]] =
     val query =
       sql"select item.id, item.name from item where id = ${itemId.value.toString}"
         .query[ItemTableRecord]
         .option
 
     val optionT = for {
-      ItemTableRecord(id, name) <- OptionT(query.transact[IO](xa))
+      ItemTableRecord(id, name) <- OptionT(query.transact[F](xa))
       itemId = ItemId(id)
       itemName: ItemName <-
         ItemName.either(name) match {
           case Left(err) =>
             OptionT.liftF(
-              new RuntimeException(err.show).raiseError[IO, ItemName]
+              new RuntimeException(err.show).raiseError[F, ItemName]
             )
           case Right(v) =>
-            OptionT.some[IO](v)
+            OptionT.some[F](v)
         }
     } yield {
       Item.restore(
@@ -47,7 +50,7 @@ trait PGItemRepository extends ItemRepository[IO]:
     }
     optionT.value
 
-  override def save(item: Item): IO[Unit] =
+  override def save(item: Item): F[Unit] =
     val insertSql =
       sql"""
         insert
@@ -58,11 +61,11 @@ trait PGItemRepository extends ItemRepository[IO]:
           set name = excluded.name
       """.update.run
 
-    insertSql.void.transact[IO](xa)
+    insertSql.void.transact[F](xa)
 
 object PGItemRepository extends PGItemRepositoryGivens
 
 trait PGItemRepositoryGivens:
-  given ItemRepository[IO] =
+  given[F[_] : Async]:  ItemRepository[F] =
     object repository extends PGItemRepository
     repository

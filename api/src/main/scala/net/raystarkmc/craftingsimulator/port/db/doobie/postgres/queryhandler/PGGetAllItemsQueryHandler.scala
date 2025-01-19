@@ -1,6 +1,12 @@
 package net.raystarkmc.craftingsimulator.port.db.doobie.postgres.queryhandler
 
-import cats.effect.IO
+import cats.*
+import cats.data.*
+import cats.syntax.all.given
+import cats.instances.given
+import cats.effect.*
+import cats.effect.syntax.all.given
+import cats.effect.instances.all.given
 import net.raystarkmc.craftingsimulator.usecase.query.GetAllItemsQueryHandler
 import net.raystarkmc.craftingsimulator.usecase.query.GetAllItemsQueryHandler.*
 import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.table.ItemTableRecord
@@ -9,8 +15,8 @@ import doobie.*
 import doobie.implicits.given
 import doobie.postgres.implicits.given
 
-trait PGGetAllItemsQueryHandler extends GetAllItemsQueryHandler[IO]:
-  def run(): IO[AllItems] =
+trait PGGetAllItemsQueryHandler[F[_] : Async] extends GetAllItemsQueryHandler[F]:
+  def run(): F[AllItems] =
     val query = sql"""
       select
         item.id, item.name
@@ -24,7 +30,7 @@ trait PGGetAllItemsQueryHandler extends GetAllItemsQueryHandler[IO]:
       .to[Seq]
 
     for {
-      records <- query.transact[IO](xa)
+      records <- query.transact[F](xa)
     } yield {
       AllItems(
         list = records.map { record =>
@@ -39,6 +45,6 @@ trait PGGetAllItemsQueryHandler extends GetAllItemsQueryHandler[IO]:
 object PGGetAllItemsQueryHandler
 
 trait PGGetAllItemsQueryHandlerGivens:
-  given GetAllItemsQueryHandler[IO] =
+  given[F[_] : Async]: GetAllItemsQueryHandler[F] =
     object handler extends PGGetAllItemsQueryHandler
     handler
