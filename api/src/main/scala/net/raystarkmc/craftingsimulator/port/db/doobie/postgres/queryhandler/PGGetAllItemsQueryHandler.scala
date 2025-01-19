@@ -11,26 +11,25 @@ import doobie.postgres.implicits.given
 
 trait PGGetAllItemsQueryHandler extends GetAllItemsQueryHandler[IO]:
   def run(): IO[AllItems] =
-    val query =
-      sql"""
-        select
-          item.id, item.name
-        from
-          item
-        order by
-          item.name,
-          item.id
-      """
-        .query[ItemTableRecord]
-        .to[Seq]
-    
+    val query = sql"""
+      select
+        item.id, item.name
+      from
+        item
+      order by
+        item.name,
+        item.id
+    """
+      .query[ItemTableRecord]
+      .to[Seq]
+
     for {
       records <- query.transact[IO](xa)
     } yield {
       AllItems(
         list = records.map { record =>
           Item(
-            id = record.id.toString(),
+            id = record.id,
             name = record.name
           )
         }
