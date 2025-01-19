@@ -24,13 +24,16 @@ trait RegisterItemCommandHandler[F[_]: Monad: UUIDGen: ItemRepository]:
       command: Command
   ): F[Either[RegisterItemCommandHandler.Error, Output]] =
     val eitherT = for {
-      name <- EitherT
-        .fromEither[F](ItemName.either(command.name))
-        .leftMap(RegisterItemCommandHandler.Error.apply)
-      item <- EitherT.right[RegisterItemCommandHandler.Error](
+      name <- EitherT.fromEither[F](
+        ItemName
+          .either(command.name)
+          .left
+          .map(RegisterItemCommandHandler.Error.apply)
+      )
+      item <- EitherT.liftF(
         Item.create(name)
       )
-      _ <- EitherT.right[RegisterItemCommandHandler.Error](
+      _ <- EitherT.liftF(
         itemRepository.save(item)
       )
     } yield Output(item.data.id.value)
