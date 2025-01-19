@@ -19,7 +19,6 @@ import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.xa
 import java.util.UUID
 
 trait PGItemRepository extends ItemRepository[IO]:
-  // FIXME: メソッド内トランザクション解除
   override def resolveById(itemId: ItemId): IO[Option[Item]] =
     val query =
       sql"select item.id, item.name from item where id = ${itemId.value.toString}"
@@ -50,7 +49,14 @@ trait PGItemRepository extends ItemRepository[IO]:
 
   override def save(item: Item): IO[Unit] =
     val insertSql =
-      sql"insert into item (id, name) values (${item.data.id.value}, ${item.data.name.value})".update.run
+      sql"""
+        insert
+          into item (id, name)
+          values (${item.data.id.value}, ${item.data.name.value})
+        on conflict(id) do
+        update
+          set name = excluded.name
+      """.update.run
 
     insertSql.void.transact[IO](xa)
 
