@@ -14,7 +14,7 @@ object ItemId extends ItemIdGivens:
     def value: UUID = self
   def apply(self: UUID): ItemId = self
 
-  def generate[F[_] : UUIDGen : Functor]: F[ItemId] =
+  def generate[F[_]: {UUIDGen, Functor}]: F[ItemId] =
     UUIDGen.randomUUID
 
 trait ItemIdGivens:

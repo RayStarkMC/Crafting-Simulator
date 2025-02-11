@@ -45,6 +45,6 @@ trait PGGetAllItemsQueryHandler[F[_] : Async] extends GetAllItemsQueryHandler[F]
 object PGGetAllItemsQueryHandler extends PGGetAllItemsQueryHandlerGivens
 
 trait PGGetAllItemsQueryHandlerGivens:
-  given[F[_] : Async]: GetAllItemsQueryHandler[F] =
+  given[F[_] : Async] => GetAllItemsQueryHandler[F] =
     object handler extends PGGetAllItemsQueryHandler
     handler

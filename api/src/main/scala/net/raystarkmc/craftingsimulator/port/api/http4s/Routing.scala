@@ -16,7 +16,7 @@ trait Routing[F[_]]:
 object Routing extends RoutingGivens
 
 trait RoutingGivens:
-  given [F[_]: Concurrent: GetAllItemsController: RegisterItemController]: Routing[F] =
+  given [F[_]: {Concurrent, GetAllItemsController, RegisterItemController}] => Routing[F] =
     object instance extends Routing[F]:
       val dsl = org.http4s.dsl.Http4sDsl[F]
       import dsl.*

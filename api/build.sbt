@@ -7,10 +7,11 @@ val scalaTestVersion = "3.2.19"
 
 ThisBuild / organization := "net.raystarkmc"
 ThisBuild / version := "0.1.0-SNAPSHOT"
-ThisBuild / scalaVersion := "3.3.4"
+ThisBuild / scalaVersion := "3.6.3"
 ThisBuild / scalacOptions ++= Seq(
   "-Wnonunit-statement",
   "-Yexplicit-nulls",
+  "-Xkind-projector",
   "-source:future"
 )
 
@@ -25,7 +26,7 @@ lazy val root = (project in file("."))
       "io.circe" %% "circe-generic" % circeVersion,
       "io.circe" %% "circe-literal" % circeVersion,
       "org.typelevel" %% "kittens" % "3.4.0",
-      "ch.qos.logback" % "logback-classic" % "1.5.12",
+      "ch.qos.logback" % "logback-classic" % "1.5.16",
       "org.tpolecat" %% "doobie-core"      % doobieVersion,
       "org.tpolecat" %% "doobie-postgres"  % doobieVersion,
       "org.scalatest" %% "scalatest" % scalaTestVersion % "test",

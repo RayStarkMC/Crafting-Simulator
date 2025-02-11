@@ -5,17 +5,17 @@ import org.scalatest.freespec.AnyFreeSpec
 import java.util.UUID
 
 class ItemTest extends AnyFreeSpec {
-  val testingUUID: UUID = UUID.randomUUID().asInstanceOf[UUID]
+  val testingUUID: UUID = UUID.randomUUID().nn
 
   "復元する" in {
     val expected = Item.Data(
       id = ItemId(testingUUID),
-      name = ItemName.either("item").getOrElse(fail())
+      name = ItemName.ae("item").getOrElse(fail())
     )
     val actual = Item.restore(
       Item.Data(
         id = ItemId(testingUUID),
-        name = ItemName.either("item").getOrElse(fail())
+        name = ItemName.ae("item").getOrElse(fail())
       )
     )
     assert(expected === actual)
@@ -25,17 +25,17 @@ class ItemTest extends AnyFreeSpec {
     val item = Item.restore(
       Item.Data(
         id = ItemId(testingUUID),
-        name = ItemName.either("item").getOrElse(fail())
+        name = ItemName.ae("item").getOrElse(fail())
       )
     )
     val expected = Item.restore(
       Item.Data(
         id = ItemId(testingUUID),
-        name = ItemName.either("newItem").getOrElse(fail())
+        name = ItemName.ae("newItem").getOrElse(fail())
       )
     )
     val actual = item.update(
-      ItemName.either("newItem").getOrElse(fail())
+      ItemName.ae("newItem").getOrElse(fail())
     )
     assert(expected === actual)
   }

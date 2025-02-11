@@ -18,13 +18,13 @@ class RegisterItemCommandHandlerTest extends AnyFreeSpec:
   "名前が不正な場合エラーが返される" in:
     val testUUID = UUID.randomUUID().nn
     type TestState[A] = State[Option[Item], A]
-    given ItemRepository[TestState] with
+    given ItemRepository[TestState]:
       def resolveById(itemId: ItemId): TestState[Option[Item]] =
         if itemId.value eqv testUUID then State.get else fail()
       def save(item: Item): TestState[Unit] =
         State.set(item.some)
 
-    given UUIDGen[TestState] with
+    given UUIDGen[TestState]:
       def randomUUID: TestState[UUID] = testUUID.pure
 
     val handler = summon[RegisterItemCommandHandler[TestState]]
@@ -49,13 +49,13 @@ class RegisterItemCommandHandlerTest extends AnyFreeSpec:
   "Itemを作成して登録する" in:
     val testUUID = UUID.randomUUID().nn
     type TestState[A] = State[Option[Item], A]
-    given ItemRepository[TestState] with
+    given ItemRepository[TestState]:
       def resolveById(itemId: ItemId): TestState[Option[Item]] =
         if itemId.value eqv testUUID then State.get else fail()
       def save(item: Item): TestState[Unit] =
         State.set(Some(item))
 
-    given UUIDGen[TestState] with
+    given UUIDGen[TestState]:
       def randomUUID: TestState[UUID] = testUUID.pure
 
     val handler = summon[RegisterItemCommandHandler[TestState]]
@@ -74,7 +74,7 @@ class RegisterItemCommandHandlerTest extends AnyFreeSpec:
         .restore(
           data = Item.Data(
             id = ItemId(testUUID),
-            name = ItemName.either("item").getOrElse(fail())
+            name = ItemName.ae("item").getOrElse(fail())
           )
         )
         .some,

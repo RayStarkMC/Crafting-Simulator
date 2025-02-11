@@ -32,7 +32,7 @@ trait PGItemRepository[F[_]: Async] extends ItemRepository[F]:
       ItemTableRecord(id, name) <- OptionT(query.transact[F](xa))
       itemId = ItemId(id)
       itemName: ItemName <-
-        ItemName.either(name) match {
+        ItemName.ae(name) match {
           case Left(err) =>
             OptionT.liftF(
               new RuntimeException(err.show).raiseError[F, ItemName]
@@ -66,6 +66,6 @@ trait PGItemRepository[F[_]: Async] extends ItemRepository[F]:
 object PGItemRepository extends PGItemRepositoryGivens
 
 trait PGItemRepositoryGivens:
-  given[F[_] : Async]:  ItemRepository[F] =
+  given[F[_] : Async] => ItemRepository[F] =
     object repository extends PGItemRepository
     repository

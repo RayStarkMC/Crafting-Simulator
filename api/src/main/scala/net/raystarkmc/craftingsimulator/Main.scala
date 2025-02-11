@@ -35,12 +35,12 @@ object Main extends IOApp:
       .useForever
       .as(ExitCode.Success)
 
-given logger[F[_] : Sync]: Logger[F] = Slf4jLogger.getLogger[F]
+given [F[_] : Sync] => Logger[F] = Slf4jLogger.getLogger[F]
 
-def errorHandler[F[_]: Sync: Logger](t: Throwable, msg: => String): F[Unit] =
+def errorHandler[F[_]: {Sync, Logger}](t: Throwable, msg: => String): F[Unit] =
   Slf4jLogger.create[F] >>= (_.error(t)(msg))
 
-def withErrorLogging[F[_]: Sync: Logger](routes: HttpRoutes[F]): HttpRoutes[F] = ErrorHandling.Recover.total(
+def withErrorLogging[F[_]: {Sync, Logger}](routes: HttpRoutes[F]): HttpRoutes[F] = ErrorHandling.Recover.total(
   ErrorAction.log(
     http = routes,
     messageFailureLogAction = errorHandler,

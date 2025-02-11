@@ -19,8 +19,6 @@ object ItemName extends ItemNameGivens:
       *> F.raiseWhen("\\p{Cntrl}".r.findFirstIn(value).isDefined)(Error.ContainsControlCharacter)
       *> value.pure[F]
 
-  def either(value: String): Either[Error, ItemName] = ae(value)
-
 trait ItemNameGivens:
   given Hash[ItemName] = Hash.by(_.value)
   given Show[ItemName] = Show.show(_.value.show)

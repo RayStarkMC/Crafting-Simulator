@@ -27,7 +27,7 @@ object RegisterItemCommandHandler extends RegisterItemCommandHandlerGivens:
   case class Error(detail: ItemName.Error) derives Hash, Show
 
 trait RegisterItemCommandHandlerGivens:
-  given [F[_]: Monad: UUIDGen: ItemRepository]: RegisterItemCommandHandler[F] =
+  given [F[_]: {Monad, UUIDGen, ItemRepository}] => RegisterItemCommandHandler[F] =
     object instance extends RegisterItemCommandHandler[F]:
       private val itemRepository: ItemRepository[F] = summon
 

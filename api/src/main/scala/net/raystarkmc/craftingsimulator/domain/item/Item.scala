@@ -21,7 +21,7 @@ object Item extends ItemGivens:
       self.copy(name = newName)
 
   def restore(data: Data): Item = data
-  def create[F[_] : Functor : UUIDGen](name: ItemName): F[Item] =
+  def create[F[_]: {Functor, UUIDGen}](name: ItemName): F[Item] =
     ItemId.generate.map(Data(_, name))
 
 trait ItemGivens:

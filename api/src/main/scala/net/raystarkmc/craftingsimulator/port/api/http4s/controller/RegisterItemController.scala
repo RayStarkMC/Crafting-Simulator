@@ -21,7 +21,7 @@ trait RegisterItemController[F[_]]:
 object RegisterItemController extends RegisterItemControllerGivens
 
 trait RegisterItemControllerGivens:
-  given [F[_]: Concurrent: RegisterItemCommandHandler]: RegisterItemController[F] =
+  given [F[_]: {Concurrent, RegisterItemCommandHandler}] => RegisterItemController[F] =
     object instance extends RegisterItemController[F]:
       private val dsl = org.http4s.dsl.Http4sDsl[F]
       import dsl.*

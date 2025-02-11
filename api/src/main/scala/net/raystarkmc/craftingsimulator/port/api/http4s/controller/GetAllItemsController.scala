@@ -20,7 +20,7 @@ trait GetAllItemsController[F[_]]:
 object GetAllItemsController extends GetAllItemsControllerGivens
 
 trait GetAllItemsControllerGivens:
-  given [F[_]: Concurrent: GetAllItemsQueryHandler]:  GetAllItemsController[F] =
+  given [F[_]: {Concurrent, GetAllItemsQueryHandler}] => GetAllItemsController[F] =
     object instance extends GetAllItemsController[F]:
       private val dsl = org.http4s.dsl.Http4sDsl[F]
       import dsl.*
