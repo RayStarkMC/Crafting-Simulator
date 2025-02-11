@@ -6,11 +6,10 @@ export type Hello = {
 }
 
 @Component({
-  selector: 'app-index',
-  standalone: true,
-  imports: [],
-  templateUrl: './index.component.html',
-  styleUrl: './index.component.css'
+    selector: 'app-index',
+    imports: [],
+    templateUrl: './index.component.html',
+    styleUrl: './index.component.css'
 })
 export class IndexComponent implements OnInit {
   private httpClient = inject(HttpClient)
