@@ -1,6 +1,6 @@
 package net.raystarkmc.craftingsimulator.domain.item
 
-import cats.{Hash, Show}
+import cats.{ApplicativeError, Hash, Show}
 import cats.derived.*
 import cats.syntax.all.given
 
@@ -14,10 +14,12 @@ object ItemName extends ItemNameGivens:
   extension (self: ItemName)
     def value: String = self
 
-  def either(value: String): Either[Error, ItemName] =
-    if value.isBlank then Left(Error.IsBlank)
-    else if "\\p{Cntrl}".r.findFirstIn(value).isDefined then Left(Error.ContainsControlCharacter)
-    else Right(value)
+  def ae[F[_]](value: String)(using F: ApplicativeError[F, Error]): F[ItemName] =
+    F.raiseWhen(value.isBlank)(Error.IsBlank)
+      *> F.raiseWhen("\\p{Cntrl}".r.findFirstIn(value).isDefined)(Error.ContainsControlCharacter)
+      *> value.pure[F]
+
+  def either(value: String): Either[Error, ItemName] = ae(value)
 
 trait ItemNameGivens:
   given Hash[ItemName] = Hash.by(_.value)

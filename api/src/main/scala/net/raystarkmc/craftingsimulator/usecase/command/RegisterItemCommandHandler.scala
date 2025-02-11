@@ -1,6 +1,7 @@
 package net.raystarkmc.craftingsimulator.usecase.command
 
 import cats.*
+import cats.syntax.all.given
 import cats.data.*
 import cats.derived.*
 import cats.effect.std.UUIDGen
@@ -17,28 +18,8 @@ import net.raystarkmc.craftingsimulator.usecase.command.RegisterItemCommandHandl
 
 import java.util.UUID
 
-trait RegisterItemCommandHandler[F[_]: Monad: UUIDGen: ItemRepository]:
-  private val itemRepository: ItemRepository[F] = summon
-
-  def run(
-      command: Command
-  ): F[Either[RegisterItemCommandHandler.Error, Output]] =
-    val eitherT = for {
-      name <- EitherT.fromEither[F](
-        ItemName
-          .either(command.name)
-          .left
-          .map(RegisterItemCommandHandler.Error.apply)
-      )
-      item <- EitherT.liftF(
-        Item.create(name)
-      )
-      _ <- EitherT.liftF(
-        itemRepository.save(item)
-      )
-    } yield Output(item.data.id.value)
-
-    eitherT.value
+trait RegisterItemCommandHandler[F[_]]:
+  def run(command: Command): F[Either[RegisterItemCommandHandler.Error, Output]]
 
 object RegisterItemCommandHandler extends RegisterItemCommandHandlerGivens:
   case class Command(name: String) derives Hash, Show
@@ -47,5 +28,24 @@ object RegisterItemCommandHandler extends RegisterItemCommandHandlerGivens:
 
 trait RegisterItemCommandHandlerGivens:
   given [F[_]: Monad: UUIDGen: ItemRepository]: RegisterItemCommandHandler[F] =
-    object command extends RegisterItemCommandHandler[F]
-    command
+    object instance extends RegisterItemCommandHandler[F]:
+      private val itemRepository: ItemRepository[F] = summon
+
+      def run(
+          command: Command
+      ): F[Either[RegisterItemCommandHandler.Error, Output]] =
+        val eitherT = for {
+          name <- EitherT.fromEither[F](
+            ItemName
+              .ae(command.name)
+              .leftMap(RegisterItemCommandHandler.Error.apply)
+          )
+          item <- EitherT.liftF(
+            Item.create(name)
+          )
+          _ <- EitherT.liftF(
+            itemRepository.save(item)
+          )
+        } yield Output(item.data.id.value)
+        eitherT.value
+    instance

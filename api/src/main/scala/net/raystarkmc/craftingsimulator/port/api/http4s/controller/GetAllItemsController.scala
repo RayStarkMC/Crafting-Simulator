@@ -10,15 +10,25 @@ import net.raystarkmc.craftingsimulator.usecase.query.GetAllItemsQueryHandler
 import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.queryhandler.PGGetAllItemsQueryHandler.given
 import org.http4s.*
 import org.http4s.circe.*
-import org.http4s.dsl.io.*
 import org.http4s.implicits.given
 import io.circe.syntax.given
 import io.circe.generic.auto.given
 
-def getAllItems(req: Request[IO]): IO[Response[IO]] =
-  val handler = summon[GetAllItemsQueryHandler[IO]]
+trait GetAllItemsController[F[_]]:
+  def run(req: Request[F]): F[Response[F]]
 
-  for {
-    queryModel <- handler.run()
-    res <- Ok(queryModel.asJson)
-  } yield res
+object GetAllItemsController extends GetAllItemsControllerGivens
+
+trait GetAllItemsControllerGivens:
+  given [F[_]: Concurrent: GetAllItemsQueryHandler]:  GetAllItemsController[F] =
+    object instance extends GetAllItemsController[F]:
+      private val dsl = org.http4s.dsl.Http4sDsl[F]
+      import dsl.*
+      private val handler = summon[GetAllItemsQueryHandler[F]]
+
+      def run(req: Request[F]): F[Response[F]] = 
+        for {
+          queryModel <- handler.run()
+          res <- Ok(queryModel.asJson)
+        } yield res
+    instance
