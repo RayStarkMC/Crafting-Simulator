@@ -15,9 +15,7 @@ import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.repository.PGIte
 import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.queryhandler.PGGetAllItemsQueryHandler.given
 import org.http4s.HttpRoutes
 import org.http4s.ember.server.EmberServerBuilder
-import org.http4s.server.middleware.{ErrorAction, ErrorHandling}
-import org.typelevel.log4cats.Logger
-import org.typelevel.log4cats.slf4j.Slf4jLogger
+import org.http4s.server.middleware.ErrorHandling
 
 import scala.concurrent.duration.*
 
@@ -29,21 +27,8 @@ object Main extends IOApp:
       .default[IO]
       .withHost(ipv4"0.0.0.0")
       .withPort(port"8080")
-      .withHttpApp(withErrorLogging(routing.routes).orNotFound)
+      .withHttpApp(ErrorHandling.httpApp(routing.routes.orNotFound))
       .withShutdownTimeout(1.second)
       .build
       .useForever
       .as(ExitCode.Success)
-
-given [F[_] : Sync] => Logger[F] = Slf4jLogger.getLogger[F]
-
-def errorHandler[F[_]: {Sync, Logger}](t: Throwable, msg: => String): F[Unit] =
-  Slf4jLogger.create[F] >>= (_.error(t)(msg))
-
-def withErrorLogging[F[_]: {Sync, Logger}](routes: HttpRoutes[F]): HttpRoutes[F] = ErrorHandling.Recover.total(
-  ErrorAction.log(
-    http = routes,
-    messageFailureLogAction = errorHandler,
-    serviceErrorLogAction = errorHandler
-  )
-)
