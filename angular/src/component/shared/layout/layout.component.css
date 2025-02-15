@@ -1,0 +1,37 @@
+.wrapper {
+  display: grid;
+  grid-template: "header  header " auto
+                 "sidenav content" 1fr / 200px 1fr;
+  height: 100%;
+  width: 100%
+}
+
+.header_wrapper {
+  grid-area: header;
+  height: auto;
+}
+
+.sidenav_wrapper {
+  grid-area: sidenav;
+  height: 100%;
+}
+
+.content_wrapper {
+  grid-area: content;
+  height: 100%;
+  background: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
+  padding: 16px;
+}
+
+.header {
+  background-color: var(--mat-sys-primary-container);
+  color: var(--mat-sys-on-primary-container);
+}
+
+.sidenav {
+  background: var(--mat-sys-secondary-container);
+  color: var(--mat-sys-on-secondary-container);
+  height: 100%;
+}
+
