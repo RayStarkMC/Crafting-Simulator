@@ -4,7 +4,7 @@ import {MatList, MatListItem} from "@angular/material/list";
 import {MatDivider} from "@angular/material/divider";
 
 type Item = {
-  id: number,
+  id: string,
   name: string,
 }
 
@@ -22,15 +22,15 @@ type Item = {
 export class ItemsComponent {
   readonly items = signal<readonly Item[]>([
     {
-      id: 1,
+      id: "1",
       name: "Item1"
     },
     {
-      id: 2,
+      id: "2",
       name: "Item2"
     },
     {
-      id: 3,
+      id: "3",
       name: "Item3"
     },
   ])
