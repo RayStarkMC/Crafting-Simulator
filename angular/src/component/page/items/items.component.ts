@@ -3,6 +3,8 @@ import {LayoutComponent} from "../../shared/layout/layout.component";
 import {MatList, MatListItem} from "@angular/material/list";
 import {MatDivider} from "@angular/material/divider";
 
+type ItemList = readonly Item[]
+
 type Item = {
   id: string,
   name: string,
@@ -20,7 +22,7 @@ type Item = {
   styleUrl: './items.component.css'
 })
 export class ItemsComponent {
-  readonly items = signal<readonly Item[]>([
+  readonly items = signal<ItemList>([
     {
       id: "1",
       name: "Item1"
