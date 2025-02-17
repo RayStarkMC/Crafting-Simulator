@@ -1,6 +1,7 @@
 .wrapper {
   display: grid;
   grid-template: "header  header " auto
+                 "sidenav title  " auto
                  "sidenav content" 1fr / 200px 1fr;
   height: 100%;
   width: 100%
@@ -9,17 +10,27 @@
 .header_wrapper {
   grid-area: header;
   height: auto;
+  background-color: var(--mat-sys-primary-container);
+  color: var(--mat-sys-on-primary-container);
 }
 
 .sidenav_wrapper {
   grid-area: sidenav;
   height: 100%;
+  background-color: var(--mat-sys-secondary-container);
+  color: var(--mat-sys-on-secondary-container);
+}
+
+.title_wrapper {
+  grid-area: title;
+  background-color: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
 }
 
 .content_wrapper {
   grid-area: content;
   height: 100%;
-  background: var(--mat-sys-surface);
+  background-color: var(--mat-sys-surface);
   color: var(--mat-sys-on-surface);
   padding: 16px;
 }
@@ -30,8 +41,13 @@
 }
 
 .sidenav {
-  background: var(--mat-sys-secondary-container);
+  background-color: var(--mat-sys-secondary-container);
   color: var(--mat-sys-on-secondary-container);
   height: 100%;
+}
+
+.title {
+  background-color: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
 }
 

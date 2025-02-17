@@ -10,6 +10,11 @@
       <a mat-list-item routerLink="/items">Items</a>
     </mat-nav-list>
   </div>
+  <div class="title_wrapper">
+    <mat-toolbar class="title">
+      <span>{{title()}}</span>
+    </mat-toolbar>
+  </div>
   <div class="content_wrapper">
     <ng-content></ng-content>
   </div>

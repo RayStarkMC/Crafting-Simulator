@@ -1,3 +1,9 @@
-<layout>
-  Hello Items!
+<layout [title]="'Items'">
+  <mat-list>
+    <mat-divider></mat-divider>
+    @for (item of items(); track item.id) {
+      <mat-list-item>{{item.name}}</mat-list-item>
+      <mat-divider></mat-divider>
+    }
+  </mat-list>
 </layout>
