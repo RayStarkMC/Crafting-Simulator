@@ -1,7 +1,17 @@
 import {Component, signal} from '@angular/core';
 import {LayoutComponent} from "../../shared/layout/layout.component";
-import {MatList, MatListItem} from "@angular/material/list";
-import {MatDivider} from "@angular/material/divider";
+import {
+  MatCell,
+  MatCellDef,
+  MatColumnDef,
+  MatHeaderCell,
+  MatHeaderCellDef,
+  MatHeaderRow,
+  MatHeaderRowDef,
+  MatRow,
+  MatRowDef,
+  MatTable
+} from "@angular/material/table";
 
 type ItemList = readonly Item[]
 
@@ -14,9 +24,16 @@ type Item = {
   selector: 'items',
   imports: [
     LayoutComponent,
-    MatList,
-    MatListItem,
-    MatDivider
+    MatTable,
+    MatColumnDef,
+    MatHeaderCell,
+    MatCell,
+    MatHeaderCellDef,
+    MatCellDef,
+    MatHeaderRow,
+    MatRow,
+    MatHeaderRowDef,
+    MatRowDef
   ],
   templateUrl: './items.component.html',
   styleUrl: './items.component.css'
@@ -36,4 +53,6 @@ export class ItemsComponent {
       name: "Item3"
     },
   ])
+
+  readonly header = ["id", "name"]
 }
