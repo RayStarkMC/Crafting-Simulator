@@ -13,6 +13,10 @@ import {
   MatTable
 } from "@angular/material/table";
 import {GetAllItemsService} from "../../../backend/get-all-items.service";
+import {MatIconButton} from "@angular/material/button";
+import {MatIcon} from "@angular/material/icon";
+import {MatDialog} from "@angular/material/dialog";
+import {CreateItemDialogComponent} from "../../dialog/create-item-dialog/create-item-dialog.component";
 
 export type State =
   |
@@ -44,13 +48,16 @@ export type TableRow = Readonly<{
     MatHeaderRow,
     MatRow,
     MatHeaderRowDef,
-    MatRowDef
+    MatRowDef,
+    MatIconButton,
+    MatIcon
   ],
   templateUrl: './items.component.html',
   styleUrl: './items.component.css'
 })
 export class ItemsComponent implements OnInit {
   private readonly getAllItemsService = inject(GetAllItemsService)
+  private readonly dialog = inject(MatDialog)
 
   readonly state = signal<State>({
     type: "PRE_INITIALIZED"
@@ -71,4 +78,17 @@ export class ItemsComponent implements OnInit {
   }
 
   readonly trackTableRowById: TrackByFunction<TableRow> = (_, item) => item.id
+
+  openCreateItemDialog(): void {
+    CreateItemDialogComponent
+      .open(this.dialog)
+      .afterClosed()
+      .subscribe({
+        next: result => {
+          if (result !== undefined) {
+            alert(result)
+          }
+        }
+      })
+  }
 }

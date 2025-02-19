@@ -6,6 +6,9 @@
         <span>Initializing...</span>
       }
       @case ("INITIALIZED") {
+        <button mat-icon-button (click)="openCreateItemDialog()">
+          <mat-icon>add</mat-icon>
+        </button>
         <table mat-table [dataSource]="currentState.items" [trackBy]="trackTableRowById">
           <ng-container matColumnDef="id">
             <th mat-header-cell *matHeaderCellDef>ID</th>
