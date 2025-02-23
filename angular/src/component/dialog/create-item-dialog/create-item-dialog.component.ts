@@ -9,6 +9,9 @@ import {
 } from "@angular/material/dialog";
 import {MatButton} from "@angular/material/button";
 import {RegisterItemService} from "../../../backend/register-item.service";
+import {MatFormField, MatLabel} from "@angular/material/form-field";
+import {MatInput} from "@angular/material/input";
+import {FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 
 export type State =
   |
@@ -30,7 +33,11 @@ export type CreateItemDialogResult = "succeeded"
     MatDialogContent,
     MatDialogActions,
     MatButton,
-    MatDialogClose
+    MatDialogClose,
+    MatFormField,
+    MatLabel,
+    MatInput,
+    ReactiveFormsModule
   ],
   templateUrl: './create-item-dialog.component.html',
   styleUrl: './create-item-dialog.component.css'
@@ -59,14 +66,27 @@ export class CreateItemDialogComponent {
     }
   });
 
+  readonly formGroup = new FormGroup({
+    name: new FormControl<string>("",
+      {
+        validators: Validators.required,
+      }
+    ),
+  })
+
   sendThenCloseDialog(): void {
+    if (this.formGroup.invalid) return;
+    const formValue = this.formGroup.value
+    if (formValue.name === undefined || formValue.name === null) return;
+
     this.state.set({
       type: "sending"
     })
+
     this
       .registerItemService
       .run({
-        name: "wow!!!"
+        name: formValue.name
       })
       .subscribe({
         next: () => this.dialogRef.close("succeeded")

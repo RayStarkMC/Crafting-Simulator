@@ -76,7 +76,7 @@ export class ItemsComponent implements OnInit {
       .afterClosed()
       .pipe(
         filter(result => result === "succeeded"),
-        concatMap(this.loadItems)
+        concatMap(() => this.loadItems())
       )
       .subscribe()
   }
@@ -92,7 +92,7 @@ export class ItemsComponent implements OnInit {
             items: response.list
           } as const
         }),
-        tap(this.state.set),
+        tap(state => this.state.set(state)),
         map(() => undefined)
       )
   }
