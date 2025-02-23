@@ -17,6 +17,7 @@ import {MatIconButton} from "@angular/material/button";
 import {MatIcon} from "@angular/material/icon";
 import {MatDialog} from "@angular/material/dialog";
 import {CreateItemDialogComponent} from "../../dialog/create-item-dialog/create-item-dialog.component";
+import {concatMap, filter, map, Observable, tap} from "rxjs";
 
 export type State =
   |
@@ -60,21 +61,11 @@ export class ItemsComponent implements OnInit {
   private readonly dialog = inject(MatDialog)
 
   readonly state = signal<State>({
-    type: "PRE_INITIALIZED"
+    type: "PRE_INITIALIZED",
   })
 
   ngOnInit(): void {
-    this
-      .getAllItemsService
-      .request()
-      .subscribe({
-        next: response => {
-          this.state.set({
-            type: "INITIALIZED",
-            items: response.list
-          })
-        }
-      })
+    this.loadItems().subscribe()
   }
 
   readonly trackTableRowById: TrackByFunction<TableRow> = (_, item) => item.id
@@ -83,12 +74,26 @@ export class ItemsComponent implements OnInit {
     CreateItemDialogComponent
       .open(this.dialog)
       .afterClosed()
-      .subscribe({
-        next: result => {
-          if (result !== undefined) {
-            alert(result)
-          }
-        }
-      })
+      .pipe(
+        filter(result => result === "succeeded"),
+        concatMap(this.loadItems)
+      )
+      .subscribe()
+  }
+
+  private loadItems(): Observable<void> {
+    return this
+      .getAllItemsService
+      .request()
+      .pipe(
+        map(response => {
+          return {
+            type: "INITIALIZED",
+            items: response.list
+          } as const
+        }),
+        tap(this.state.set),
+        map(() => undefined)
+      )
   }
 }
