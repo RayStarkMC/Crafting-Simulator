@@ -81,6 +81,10 @@ export class ItemsComponent implements OnInit {
     this.reloadItems()
   }
 
+  buildLink(id: string) {
+    return `/items/update/${id}`
+  }
+
   readonly trackTableRowById: TrackByFunction<TableRow> = (_, item) => item.id
 
   reloadItems(): void {

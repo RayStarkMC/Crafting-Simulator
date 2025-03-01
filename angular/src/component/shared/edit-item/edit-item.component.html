@@ -1,13 +1,13 @@
 @let currentMode = mode();
 
-<form id="form" [formGroup]="formGroup" (ngSubmit)="sendForm()">
+<form id="form" [formGroup]="formGroup()" (ngSubmit)="sendForm()">
   <mat-form-field>
     <mat-label>Item Name</mat-label>
     <input matInput formControlName="name">
   </mat-form-field>
 </form>
 <div class="actions">
-  @if (currentMode.type === "EDIT") {
+  @if (currentMode.type === "UPDATE") {
     <button
       mat-button
       form="form"
@@ -21,7 +21,7 @@
     mat-button
     form="form"
     type="submit"
-    [disabled]="sending() || !formGroup.valid">
+    [disabled]="sending() || !formGroup().valid">
     Send
   </button>
 </div>

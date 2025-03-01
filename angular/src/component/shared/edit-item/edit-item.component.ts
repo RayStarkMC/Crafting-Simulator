@@ -1,4 +1,4 @@
-import {Component, inject, input, signal} from '@angular/core';
+import {Component, computed, inject, input, signal} from '@angular/core';
 import {FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
 import {MatButton} from "@angular/material/button";
 import {MatFormField, MatLabel} from "@angular/material/form-field";
@@ -17,7 +17,7 @@ export type Mode =
   }>
   |
   Readonly<{
-    type: "EDIT",
+    type: "UPDATE",
     id: string,
     name: string,
   }>
@@ -42,20 +42,31 @@ export class EditItemComponent {
   private readonly dialog = inject(MatDialog)
 
   readonly mode = input.required<Mode>()
-
   readonly sending = signal<boolean>(false)
 
-  readonly formGroup = new FormGroup({
-    name: new FormControl<string>("",
-      {
-        validators: Validators.required,
-      }
-    ),
+  readonly formGroup = computed(() => {
+    let name: string | null
+    const currentMode = this.mode()
+    if (currentMode.type === "CREATE") {
+      name = null
+    } else {
+      name = currentMode.name
+    }
+
+    return new FormGroup({
+      name: new FormControl<string | null>(name,
+        {
+          validators: Validators.required,
+        }
+      ),
+    })
   })
 
   sendForm(): void {
-    if (this.formGroup.invalid) return
-    const formValue = this.formGroup.value
+    if (this.mode().type === "UPDATE") return
+
+    if (this.formGroup().invalid) return
+    const formValue = this.formGroup().value
     if (formValue.name === undefined || formValue.name === null) return
 
     this.sending.set(true)
