@@ -6,9 +6,9 @@
         <span>Initializing...</span>
       }
       @case ("INITIALIZED") {
-        <button mat-icon-button (click)="openCreateItemDialog()">
+        <a mat-icon-button routerLink="/items/new">
           <mat-icon>add</mat-icon>
-        </button>
+        </a>
         <button mat-icon-button type="submit" [disabled]="cooldown()" form="searchForm">
           <mat-icon>refresh</mat-icon>
         </button>
@@ -24,9 +24,6 @@
             <td mat-cell *matCellDef="let element">
               <button mat-icon-button>
                 <mat-icon>edit</mat-icon>
-              </button>
-              <button mat-icon-button (click)="openWarningDialog(element.id)">
-                <mat-icon>delete</mat-icon>
               </button>
             </td>
           </ng-container>

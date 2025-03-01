@@ -12,17 +12,14 @@ import {
   MatRowDef,
   MatTable
 } from "@angular/material/table";
-import {MatIconButton} from "@angular/material/button";
+import {MatIconAnchor, MatIconButton} from "@angular/material/button";
 import {MatIcon} from "@angular/material/icon";
-import {MatDialog} from "@angular/material/dialog";
-import {CreateItemDialogComponent} from "../../dialog/create-item-dialog/create-item-dialog.component";
-import {concatMap, delay, filter, map, Observable, of, tap} from "rxjs";
+import {delay, map, Observable, of, tap} from "rxjs";
 import {MatFormField, MatLabel} from "@angular/material/form-field";
 import {MatInput} from "@angular/material/input";
 import {FormControl, FormGroup, ReactiveFormsModule} from "@angular/forms";
 import {SearchItemsRequest, SearchItemsService} from "../../../backend/search-items.service";
-import {DeleteItemService} from "../../../backend/delete-item.service";
-import {WarningDialogComponent} from "../../dialog/warning-dialog/warning-dialog.component";
+import {RouterLink} from "@angular/router";
 
 export type State =
   |
@@ -61,14 +58,14 @@ export type TableRow = Readonly<{
     MatInput,
     MatLabel,
     ReactiveFormsModule,
+    MatIconAnchor,
+    RouterLink,
   ],
   templateUrl: './items.component.html',
   styleUrl: './items.component.css'
 })
 export class ItemsComponent implements OnInit {
   private readonly searchItemsService = inject(SearchItemsService)
-  private readonly deleteItemsService = inject(DeleteItemService)
-  private readonly dialog = inject(MatDialog)
 
   readonly formGroup = new FormGroup({
     name: new FormControl<string | null>(null)
@@ -96,35 +93,6 @@ export class ItemsComponent implements OnInit {
       .subscribe()
 
     this.loadItems().subscribe()
-  }
-
-  openCreateItemDialog(): void {
-    CreateItemDialogComponent
-      .open(this.dialog)
-      .afterClosed()
-      .pipe(
-        filter(result => result === "succeeded"),
-        concatMap(() => this.loadItems())
-      )
-      .subscribe()
-  }
-
-  openWarningDialog(id: string): void {
-    WarningDialogComponent
-      .open(this.dialog, {
-        onConfirmed: this.deleteItemsService.run({
-          id: id
-        }),
-        title: "Delete item",
-        messageWarning: "This operation cannot be undone.",
-        messageOnDoing: "deleting..."
-      })
-      .afterClosed()
-      .pipe(
-        filter(result => result !== undefined),
-        concatMap(() => this.loadItems())
-      )
-      .subscribe()
   }
 
   private loadItems(): Observable<void> {

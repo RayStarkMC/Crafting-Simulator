@@ -1,0 +1,27 @@
+@let currentMode = mode();
+
+<form id="form" [formGroup]="formGroup" (ngSubmit)="sendForm()">
+  <mat-form-field>
+    <mat-label>Item Name</mat-label>
+    <input matInput formControlName="name">
+  </mat-form-field>
+</form>
+<div class="actions">
+  @if (currentMode.type === "EDIT") {
+    <button
+      mat-button
+      form="form"
+      type="button"
+      [disabled]="sending()"
+      (click)="openWarningDialog(currentMode.id)">
+      Delete
+    </button>
+  }
+  <button
+    mat-button
+    form="form"
+    type="submit"
+    [disabled]="sending() || !formGroup.valid">
+    Send
+  </button>
+</div>
