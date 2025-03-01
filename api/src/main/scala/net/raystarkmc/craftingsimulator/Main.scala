@@ -1,19 +1,13 @@
 package net.raystarkmc.craftingsimulator
 
 import cats.*
-import cats.instances.all.given
-import cats.syntax.all.given
 import cats.effect.*
-import cats.effect.instances.all.given
-import cats.effect.syntax.all.given
 import com.comcast.ip4s.{ipv4, port}
 import net.raystarkmc.craftingsimulator.port.api.http4s.Routing
 import net.raystarkmc.craftingsimulator.port.api.http4s.controller.*
-import net.raystarkmc.craftingsimulator.usecase.command.*
-import net.raystarkmc.craftingsimulator.usecase.query.*
+import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.queryhandler.PGSearchItemsQueryHandler.given
 import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.repository.PGItemRepository.given
-import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.queryhandler.PGGetAllItemsQueryHandler.given
-import org.http4s.HttpRoutes
+import net.raystarkmc.craftingsimulator.usecase.command.*
 import org.http4s.ember.server.EmberServerBuilder
 import org.http4s.server.middleware.ErrorHandling
 

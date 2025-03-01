@@ -17,7 +17,11 @@ import {MatIconButton} from "@angular/material/button";
 import {MatIcon} from "@angular/material/icon";
 import {MatDialog} from "@angular/material/dialog";
 import {CreateItemDialogComponent} from "../../dialog/create-item-dialog/create-item-dialog.component";
-import {concatMap, filter, map, Observable, tap} from "rxjs";
+import {concatMap, delay, filter, map, Observable, of, tap} from "rxjs";
+import {MatFormField, MatLabel} from "@angular/material/form-field";
+import {MatInput} from "@angular/material/input";
+import {FormControl, FormGroup, ReactiveFormsModule} from "@angular/forms";
+import {SearchItemsRequest, SearchItemsService} from "../../../backend/search-items.service";
 
 export type State =
   |
@@ -51,20 +55,42 @@ export type TableRow = Readonly<{
     MatHeaderRowDef,
     MatRowDef,
     MatIconButton,
-    MatIcon
+    MatIcon,
+    MatFormField,
+    MatInput,
+    MatLabel,
+    ReactiveFormsModule,
   ],
   templateUrl: './items.component.html',
   styleUrl: './items.component.css'
 })
 export class ItemsComponent implements OnInit {
   private readonly getAllItemsService = inject(GetAllItemsService)
+  private readonly searchItemsService = inject(SearchItemsService)
   private readonly dialog = inject(MatDialog)
+
+  readonly formGroup = new FormGroup({
+    name: new FormControl<string | null>(null)
+  })
 
   readonly state = signal<State>({
     type: "PRE_INITIALIZED",
   })
 
+  readonly cooldown = signal<boolean>(false)
+
+  setCooldown(): void {
+    of(undefined)
+      .pipe(
+        tap(() => this.cooldown.set(true)),
+        delay(1000),
+        tap(() => this.cooldown.set(false))
+      )
+      .subscribe()
+  }
+
   ngOnInit(): void {
+    this.setCooldown()
     this.loadItems().subscribe()
   }
 
@@ -81,10 +107,25 @@ export class ItemsComponent implements OnInit {
       .subscribe()
   }
 
+  reloadItems(): void {
+    this.setCooldown()
+    this.loadItems().subscribe()
+  }
+
   private loadItems(): Observable<void> {
+    let request: SearchItemsRequest
+    if (this.formGroup.invalid) {
+      request = {}
+    } else {
+      const formValue = this.formGroup.value
+      request = {
+        name: formValue.name || undefined
+      }
+    }
+
     return this
-      .getAllItemsService
-      .request()
+      .searchItemsService
+      .run(request)
       .pipe(
         map(response => {
           return {

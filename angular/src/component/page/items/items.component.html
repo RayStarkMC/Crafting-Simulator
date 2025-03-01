@@ -9,6 +9,15 @@
         <button mat-icon-button (click)="openCreateItemDialog()">
           <mat-icon>add</mat-icon>
         </button>
+        <button mat-icon-button type="submit" [disabled]="cooldown()" form="searchForm">
+          <mat-icon>refresh</mat-icon>
+        </button>
+        <form id="searchForm" [formGroup]="formGroup" (ngSubmit)="reloadItems()">
+          <mat-form-field>
+            <mat-label>アイテム名</mat-label>
+            <input matInput formControlName="name">
+          </mat-form-field>
+        </form>
         <table mat-table [dataSource]="currentState.items" [trackBy]="trackTableRowById">
           <ng-container matColumnDef="id">
             <th mat-header-cell *matHeaderCellDef>ID</th>

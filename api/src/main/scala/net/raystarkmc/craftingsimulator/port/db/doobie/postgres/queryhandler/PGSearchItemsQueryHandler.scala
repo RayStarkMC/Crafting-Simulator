@@ -7,21 +7,24 @@ import cats.instances.given
 import cats.effect.*
 import cats.effect.syntax.all.given
 import cats.effect.instances.all.given
-import net.raystarkmc.craftingsimulator.usecase.query.GetAllItemsQueryHandler
-import net.raystarkmc.craftingsimulator.usecase.query.GetAllItemsQueryHandler.*
 import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.table.ItemTableRecord
 import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.xa
 import doobie.*
 import doobie.implicits.given
 import doobie.postgres.implicits.given
+import net.raystarkmc.craftingsimulator.usecase.query.SearchItemsQueryHandler
+import net.raystarkmc.craftingsimulator.usecase.query.SearchItemsQueryHandler.*
 
-trait PGGetAllItemsQueryHandler[F[_] : Async] extends GetAllItemsQueryHandler[F]:
-  def run(): F[AllItems] =
+trait PGSearchItemsQueryHandler[F[_]: Async] extends SearchItemsQueryHandler[F]:
+  def run(input: Input): F[Items] =
+    val whereClause = input.name.fold(Fragment.empty)(name => fr"WHERE name LIKE ${"%" + name + "%"}")
+
     val query = sql"""
       select
         item.id, item.name
       from
         item
+      $whereClause
       order by
         item.name,
         item.id
@@ -32,7 +35,7 @@ trait PGGetAllItemsQueryHandler[F[_] : Async] extends GetAllItemsQueryHandler[F]
     for {
       records <- query.transact[F](xa)
     } yield {
-      AllItems(
+      Items(
         list = records.map { record =>
           Item(
             id = record.id,
@@ -42,9 +45,9 @@ trait PGGetAllItemsQueryHandler[F[_] : Async] extends GetAllItemsQueryHandler[F]
       )
     }
 
-object PGGetAllItemsQueryHandler extends PGGetAllItemsQueryHandlerGivens
+object PGSearchItemsQueryHandler extends PGSearchItemsQueryHandlerGivens
 
-trait PGGetAllItemsQueryHandlerGivens:
-  given[F[_] : Async] => GetAllItemsQueryHandler[F] =
-    object handler extends PGGetAllItemsQueryHandler
+trait PGSearchItemsQueryHandlerGivens:
+  given [F[_]: Async] => SearchItemsQueryHandler[F] =
+    object handler extends PGSearchItemsQueryHandler
     handler

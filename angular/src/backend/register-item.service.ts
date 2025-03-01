@@ -2,10 +2,10 @@ import {inject, Injectable} from '@angular/core';
 import {HttpClient} from "@angular/common/http";
 import {Observable} from "rxjs";
 
-type RegisterItemRequest = {
+export type RegisterItemRequest = {
   name: string,
 }
-type RegisterItemResponse = {}
+export type RegisterItemResponse = {}
 
 @Injectable({
   providedIn: 'root'
