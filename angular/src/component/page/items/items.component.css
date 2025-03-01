@@ -2,7 +2,11 @@
   padding: var(--base-padding);
 }
 
-[mat-header-cell], [mat-cell] {
+.mat-column-actions {
+  width: 120px;
+}
+
+.mat-column-name, .mat-column-id {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
