@@ -1,5 +1,5 @@
 import {inject, Injectable} from '@angular/core';
-import {HttpClient, HttpParams} from "@angular/common/http";
+import {HttpClient} from "@angular/common/http";
 import {Observable} from "rxjs";
 
 export type SearchItemsRequest = Readonly<{
@@ -20,16 +20,9 @@ export class SearchItemsService {
   private readonly http = inject(HttpClient)
 
   run(request: SearchItemsRequest): Observable<SearchItemsResponse> {
-    let params = new HttpParams()
-    if (request.name !== undefined) {
-      params = params.set("name", request.name)
-    }
-
-    return this.http.get<SearchItemsResponse>(
+    return this.http.post<SearchItemsResponse>(
       `/api/search/items`,
-      {
-        params: params
-      }
+      request
     )
   }
 }

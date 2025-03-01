@@ -24,7 +24,7 @@ trait RoutingGivens:
         HttpRoutes.of[F] {
           case req @ POST -> Root / "api" / "items" =>
             summon[RegisterItemController[F]].run(req)
-          case req @ GET -> Root / "api" / "search" / "items" =>
+          case req @ POST -> Root / "api" / "search" / "items" =>
             summon[SearchItemsController[F]].run(req)
         }
     instance

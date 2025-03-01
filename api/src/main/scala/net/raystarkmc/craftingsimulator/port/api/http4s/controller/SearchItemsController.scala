@@ -1,36 +1,37 @@
 package net.raystarkmc.craftingsimulator.port.api.http4s.controller
 
 import cats.*
-import cats.instances.all.given
-import cats.syntax.all.given
 import cats.effect.*
-import cats.effect.instances.all.given
-import cats.effect.syntax.all.given
-import cats.effect.Concurrent
+import cats.syntax.all.given
+import io.circe.generic.auto.given
+import io.circe.syntax.given
+import net.raystarkmc.craftingsimulator.port.api.http4s.controller.SearchItemsController.RequestBody
 import net.raystarkmc.craftingsimulator.usecase.query.SearchItemsQueryHandler
 import net.raystarkmc.craftingsimulator.usecase.query.SearchItemsQueryHandler.Input
 import org.http4s.*
-import org.http4s.circe.*
-import org.http4s.implicits.given
-import io.circe.syntax.given
-import io.circe.generic.auto.given
+import org.http4s.circe.CirceEntityCodec.given
 
 trait SearchItemsController[F[_]]:
   def run(req: Request[F]): F[Response[F]]
 
-object SearchItemsController extends SearchItemsControllerGivens
+object SearchItemsController extends SearchItemsControllerGivens {
+  case class RequestBody(
+      name: Option[String]
+  )
+}
 
 trait SearchItemsControllerGivens:
-  given [F[_]: {Concurrent, SearchItemsQueryHandler}] => SearchItemsController[F] =
+  given [F[_]: {Concurrent, SearchItemsQueryHandler}]
+    => SearchItemsController[F] =
     object instance extends SearchItemsController[F]:
       private val dsl = org.http4s.dsl.Http4sDsl[F]
       import dsl.*
       private val handler = summon[SearchItemsQueryHandler[F]]
 
       def run(req: Request[F]): F[Response[F]] =
-        val name = req.params.get("name")
         for {
-          queryModel <- handler.run(Input(name = name))
+          body <- req.as[RequestBody]
+          queryModel <- handler.run(Input(name = body.name))
           res <- Ok(queryModel.asJson)
         } yield res
     instance
