@@ -1,3 +1,10 @@
 .content_wrapper {
   padding: var(--base-padding);
 }
+
+[mat-header-cell], [mat-cell] {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 0;
+}
