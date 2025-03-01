@@ -12,7 +12,6 @@ import {
   MatRowDef,
   MatTable
 } from "@angular/material/table";
-import {GetAllItemsService} from "../../../backend/get-all-items.service";
 import {MatIconButton} from "@angular/material/button";
 import {MatIcon} from "@angular/material/icon";
 import {MatDialog} from "@angular/material/dialog";
@@ -65,7 +64,6 @@ export type TableRow = Readonly<{
   styleUrl: './items.component.css'
 })
 export class ItemsComponent implements OnInit {
-  private readonly getAllItemsService = inject(GetAllItemsService)
   private readonly searchItemsService = inject(SearchItemsService)
   private readonly dialog = inject(MatDialog)
 
