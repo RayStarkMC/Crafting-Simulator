@@ -11,12 +11,12 @@ opaque type ItemId = UUID
 
 object ItemId extends ItemIdGivens:
   extension (self: ItemId)
-    def value: UUID = self
+    def unwrap: UUID = self
   def apply(self: UUID): ItemId = self
 
   def generate[F[_]: {UUIDGen, Functor}]: F[ItemId] =
     UUIDGen.randomUUID
 
 trait ItemIdGivens:
-  given Hash[ItemId] = Hash.by(_.value)
-  given Show[ItemId] = Show.show(_.value.show)
+  given Hash[ItemId] = Hash.by(_.unwrap)
+  given Show[ItemId] = Show.show(_.unwrap.show)

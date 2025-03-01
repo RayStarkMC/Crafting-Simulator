@@ -9,6 +9,7 @@ import cats.effect.instances.all.given
 import cats.effect.syntax.all.given
 import doobie.*
 import doobie.implicits.given
+import doobie.postgres.*
 import doobie.postgres.implicits.given
 import net.raystarkmc.craftingsimulator.domain.item.{
   Item,
@@ -24,7 +25,7 @@ import java.util.UUID
 trait PGItemRepository[F[_]: Async] extends ItemRepository[F]:
   override def resolveById(itemId: ItemId): F[Option[Item]] =
     val query =
-      sql"select item.id, item.name from item where id = ${itemId.value.toString}"
+      sql"select item.id, item.name from item where id = ${itemId.unwrap}"
         .query[ItemTableRecord]
         .option
 
@@ -55,7 +56,7 @@ trait PGItemRepository[F[_]: Async] extends ItemRepository[F]:
       sql"""
         insert
           into item (id, name)
-          values (${item.data.id.value}, ${item.data.name.value})
+          values (${item.data.id.unwrap}, ${item.data.name.unwrap})
         on conflict(id) do
         update
           set name = excluded.name
@@ -63,9 +64,21 @@ trait PGItemRepository[F[_]: Async] extends ItemRepository[F]:
 
     insertSql.void.transact[F](xa)
 
+  override def delete(item: Item): F[Unit] =
+    val deleteSql =
+      sql"""
+      delete
+      from
+        item
+      where
+        item.id = ${item.data.id.unwrap}
+    """.update.run
+
+    deleteSql.void.transact[F](xa)
+
 object PGItemRepository extends PGItemRepositoryGivens
 
 trait PGItemRepositoryGivens:
-  given[F[_] : Async] => ItemRepository[F] =
+  given [F[_]: Async] => ItemRepository[F] =
     object repository extends PGItemRepository
     repository

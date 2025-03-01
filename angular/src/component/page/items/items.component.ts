@@ -21,6 +21,7 @@ import {MatFormField, MatLabel} from "@angular/material/form-field";
 import {MatInput} from "@angular/material/input";
 import {FormControl, FormGroup, ReactiveFormsModule} from "@angular/forms";
 import {SearchItemsRequest, SearchItemsService} from "../../../backend/search-items.service";
+import {DeleteItemService} from "../../../backend/delete-item.service";
 
 export type State =
   |
@@ -65,6 +66,7 @@ export type TableRow = Readonly<{
 })
 export class ItemsComponent implements OnInit {
   private readonly searchItemsService = inject(SearchItemsService)
+  private readonly deleteItemsService = inject(DeleteItemService)
   private readonly dialog = inject(MatDialog)
 
   readonly formGroup = new FormGroup({
@@ -108,6 +110,16 @@ export class ItemsComponent implements OnInit {
   reloadItems(): void {
     this.setCooldown()
     this.loadItems().subscribe()
+  }
+
+  deleteItem(id: string): void {
+    this.deleteItemsService.run({
+      id: id
+    })
+      .pipe()
+      .subscribe({
+        next: () => this.reloadItems()
+      })
   }
 
   private loadItems(): Observable<void> {

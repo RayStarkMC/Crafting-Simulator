@@ -12,7 +12,7 @@ object ItemName extends ItemNameGivens:
     case ContainsControlCharacter
 
   extension (self: ItemName)
-    def value: String = self
+    def unwrap: String = self
 
   def ae[F[_]](value: String)(using F: ApplicativeError[F, Error]): F[ItemName] =
     F.raiseWhen(value.isBlank)(Error.IsBlank)
@@ -20,5 +20,5 @@ object ItemName extends ItemNameGivens:
       *> value.pure[F]
 
 trait ItemNameGivens:
-  given Hash[ItemName] = Hash.by(_.value)
-  given Show[ItemName] = Show.show(_.value.show)
+  given Hash[ItemName] = Hash.by(_.unwrap)
+  given Show[ItemName] = Show.show(_.unwrap.show)

@@ -3,6 +3,7 @@ package net.raystarkmc.craftingsimulator.port.api.http4s
 import cats.*
 import cats.effect.*
 import net.raystarkmc.craftingsimulator.port.api.http4s.controller.{
+  DeleteItemController,
   RegisterItemController,
   SearchItemsController
 }
@@ -15,16 +16,22 @@ trait Routing[F[_]]:
 object Routing extends RoutingGivens
 
 trait RoutingGivens:
-  given [F[_]: {Concurrent, RegisterItemController, SearchItemsQueryHandler}]
+  given [
+      F[_]: {Concurrent, RegisterItemController, SearchItemsQueryHandler,
+        DeleteItemController}
+  ]
     => Routing[F] =
     object instance extends Routing[F]:
       private val dsl = org.http4s.dsl.Http4sDsl[F]
       import dsl.*
       val routes: HttpRoutes[F] =
-        HttpRoutes.of[F] {
-          case req @ POST -> Root / "api" / "items" =>
-            summon[RegisterItemController[F]].run(req)
-          case req @ POST -> Root / "api" / "search" / "items" =>
-            summon[SearchItemsController[F]].run(req)
-        }
+        HttpRoutes.of[F](
+          summon[DeleteItemController[F]].run
+            .orElse {
+              case req @ POST -> Root / "api" / "items" =>
+                summon[RegisterItemController[F]].run(req)
+              case req @ POST -> Root / "api" / "search" / "items" =>
+                summon[SearchItemsController[F]].run(req)
+            }
+        )
     instance

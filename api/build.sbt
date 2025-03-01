@@ -2,7 +2,7 @@ enablePlugins(JavaAppPackaging)
 
 val http4sVersion = "0.23.30"
 val circeVersion = "0.14.10"
-val doobieVersion = "1.0.0-RC6"
+val doobieVersion = "1.0.0-RC8"
 val scalaTestVersion = "3.2.19"
 
 ThisBuild / organization := "net.raystarkmc"
@@ -26,7 +26,7 @@ lazy val root = (project in file("."))
       "io.circe" %% "circe-generic" % circeVersion,
       "io.circe" %% "circe-literal" % circeVersion,
       "org.typelevel" %% "kittens" % "3.4.0",
-      "ch.qos.logback" % "logback-classic" % "1.5.16",
+      "ch.qos.logback" % "logback-classic" % "1.5.17",
       "org.tpolecat" %% "doobie-core"      % doobieVersion,
       "org.tpolecat" %% "doobie-postgres"  % doobieVersion,
       "org.scalatest" %% "scalatest" % scalaTestVersion % "test",
