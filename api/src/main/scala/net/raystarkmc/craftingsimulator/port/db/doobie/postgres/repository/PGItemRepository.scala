@@ -55,11 +55,17 @@ trait PGItemRepository[F[_]: Async] extends ItemRepository[F]:
     val insertSql =
       sql"""
         insert
-          into item (id, name)
-          values (${item.data.id.unwrap}, ${item.data.name.unwrap})
+          into item (id, name, created_at, updated_at)
+          values (
+            ${item.data.id.unwrap},
+            ${item.data.name.unwrap},
+            current_timestamp,
+            current_timestamp
+          )
         on conflict(id) do
         update
-          set name = excluded.name
+        set name = excluded.name,
+            updated_at = current_timestamp
       """.update.run
 
     insertSql.void.transact[F](xa)
