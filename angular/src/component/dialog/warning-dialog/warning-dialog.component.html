@@ -1,0 +1,17 @@
+@let currentState = state();
+
+<h2 mat-dialog-title>{{ data.title }}</h2>
+<mat-dialog-content>
+  @switch (currentState.type) {
+    @case ("standing-by") {
+      <p>{{ data.messageWarning }}</p>
+    }
+    @case ("doing") {
+      <p>{{ data.messageOnDoing }}</p>
+    }
+  }
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button type="button" mat-dialog-close>Cancel</button>
+  <button mat-button type="submit" [disabled]="currentState.type === 'doing'" (click)="onConfirmed()">Confirm</button>
+</mat-dialog-actions>

@@ -22,6 +22,7 @@ import {MatInput} from "@angular/material/input";
 import {FormControl, FormGroup, ReactiveFormsModule} from "@angular/forms";
 import {SearchItemsRequest, SearchItemsService} from "../../../backend/search-items.service";
 import {DeleteItemService} from "../../../backend/delete-item.service";
+import {WarningDialogComponent} from "../../dialog/warning-dialog/warning-dialog.component";
 
 export type State =
   |
@@ -79,7 +80,13 @@ export class ItemsComponent implements OnInit {
 
   readonly cooldown = signal<boolean>(false)
 
-  setCooldown(): void {
+  ngOnInit(): void {
+    this.reloadItems()
+  }
+
+  readonly trackTableRowById: TrackByFunction<TableRow> = (_, item) => item.id
+
+  reloadItems(): void {
     of(undefined)
       .pipe(
         tap(() => this.cooldown.set(true)),
@@ -87,14 +94,9 @@ export class ItemsComponent implements OnInit {
         tap(() => this.cooldown.set(false))
       )
       .subscribe()
-  }
 
-  ngOnInit(): void {
-    this.setCooldown()
     this.loadItems().subscribe()
   }
-
-  readonly trackTableRowById: TrackByFunction<TableRow> = (_, item) => item.id
 
   openCreateItemDialog(): void {
     CreateItemDialogComponent
@@ -107,19 +109,22 @@ export class ItemsComponent implements OnInit {
       .subscribe()
   }
 
-  reloadItems(): void {
-    this.setCooldown()
-    this.loadItems().subscribe()
-  }
-
-  deleteItem(id: string): void {
-    this.deleteItemsService.run({
-      id: id
-    })
-      .pipe()
-      .subscribe({
-        next: () => this.reloadItems()
+  openWarningDialog(id: string): void {
+    WarningDialogComponent
+      .open(this.dialog, {
+        onConfirmed: this.deleteItemsService.run({
+          id: id
+        }),
+        title: "Delete item",
+        messageWarning: "This operation cannot be undone.",
+        messageOnDoing: "deleting..."
       })
+      .afterClosed()
+      .pipe(
+        filter(result => result !== undefined),
+        concatMap(() => this.loadItems())
+      )
+      .subscribe()
   }
 
   private loadItems(): Observable<void> {
