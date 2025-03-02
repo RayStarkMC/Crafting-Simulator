@@ -15,12 +15,11 @@ private sealed trait ItemContext
 
 type ItemId = ModelIdUUID[ItemContext]
 object ItemId extends ModelIdUUIDSyntax[ItemContext]
+export ItemId.{*, given}
 
 type ItemName = ModelName[ItemContext]
 object ItemName extends ModelNameSyntax[ItemContext]
-
-import net.raystarkmc.craftingsimulator.domain.item.ItemId.{*, given}
-import net.raystarkmc.craftingsimulator.domain.item.ItemName.{*, given}
+export ItemName.{*, given}
 
 opaque type Item = Data
 

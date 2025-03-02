@@ -6,8 +6,7 @@ import cats.derived.*
 import cats.effect.std.UUIDGen
 import cats.instances.all.given
 import cats.syntax.all.given
-import net.raystarkmc.craftingsimulator.domain.item.*
-import net.raystarkmc.craftingsimulator.domain.item.ItemId.{*, given}
+import net.raystarkmc.craftingsimulator.domain.item.{*, given}
 import net.raystarkmc.craftingsimulator.usecase.command.RegisterItemCommandHandler.{
   Command,
   Output

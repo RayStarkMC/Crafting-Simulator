@@ -5,7 +5,6 @@ import cats.effect.std.UUIDGen
 import cats.instances.all.given
 import cats.syntax.all.given
 import net.raystarkmc.craftingsimulator.domain.item.*
-import net.raystarkmc.craftingsimulator.domain.item.ItemId.{*, given}
 import org.scalatest.freespec.AnyFreeSpec
 
 import java.util.UUID
