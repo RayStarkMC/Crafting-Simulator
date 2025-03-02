@@ -4,6 +4,9 @@ val http4sVersion = "0.23.30"
 val circeVersion = "0.14.10"
 val doobieVersion = "1.0.0-RC8"
 val scalaTestVersion = "3.2.19"
+val ironVersion = "2.6.0"
+val kittensVersion = "3.4.0"
+val logbackVersion = "1.5.17"
 
 ThisBuild / organization := "net.raystarkmc"
 ThisBuild / version := "0.1.0-SNAPSHOT"
@@ -25,10 +28,11 @@ lazy val root = (project in file("."))
       "org.http4s" %% "http4s-circe" % http4sVersion,
       "io.circe" %% "circe-generic" % circeVersion,
       "io.circe" %% "circe-literal" % circeVersion,
-      "org.typelevel" %% "kittens" % "3.4.0",
-      "ch.qos.logback" % "logback-classic" % "1.5.17",
+      "org.typelevel" %% "kittens" % kittensVersion,
+      "ch.qos.logback" % "logback-classic" % logbackVersion,
       "org.tpolecat" %% "doobie-core"      % doobieVersion,
       "org.tpolecat" %% "doobie-postgres"  % doobieVersion,
+      "io.github.iltotore" %% "iron" % ironVersion,
       "org.scalatest" %% "scalatest" % scalaTestVersion % "test",
       "org.scalatest" %% "scalatest-freespec" % scalaTestVersion % "test"
     ),
