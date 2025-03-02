@@ -1,20 +1,18 @@
 package net.raystarkmc.craftingsimulator.domain.item
 
 import cats.*
-import cats.Functor
-import cats.syntax.all.given 
 import cats.effect.std.UUIDGen
+import cats.syntax.all.given
 
 import java.util.UUID
 
 opaque type ItemId = UUID
 
 object ItemId extends ItemIdGivens:
-  extension (self: ItemId)
-    def unwrap: UUID = self
+  extension (self: ItemId) def unwrap: UUID = self
   def apply(self: UUID): ItemId = self
 
-  def generate[F[_]: {UUIDGen, Functor}]: F[ItemId] =
+  def generate[F[_]: UUIDGen]: F[ItemId] =
     UUIDGen.randomUUID
 
 trait ItemIdGivens:
