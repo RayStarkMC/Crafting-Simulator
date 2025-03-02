@@ -33,6 +33,7 @@ lazy val root = (project in file("."))
       "org.tpolecat" %% "doobie-core"      % doobieVersion,
       "org.tpolecat" %% "doobie-postgres"  % doobieVersion,
       "io.github.iltotore" %% "iron" % ironVersion,
+      "io.github.iltotore" %% "iron-cats" % ironVersion,
       "org.scalatest" %% "scalatest" % scalaTestVersion % "test",
       "org.scalatest" %% "scalatest-freespec" % scalaTestVersion % "test"
     ),
