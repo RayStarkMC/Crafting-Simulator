@@ -7,8 +7,11 @@ import cats.{ApplicativeError, Hash, Show}
 
 opaque type ModelName[C] = String
 
+private inline def unwrapModelName[C](name: ModelName[C]): String = name
+private inline def wrapModelName[C](value: String): ModelName[C] = value
+
 trait ModelNameSyntax[C]:
-  extension (self: ModelName[C]) def unwrap: String = unwrap_(self)
+  extension (self: ModelName[C]) def unwrap: String = unwrapModelName(self)
 
   given Hash[ModelName[C]] = Hash.by(_.unwrap)
   given Show[ModelName[C]] = Show.show(_.unwrap.show)
@@ -28,7 +31,4 @@ trait ModelNameSyntax[C]:
       *> F.raiseWhen("\\p{Cntrl}".r.findFirstIn(value).isDefined)(
         NonEmptyChain.one(Failure.ContainsControlCharacter)
       )
-      *> wrap_(value).pure[F]
-
-private def unwrap_[C](name: ModelName[C]): String = name
-private def wrap_[C](value: String): ModelName[C] = value
+      *> wrapModelName(value).pure[F]

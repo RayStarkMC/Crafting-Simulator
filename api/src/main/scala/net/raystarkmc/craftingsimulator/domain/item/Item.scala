@@ -1,27 +1,35 @@
 package net.raystarkmc.craftingsimulator.domain.item
 
+import cats.derived.*
 import cats.effect.std.UUIDGen
 import cats.syntax.all.given
 import cats.{Functor, Hash, Show}
-import cats.derived.*
 import net.raystarkmc.craftingsimulator.domain.item.Item.Data
-import net.raystarkmc.craftingsimulator.lib.domain.{ ModelName, ModelNameSyntax }
+import net.raystarkmc.craftingsimulator.lib.domain.{ModelName, ModelNameSyntax}
+import net.raystarkmc.craftingsimulator.lib.domain.{
+  ModelIdUUID,
+  ModelIdUUIDSyntax
+}
 
 private sealed trait ItemContext
+
+type ItemId = ModelIdUUID[ItemContext]
+object ItemId extends ModelIdUUIDSyntax[ItemContext]
 
 type ItemName = ModelName[ItemContext]
 object ItemName extends ModelNameSyntax[ItemContext]
 
-import ItemName.given 
-import ItemName.*
+import net.raystarkmc.craftingsimulator.domain.item.ItemId.{*, given}
+import net.raystarkmc.craftingsimulator.domain.item.ItemName.{*, given}
 
 opaque type Item = Data
 
 object Item extends ItemGivens:
   case class Data(
-    id: ItemId,
-    name: ItemName,
-  ) derives Hash, Show
+      id: ItemId,
+      name: ItemName
+  ) derives Hash,
+        Show
 
   extension (self: Item)
     def data: Data = self
