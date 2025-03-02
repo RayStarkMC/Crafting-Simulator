@@ -1,11 +1,11 @@
 package net.raystarkmc.craftingsimulator.usecase.command
 
 import cats.*
-import cats.instances.all.given
-import cats.syntax.all.given
 import cats.data.*
 import cats.derived.*
 import cats.effect.std.UUIDGen
+import cats.instances.all.given
+import cats.syntax.all.given
 import net.raystarkmc.craftingsimulator.domain.item.{
   Item,
   ItemName,
@@ -27,7 +27,8 @@ object RegisterItemCommandHandler extends RegisterItemCommandHandlerGivens:
   case class Error(detail: ItemName.Error) derives Hash, Show
 
 trait RegisterItemCommandHandlerGivens:
-  given [F[_]: {Monad, UUIDGen, ItemRepository}] => RegisterItemCommandHandler[F] =
+  given [F[_]: {Monad, UUIDGen, ItemRepository}]
+    => RegisterItemCommandHandler[F] =
     object instance extends RegisterItemCommandHandler[F]:
       private val itemRepository: ItemRepository[F] = summon
 
@@ -35,11 +36,10 @@ trait RegisterItemCommandHandlerGivens:
           command: Command
       ): F[Either[RegisterItemCommandHandler.Error, Output]] =
         val eitherT = for {
-          name <- EitherT.fromEither[F](
-            ItemName
-              .ae(command.name)
-              .leftMap(RegisterItemCommandHandler.Error.apply)
-          )
+          name <- ItemName
+            .ae(command.name)
+            .leftMap(RegisterItemCommandHandler.Error.apply)
+            .toEitherT[F]
           item <- EitherT.liftF(
             Item.create(name)
           )

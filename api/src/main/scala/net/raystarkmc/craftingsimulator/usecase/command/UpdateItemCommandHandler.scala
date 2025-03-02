@@ -38,11 +38,10 @@ trait UpdateItemCommandHandlerGivens:
           command: Command
       ): F[Either[UpdateItemCommandHandler.Error, Output]] =
         val eitherT: EitherT[F, UpdateItemCommandHandler.Error, Output] = for {
-          name <- EitherT.fromEither[F](
-            ItemName
-              .ae(command.name)
-              .leftMap(UpdateItemCommandHandler.Error.NameError.apply)
-          )
+          name <- ItemName
+            .ae(command.name)
+            .leftMap(UpdateItemCommandHandler.Error.NameError.apply)
+            .toEitherT[F]
           itemId = ItemId(command.id)
           itemOption <- EitherT.liftF(
             itemRepository.resolveById(itemId)
