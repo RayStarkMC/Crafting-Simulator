@@ -12,7 +12,7 @@ import org.http4s.*
 import org.http4s.circe.CirceEntityCodec.given
 
 trait SearchItemsController[F[_]]:
-  def run(req: Request[F]): F[Response[F]]
+  def run: PartialFunction[Request[F], F[Response[F]]]
 
 object SearchItemsController extends SearchItemsControllerGivens {
   case class RequestBody(
@@ -28,10 +28,11 @@ trait SearchItemsControllerGivens:
       import dsl.*
       private val handler = summon[SearchItemsQueryHandler[F]]
 
-      def run(req: Request[F]): F[Response[F]] =
-        for {
-          body <- req.as[RequestBody]
-          queryModel <- handler.run(Input(name = body.name))
-          res <- Ok(queryModel.asJson)
-        } yield res
+      def run: PartialFunction[Request[F], F[Response[F]]] =
+        case req @ POST -> Root / "api" / "search" / "items" =>
+          for {
+            body <- req.as[RequestBody]
+            queryModel <- handler.run(Input(name = body.name))
+            res <- Ok(queryModel.asJson)
+          } yield res
     instance
