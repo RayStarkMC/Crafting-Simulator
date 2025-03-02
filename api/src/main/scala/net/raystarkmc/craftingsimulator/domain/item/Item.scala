@@ -5,11 +5,15 @@ import cats.syntax.all.given
 import cats.{Functor, Hash, Show}
 import cats.derived.*
 import net.raystarkmc.craftingsimulator.domain.item.Item.Data
-import net.raystarkmc.craftingsimulator.domain.item.ItemName
-import net.raystarkmc.craftingsimulator.domain.item.ItemName.*
-import net.raystarkmc.craftingsimulator.domain.item.ItemName.given
+import net.raystarkmc.craftingsimulator.lib.domain.{ ModelName, ModelNameSyntax }
 
 private sealed trait ItemContext
+
+type ItemName = ModelName[ItemContext]
+object ItemName extends ModelNameSyntax[ItemContext]
+
+import ItemName.given 
+import ItemName.*
 
 opaque type Item = Data
 
