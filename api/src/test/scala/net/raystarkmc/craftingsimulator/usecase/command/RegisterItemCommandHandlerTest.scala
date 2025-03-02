@@ -42,7 +42,7 @@ class RegisterItemCommandHandlerTest extends AnyFreeSpec:
     val expected = (
       Option.empty[Item],
       RegisterItemCommandHandler
-        .Error(detail = ItemName.Error.IsBlank)
+        .Error(detail = ItemName.Failure.IsBlank)
         .asLeft[RegisterItemCommandHandler.Output]
     )
 

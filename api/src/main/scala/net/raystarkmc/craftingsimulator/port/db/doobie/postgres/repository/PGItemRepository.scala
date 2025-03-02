@@ -17,6 +17,8 @@ import net.raystarkmc.craftingsimulator.domain.item.{
   ItemName,
   ItemRepository
 }
+import net.raystarkmc.craftingsimulator.domain.item.ItemName.given
+import net.raystarkmc.craftingsimulator.domain.item.ItemName.*
 import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.table.ItemTableRecord
 import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.xa
 

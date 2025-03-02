@@ -24,7 +24,7 @@ trait RegisterItemCommandHandler[F[_]]:
 object RegisterItemCommandHandler extends RegisterItemCommandHandlerGivens:
   case class Command(name: String) derives Hash, Show
   case class Output(id: UUID) derives Hash, Show
-  case class Error(detail: ItemName.Error) derives Hash, Show
+  case class Error(detail: ItemName.Failure) derives Hash, Show
 
 trait RegisterItemCommandHandlerGivens:
   given [F[_]: {Monad, UUIDGen, ItemRepository}]
@@ -38,6 +38,7 @@ trait RegisterItemCommandHandlerGivens:
         val eitherT = for {
           name <- ItemName
             .ae(command.name)
+            .leftMap(_.head)
             .leftMap(RegisterItemCommandHandler.Error.apply)
             .toEitherT[F]
           item <- EitherT.liftF(

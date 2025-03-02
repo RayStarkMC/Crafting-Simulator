@@ -25,7 +25,7 @@ object UpdateItemCommandHandler extends UpdateItemCommandHandlerGivens:
   case class Command(id: UUID, name: String) derives Hash, Show
   case class Output() derives Hash, Show
   enum Error derives Hash, Show:
-    case NameError(detail: ItemName.Error)
+    case NameError(detail: ItemName.Failure)
     case NotFound
 
 trait UpdateItemCommandHandlerGivens:
@@ -40,6 +40,7 @@ trait UpdateItemCommandHandlerGivens:
         val eitherT: EitherT[F, UpdateItemCommandHandler.Error, Output] = for {
           name <- ItemName
             .ae(command.name)
+            .leftMap(_.head)
             .leftMap(UpdateItemCommandHandler.Error.NameError.apply)
             .toEitherT[F]
           itemId = ItemId(command.id)

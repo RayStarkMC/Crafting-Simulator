@@ -1,24 +1,7 @@
 package net.raystarkmc.craftingsimulator.domain.item
 
-import cats.{ApplicativeError, Hash, Show}
-import cats.derived.*
-import cats.syntax.all.given
+import net.raystarkmc.craftingsimulator.lib.domain.{ModelName, ModelNameSyntax}
 
-opaque type ItemName = String
+type ItemName = ModelName[ItemContext]
 
-object ItemName extends ItemNameGivens:
-  enum Error derives Hash, Show:
-    case IsBlank
-    case ContainsControlCharacter
-
-  extension (self: ItemName)
-    def unwrap: String = self
-
-  def ae[F[_]](value: String)(using F: ApplicativeError[F, Error]): F[ItemName] =
-    F.raiseWhen(value.isBlank)(Error.IsBlank)
-      *> F.raiseWhen("\\p{Cntrl}".r.findFirstIn(value).isDefined)(Error.ContainsControlCharacter)
-      *> value.pure[F]
-
-trait ItemNameGivens:
-  given Hash[ItemName] = Hash.by(_.unwrap)
-  given Show[ItemName] = Show.show(_.unwrap.show)
+object ItemName extends ModelNameSyntax[ItemContext]
