@@ -1,11 +1,11 @@
 package net.raystarkmc.craftingsimulator.usecase.command
 
 import cats.*
+import cats.instances.all.given
 import cats.syntax.all.given
 import cats.data.*
 import cats.derived.*
 import cats.effect.std.UUIDGen
-import cats.instances.all.given
 import net.raystarkmc.craftingsimulator.domain.item.{
   Item,
   ItemName,

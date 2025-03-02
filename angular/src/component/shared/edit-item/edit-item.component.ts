@@ -9,6 +9,7 @@ import {concatMap, filter} from "rxjs";
 import {WarningDialogComponent} from "../../dialog/warning-dialog/warning-dialog.component";
 import {MatDialog} from "@angular/material/dialog";
 import {DeleteItemService} from "../../../backend/delete-item.service";
+import {UpdateItemService} from "../../../backend/update-item.service";
 
 export type Mode =
   |
@@ -37,6 +38,7 @@ export type Mode =
 })
 export class EditItemComponent {
   private readonly registerItemService = inject(RegisterItemService)
+  private readonly updateItemService = inject(UpdateItemService)
   private readonly deleteItemsService = inject(DeleteItemService)
   private readonly router = inject(Router)
   private readonly dialog = inject(MatDialog)
@@ -45,12 +47,17 @@ export class EditItemComponent {
   readonly sending = signal<boolean>(false)
 
   readonly formGroup = computed(() => {
-    let name: string | null
     const currentMode = this.mode()
-    if (currentMode.type === "CREATE") {
-      name = null
-    } else {
-      name = currentMode.name
+    let name: string | null
+    switch (currentMode.type) {
+      case "CREATE": {
+        name = null
+        break
+      }
+      case "UPDATE": {
+        name = currentMode.name
+        break
+      }
     }
 
     return new FormGroup({
@@ -63,23 +70,41 @@ export class EditItemComponent {
   })
 
   sendForm(): void {
-    if (this.mode().type === "UPDATE") return
-
     if (this.formGroup().invalid) return
     const formValue = this.formGroup().value
     if (formValue.name === undefined || formValue.name === null) return
 
     this.sending.set(true)
 
-    this
-      .registerItemService
-      .run({
-        name: formValue.name
-      })
-      .pipe(
-        concatMap(() => this.router.navigateByUrl("/items"))
-      )
-      .subscribe()
+    const currentState = this.mode()
+
+    switch (currentState.type) {
+      case "CREATE": {
+        this
+          .registerItemService
+          .run({
+            name: formValue.name
+          })
+          .pipe(
+            concatMap(() => this.router.navigateByUrl("/items"))
+          )
+          .subscribe()
+        return
+      }
+      case "UPDATE": {
+        this
+          .updateItemService
+          .run({
+            id: currentState.id,
+            name: formValue.name
+          })
+          .pipe(
+            concatMap(() => this.router.navigateByUrl("/items"))
+          )
+          .subscribe()
+        return
+      }
+    }
   }
 
   openWarningDialog(id: string): void {
