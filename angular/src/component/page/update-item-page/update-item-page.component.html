@@ -1,5 +1,9 @@
+@let currentState = state();
+
 <layout [title]="'Update Item'">
-  <div class="content_wrapper">
-    <edit-item [mode]="modeUpdate()"></edit-item>
-  </div>
+  @if (currentState.type === "INITIALIZED") {
+    <div class="content_wrapper">
+      <edit-item [mode]="currentState.mode"></edit-item>
+    </div>
+  }
 </layout>
