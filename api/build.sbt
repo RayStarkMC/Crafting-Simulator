@@ -2,10 +2,10 @@ enablePlugins(JavaAppPackaging)
 
 val http4sVersion = "0.23.30"
 val circeVersion = "0.14.10"
-val doobieVersion = "1.0.0-RC8"
+val doobieVersion = "1.0.0-RC5"
 val scalaTestVersion = "3.2.19"
 val ironVersion = "2.6.0"
-val kittensVersion = "3.4.0"
+val kittensVersion = "3.5.0"
 val logbackVersion = "1.5.17"
 
 ThisBuild / organization := "net.raystarkmc"
