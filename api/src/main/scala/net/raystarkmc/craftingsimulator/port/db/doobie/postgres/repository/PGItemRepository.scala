@@ -18,6 +18,7 @@ import net.raystarkmc.craftingsimulator.domain.item.{
   ItemRepository
 }
 import io.github.iltotore.iron.*
+import io.github.iltotore.iron.doobie.given
 import net.raystarkmc.craftingsimulator.domain.item.ItemName.given
 import net.raystarkmc.craftingsimulator.domain.item.ItemName.*
 import net.raystarkmc.craftingsimulator.domain.item.ItemId.given
@@ -30,7 +31,7 @@ import java.util.UUID
 trait PGItemRepository[F[_]: Async] extends ItemRepository[F]:
   override def resolveById(itemId: ItemId): F[Option[Item]] =
     val query =
-      sql"select item.id, item.name from item where id = ${itemId.unwrap}"
+      sql"select item.id, item.name from item where id = $itemId"
         .query[ItemTableRecord]
         .option
 
@@ -62,7 +63,7 @@ trait PGItemRepository[F[_]: Async] extends ItemRepository[F]:
         insert
           into item (id, name, created_at, updated_at)
           values (
-            ${item.data.id.unwrap},
+            ${item.data.id},
             ${item.data.name.unwrap},
             current_timestamp,
             current_timestamp
@@ -82,7 +83,7 @@ trait PGItemRepository[F[_]: Async] extends ItemRepository[F]:
       from
         item
       where
-        item.id = ${item.data.id.unwrap}
+        item.id = ${item.data.id}
     """.update.run
 
     deleteSql.void.transact[F](xa)

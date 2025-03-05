@@ -9,11 +9,8 @@ import java.util.UUID
 
 opaque type ModelIdUUID[C] <: UUID = UUID :| Pure
 
-private inline def unwrapModelIdUUID[C](id: ModelIdUUID[C]): UUID = id
 private inline def wrapFModelIdUUID[F[_], C](uuidF: F[UUID]): F[ModelIdUUID[C]] = uuidF.asInstanceOf
 
 trait ModelIdUUIDTypeOps[C] extends RefinedTypeOps[UUID, Pure, ModelIdUUID[C]]:
-  extension (self: ModelIdUUID[C]) def unwrap: UUID = unwrapModelIdUUID(self)
-
   def generate[F[_]: UUIDGen]: F[ModelIdUUID[C]] =
     wrapFModelIdUUID(UUIDGen.randomUUID)

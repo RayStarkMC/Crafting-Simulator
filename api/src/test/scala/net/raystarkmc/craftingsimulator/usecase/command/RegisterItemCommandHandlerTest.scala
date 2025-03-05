@@ -1,22 +1,25 @@
 package net.raystarkmc.craftingsimulator.usecase.command
 
+import cats.Eq
 import cats.data.State
 import cats.effect.std.UUIDGen
 import cats.instances.all.given
 import cats.syntax.all.given
 import io.github.iltotore.iron.*
+import io.github.iltotore.iron.cats.{*, given}
 import net.raystarkmc.craftingsimulator.domain.item.*
+import net.raystarkmc.craftingsimulator.domain.item.ItemId.{*, given}
 import org.scalatest.freespec.AnyFreeSpec
 
 import java.util.UUID
 
 class RegisterItemCommandHandlerTest extends AnyFreeSpec:
   "名前が不正な場合エラーが返される" in:
-    val testUUID = UUID.randomUUID().nn
+    val testUUID = ItemId(UUID.randomUUID().nn)
     type TestState[A] = State[Option[Item], A]
     given ItemRepository[TestState]:
       def resolveById(itemId: ItemId): TestState[Option[Item]] =
-        if itemId.unwrap eqv testUUID then State.get else fail()
+        if itemId eqv testUUID then State.get else fail()
       def save(item: Item): TestState[Unit] =
         State.set(item.some)
       def delete(item: Item): TestState[Unit] =
@@ -45,11 +48,11 @@ class RegisterItemCommandHandlerTest extends AnyFreeSpec:
     assert(expected eqv result)
 
   "Itemを作成して登録する" in:
-    val testUUID = UUID.randomUUID().nn
+    val testUUID = ItemId(UUID.randomUUID().nn)
     type TestState[A] = State[Option[Item], A]
     given ItemRepository[TestState]:
       def resolveById(itemId: ItemId): TestState[Option[Item]] =
-        if itemId.unwrap eqv testUUID then State.get else fail()
+        if itemId eqv testUUID then State.get else fail()
       def save(item: Item): TestState[Unit] =
         State.set(Some(item))
       def delete(item: Item): TestState[Unit] =
