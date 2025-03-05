@@ -6,7 +6,7 @@ import cats.{Hash, Show}
 
 import java.util.UUID
 
-opaque type ModelIdUUID[C] = UUID
+opaque type ModelIdUUID[C] <: UUID = UUID
 
 private inline def unwrapModelIdUUID[C](id: ModelIdUUID[C]): UUID = id
 private inline def wrapModelIdUUID[C](value: UUID): ModelIdUUID[C] = value

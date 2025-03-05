@@ -5,7 +5,7 @@ import cats.derived.*
 import cats.syntax.all.given
 import cats.{ApplicativeError, Hash, Show}
 
-opaque type ModelName[C] = String
+opaque type ModelName[C] <: String = String
 
 private inline def unwrapModelName[C](name: ModelName[C]): String = name
 private inline def wrapModelName[C](value: String): ModelName[C] = value
