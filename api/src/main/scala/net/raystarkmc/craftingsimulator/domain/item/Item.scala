@@ -6,17 +6,18 @@ import cats.syntax.all.given
 import cats.{Functor, Hash, Show}
 import net.raystarkmc.craftingsimulator.domain.item.Item.Data
 import net.raystarkmc.craftingsimulator.lib.domain.{ModelIdUUID, ModelIdUUIDTypeOps, ModelName, ModelNameTypeOps}
+import io.github.iltotore.iron.*
 import io.github.iltotore.iron.cats.{*, given}
 
 private sealed trait ItemContext
 
 type ItemId = ModelIdUUID[ItemContext]
 object ItemId extends ModelIdUUIDTypeOps[ItemContext]
-export ItemId.{*, given}
+import ItemId.given
 
 type ItemName = ModelName[ItemContext]
 object ItemName extends ModelNameTypeOps[ItemContext]
-export ItemName.{*, given}
+export ItemName.given
 
 opaque type Item = Data
 
