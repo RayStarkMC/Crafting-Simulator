@@ -6,11 +6,11 @@ import net.raystarkmc.craftingsimulator.lib.domain.*
 private sealed trait RecipeContext
 
 type RecipeId = ModelIdUUID[RecipeContext]
-object RecipeId extends ModelIdUUIDSyntax[RecipeContext]
+object RecipeId extends ModelIdUUIDTypeOps[RecipeContext]
 export RecipeId.{*, given}
 
 type RecipeName = ModelName[RecipeContext]
-object RecipeName extends ModelNameSyntax[RecipeContext]
+object RecipeName extends ModelNameTypeOps[RecipeContext]
 export RecipeName.{*, given}
 
 case class RecipeInput(

@@ -10,7 +10,7 @@ opaque type ModelName[C] <: String = String
 private inline def unwrapModelName[C](name: ModelName[C]): String = name
 private inline def wrapModelName[C](value: String): ModelName[C] = value
 
-trait ModelNameSyntax[C]:
+trait ModelNameTypeOps[C]:
   extension (self: ModelName[C]) def unwrap: String = unwrapModelName(self)
 
   given Hash[ModelName[C]] = Hash.by(_.unwrap)

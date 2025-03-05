@@ -8,7 +8,7 @@ import cats.*
 
 sealed trait TestContext
 type TestContextName = ModelName[TestContext]
-object TestContextName extends ModelNameSyntax[TestContext]
+object TestContextName extends ModelNameTypeOps[TestContext]
 
 import TestContextName.given
 import TestContextName.*

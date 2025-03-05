@@ -12,7 +12,7 @@ private inline def unwrapModelIdUUID[C](id: ModelIdUUID[C]): UUID = id
 private inline def wrapModelIdUUID[C](value: UUID): ModelIdUUID[C] = value
 private inline def wrapFModelIdUUID[F[_], C](uuidF: F[UUID]): F[ModelIdUUID[C]] = uuidF
 
-trait ModelIdUUIDSyntax[C]:
+trait ModelIdUUIDTypeOps[C]:
   extension (self: ModelIdUUID[C]) def unwrap: UUID = unwrapModelIdUUID(self)
   def apply(self: UUID): ModelIdUUID[C] = wrapModelIdUUID(self)
 
