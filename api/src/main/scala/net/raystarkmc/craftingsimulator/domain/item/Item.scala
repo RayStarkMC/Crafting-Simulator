@@ -5,10 +5,11 @@ import cats.effect.std.UUIDGen
 import cats.syntax.all.given
 import cats.{Functor, Hash, Show}
 import net.raystarkmc.craftingsimulator.domain.item.Item.Data
-import net.raystarkmc.craftingsimulator.lib.domain.{ModelName, ModelNameTypeOps}
 import net.raystarkmc.craftingsimulator.lib.domain.{
   ModelIdUUID,
-  ModelIdUUIDTypeOps
+  ModelIdUUIDTypeOps,
+  ModelName,
+  ModelNameTypeOps
 }
 
 private sealed trait ItemContext
