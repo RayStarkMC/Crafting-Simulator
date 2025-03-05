@@ -4,13 +4,10 @@ import cats.derived.*
 import cats.effect.std.UUIDGen
 import cats.syntax.all.given
 import cats.{Functor, Hash, Show}
+import io.github.iltotore.iron.RefinedTypeOps
 import net.raystarkmc.craftingsimulator.domain.item.Item.Data
-import net.raystarkmc.craftingsimulator.lib.domain.{
-  ModelIdUUID,
-  ModelIdUUIDTypeOps,
-  ModelName,
-  ModelNameTypeOps
-}
+import net.raystarkmc.craftingsimulator.lib.domain.{ModelIdUUID, ModelIdUUIDTypeOps, ModelName, ModelNameTypeOps}
+import io.github.iltotore.iron.cats.{*, given}
 
 private sealed trait ItemContext
 

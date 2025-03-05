@@ -17,6 +17,3 @@ trait ModelIdUUIDTypeOps[C] extends RefinedTypeOps[UUID, Pure, ModelIdUUID[C]]:
 
   def generate[F[_]: UUIDGen]: F[ModelIdUUID[C]] =
     wrapFModelIdUUID(UUIDGen.randomUUID)
-
-  given Hash[ModelIdUUID[C]] = Hash.by(_.unwrap)
-  given Show[ModelIdUUID[C]] = Show.show(_.unwrap.show)
