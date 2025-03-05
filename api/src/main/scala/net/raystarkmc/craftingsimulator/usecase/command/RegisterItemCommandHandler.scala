@@ -43,6 +43,6 @@ trait RegisterItemCommandHandlerGivens:
           _ <- EitherT.liftF(
             itemRepository.save(item)
           )
-        } yield Output(item.data.id.unwrap)
+        } yield Output(item.data.id)
         eitherT.value
     instance
