@@ -17,6 +17,7 @@ import net.raystarkmc.craftingsimulator.domain.item.{
   ItemName,
   ItemRepository
 }
+import io.github.iltotore.iron.*
 import net.raystarkmc.craftingsimulator.domain.item.ItemName.given
 import net.raystarkmc.craftingsimulator.domain.item.ItemName.*
 import net.raystarkmc.craftingsimulator.domain.item.ItemId.given

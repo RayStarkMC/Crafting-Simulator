@@ -1,6 +1,7 @@
 package net.raystarkmc.craftingsimulator.domain.item
 
 import org.scalatest.freespec.AnyFreeSpec
+import io.github.iltotore.iron.*
 
 import java.util.UUID
 
