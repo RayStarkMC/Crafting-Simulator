@@ -9,8 +9,8 @@ CREATE TABLE recipe
 
 CREATE TABLE recipe_input
 (
-    recipe_id  uuid        not null,
-    item_id    uuid        not null,
+    recipe_id  uuid        not null references recipe(id),
+    item_id    uuid        not null references item(id),
     count      bigint      not null,
     created_at timestamptz not null,
     updated_at timestamptz not null,
@@ -19,8 +19,8 @@ CREATE TABLE recipe_input
 
 CREATE TABLE recipe_output
 (
-    recipe_id  uuid        not null,
-    item_id    uuid        not null,
+    recipe_id  uuid        not null references recipe(id),
+    item_id    uuid        not null references item(id),
     count      bigint      not null,
     created_at timestamptz not null,
     updated_at timestamptz not null,
