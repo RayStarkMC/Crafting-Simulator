@@ -35,3 +35,8 @@ case class RecipeData(
 ) derives Eq, Hash
 opaque type Recipe = RecipeData :| Pure
 object Recipe extends RefinedTypeOps[RecipeData, Pure, Recipe]
+
+trait RecipeRepository[F[_]]:
+  def resolveById(itemId: ItemId): F[Option[Item]]
+  def save(item: Item): F[Unit]
+  def delete(item: Item): F[Unit]
