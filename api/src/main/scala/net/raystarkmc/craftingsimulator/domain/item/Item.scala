@@ -13,7 +13,7 @@ private sealed trait ItemContext
 
 type ItemId = ModelIdUUID[ItemContext]
 object ItemId extends ModelIdUUIDTypeOps[ItemContext]
-import ItemId.given
+export ItemId.given
 
 type ItemName = ModelName[ItemContext]
 object ItemName extends ModelNameTypeOps[ItemContext]

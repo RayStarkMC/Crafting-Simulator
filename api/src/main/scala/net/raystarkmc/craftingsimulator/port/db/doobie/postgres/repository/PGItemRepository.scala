@@ -19,10 +19,8 @@ import net.raystarkmc.craftingsimulator.domain.item.{
 }
 import io.github.iltotore.iron.*
 import io.github.iltotore.iron.doobie.given
-import net.raystarkmc.craftingsimulator.domain.item.ItemName.given
+import net.raystarkmc.craftingsimulator.domain.item.{*, given}
 import net.raystarkmc.craftingsimulator.domain.item.ItemName.*
-import net.raystarkmc.craftingsimulator.domain.item.ItemId.given
-import net.raystarkmc.craftingsimulator.domain.item.ItemId.*
 import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.table.ItemTableRecord
 import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.xa
 
