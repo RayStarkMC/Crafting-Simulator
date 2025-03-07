@@ -81,9 +81,7 @@ trait PGItemRepository[F[_]: Async] extends ItemRepository[F]:
 
     deleteSql.void.transact[F](xa)
 
-object PGItemRepository extends PGItemRepositoryGivens
-
-trait PGItemRepositoryGivens:
-  given [F[_]: Async] => ItemRepository[F] =
+object PGItemRepository:
+  given [F[_] : Async] => ItemRepository[F] =
     object repository extends PGItemRepository
     repository
