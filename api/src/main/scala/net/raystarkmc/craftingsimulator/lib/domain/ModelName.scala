@@ -7,8 +7,10 @@ import cats.{ApplicativeError, Hash, Show}
 import io.github.iltotore.iron.*
 import io.github.iltotore.iron.constraint.all.*
 
+type IncludeCntrlPattern = ".*\\p{Cntrl}.*"
+
 type ModelNameConstraint =
-  Not[Blank] & MaxLength[100] & Match["^[^\\p{Cntrl}]*$"]
+  Not[Blank] & MaxLength[100] & Not[Match[IncludeCntrlPattern]]
 opaque type ModelName[C] = String :| ModelNameConstraint
 
 private inline def wrapModelName[C](
@@ -35,7 +37,7 @@ trait ModelNameTypeOps[C] extends RefinedTypeOps[String, ModelNameConstraint, Mo
     )
 
     val checkControlCharacter = F.fromOption(
-      value.refineOption[Match["^[^\\p{Cntrl}]*$"]],
+      value.refineOption[Not[Match[IncludeCntrlPattern]]],
       NonEmptyChain.one(Failure.ContainsControlCharacter)
     )
 
