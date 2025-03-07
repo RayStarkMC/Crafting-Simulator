@@ -33,3 +33,9 @@ object Item extends RefinedTypeOps[ItemData, Pure, Item]:
 
   def create[F[_]: {Functor, UUIDGen}](name: ItemName): F[Item] =
     ItemId.generate.map(ItemData(_, name))
+
+trait ItemRepository[F[_]]:
+  def resolveById(itemId: ItemId): F[Option[Item]]
+  def save(item: Item): F[Unit]
+  def delete(item: Item): F[Unit]
+
