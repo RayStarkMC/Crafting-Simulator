@@ -7,6 +7,7 @@ import cats.effect.std.UUIDGen
 import cats.instances.all.given
 import cats.syntax.all.given
 import net.raystarkmc.craftingsimulator.domain.item.{*, given}
+import net.raystarkmc.craftingsimulator.domain.item.ItemId.{*, given}
 import net.raystarkmc.craftingsimulator.usecase.command.RegisterItemCommandHandler.{
   Command,
   Output
@@ -43,6 +44,6 @@ trait RegisterItemCommandHandlerGivens:
           _ <- EitherT.liftF(
             itemRepository.save(item)
           )
-        } yield Output(item.data.id)
+        } yield Output(item.value.id.value)
         eitherT.value
     instance

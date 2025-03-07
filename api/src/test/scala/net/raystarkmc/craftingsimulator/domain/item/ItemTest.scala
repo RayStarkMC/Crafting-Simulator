@@ -9,12 +9,12 @@ class ItemTest extends AnyFreeSpec {
   val testingUUID: UUID = UUID.randomUUID().nn
 
   "復元する" in {
-    val expected = Item.Data(
+    val expected = ItemData(
       id = ItemId(testingUUID),
       name = ItemName.ae("item").getOrElse(fail())
     )
-    val actual = Item.restore(
-      Item.Data(
+    val actual = Item(
+      ItemData(
         id = ItemId(testingUUID),
         name = ItemName.ae("item").getOrElse(fail())
       )
@@ -23,14 +23,14 @@ class ItemTest extends AnyFreeSpec {
   }
 
   "名前を変更する" in {
-    val item = Item.restore(
-      Item.Data(
+    val item = Item(
+      ItemData(
         id = ItemId(testingUUID),
         name = ItemName.ae("item").getOrElse(fail())
       )
     )
-    val expected = Item.restore(
-      Item.Data(
+    val expected = Item(
+      ItemData(
         id = ItemId(testingUUID),
         name = ItemName.ae("newItem").getOrElse(fail())
       )

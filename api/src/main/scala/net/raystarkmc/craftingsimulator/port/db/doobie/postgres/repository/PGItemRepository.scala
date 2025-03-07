@@ -11,16 +11,11 @@ import doobie.*
 import doobie.implicits.given
 import doobie.postgres.*
 import doobie.postgres.implicits.given
-import net.raystarkmc.craftingsimulator.domain.item.{
-  Item,
-  ItemId,
-  ItemName,
-  ItemRepository
-}
 import io.github.iltotore.iron.*
 import io.github.iltotore.iron.doobie.given
 import net.raystarkmc.craftingsimulator.domain.item.{*, given}
-import net.raystarkmc.craftingsimulator.domain.item.ItemName.*
+import net.raystarkmc.craftingsimulator.domain.item.ItemId.{*, given}
+import net.raystarkmc.craftingsimulator.domain.item.ItemName.{*, given}
 import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.table.ItemTableRecord
 import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.xa
 
@@ -46,8 +41,8 @@ trait PGItemRepository[F[_]: Async] extends ItemRepository[F]:
             OptionT.some[F](v)
         }
     } yield {
-      Item.restore(
-        data = Item.Data(
+      Item(
+        ItemData(
           id = itemId,
           name = itemName
         )
@@ -61,8 +56,8 @@ trait PGItemRepository[F[_]: Async] extends ItemRepository[F]:
         insert
           into item (id, name, created_at, updated_at)
           values (
-            ${item.data.id},
-            ${item.data.name.unwrap},
+            ${item.value.id},
+            ${item.value.name},
             current_timestamp,
             current_timestamp
           )
@@ -81,7 +76,7 @@ trait PGItemRepository[F[_]: Async] extends ItemRepository[F]:
       from
         item
       where
-        item.id = ${item.data.id}
+        item.id = ${item.value.id}
     """.update.run
 
     deleteSql.void.transact[F](xa)

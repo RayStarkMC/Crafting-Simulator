@@ -7,7 +7,7 @@ import io.github.iltotore.iron.*
 
 import java.util.UUID
 
-opaque type ModelIdUUID[C] <: UUID = UUID :| Pure
+opaque type ModelIdUUID[C] = UUID :| Pure
 
 private inline def wrapFModelIdUUID[F[_], C](uuidF: F[UUID]): F[ModelIdUUID[C]] = uuidF.assumeAll // Pure制約のため
 

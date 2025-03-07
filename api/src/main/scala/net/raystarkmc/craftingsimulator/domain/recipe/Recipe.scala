@@ -7,11 +7,11 @@ private sealed trait RecipeContext
 
 type RecipeId = ModelIdUUID[RecipeContext]
 object RecipeId extends ModelIdUUIDTypeOps[RecipeContext]
-export RecipeId.{*, given}
+import RecipeId.given
 
 type RecipeName = ModelName[RecipeContext]
 object RecipeName extends ModelNameTypeOps[RecipeContext]
-export RecipeName.{*, given}
+import RecipeName.given
 
 case class RecipeInput(
     items: Seq[ItemId]
