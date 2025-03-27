@@ -1,11 +1,13 @@
 package net.raystarkmc.craftingsimulator.domain.recipe
 
-import cats.{Eq, Hash}
 import cats.derived.*
+import cats.*
+import cats.instances.*
 import io.github.iltotore.iron.*
-import io.github.iltotore.iron.cats.{*, given}
+import io.github.iltotore.iron.cats.given
 import io.github.iltotore.iron.constraint.all.*
 import net.raystarkmc.craftingsimulator.domain.item.{*, given}
+import net.raystarkmc.craftingsimulator.domain.item.ItemId.{*, given}
 import net.raystarkmc.craftingsimulator.lib.domain.*
 
 sealed trait RecipeContext
@@ -21,18 +23,22 @@ import RecipeName.given
 opaque type ItemCount = Long :| Greater[0]
 object ItemCount extends RefinedTypeOps[Long, Greater[0], ItemCount]
 
-opaque type RecipeInput = Seq[ItemCount] :| Pure
-object RecipeInput extends RefinedTypeOps[Seq[ItemCount], Pure, RecipeInput]
+case class ItemWithCount(item: ItemId, count: ItemCount) derives Hash, Show
 
-opaque type RecipeOutput = Seq[ItemCount] :| Pure
-object RecipeOutput extends RefinedTypeOps[Seq[ItemCount], Pure, RecipeOutput]
+opaque type RecipeInput = Seq[ItemWithCount] :| Pure
+object RecipeInput extends RefinedTypeOps[Seq[ItemWithCount], Pure, RecipeInput]
+
+opaque type RecipeOutput = Seq[ItemWithCount] :| Pure
+object RecipeOutput
+    extends RefinedTypeOps[Seq[ItemWithCount], Pure, RecipeOutput]
 
 case class RecipeData(
     id: RecipeId,
     name: RecipeName,
     inputs: RecipeInput,
     outputs: RecipeOutput
-) derives Eq, Hash
+) derives Hash,
+      Show
 opaque type Recipe = RecipeData :| Pure
 object Recipe extends RefinedTypeOps[RecipeData, Pure, Recipe]
 
