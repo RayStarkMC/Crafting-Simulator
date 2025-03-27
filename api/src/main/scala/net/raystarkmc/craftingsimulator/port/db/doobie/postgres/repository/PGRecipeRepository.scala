@@ -3,6 +3,7 @@ package net.raystarkmc.craftingsimulator.port.db.doobie.postgres.repository
 import cats.*
 import cats.data.*
 import cats.effect.*
+import cats.syntax.all.*
 import cats.implicits.given
 import doobie.*
 import doobie.hi.*
@@ -15,6 +16,7 @@ import io.github.iltotore.iron.doobie.given
 import net.raystarkmc.craftingsimulator.domain.item.ItemId.*
 import net.raystarkmc.craftingsimulator.domain.recipe.RecipeId.*
 import net.raystarkmc.craftingsimulator.domain.recipe.*
+import net.raystarkmc.craftingsimulator.domain.recipe.RecipeName.*
 import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.xa
 
 import java.util.UUID
@@ -77,13 +79,11 @@ trait PGRecipeRepository[F[_]: Async] extends RecipeRepository[F]:
       recipeInputRecords <- OptionT.liftF(selectInput.to[Seq])
       recipeOutputRecords <- OptionT.liftF(selectOutput.to[Seq])
 
-      recipeName <- OptionT.liftF {
+      recipeName <- OptionT.liftF[ConnectionIO, RecipeName] {
         RecipeName
           .ae[G](recipeRecord.name)
-          .fold(
-            a => new IllegalStateException(a.show).raiseError[ConnectionIO, RecipeName],
-            _.pure[ConnectionIO]
-          )
+          .leftMap(a => new IllegalStateException(a.show))
+          .fold(_.raiseError, _.pure)
       }
       recipe = Recipe(
         RecipeData(
@@ -97,6 +97,60 @@ trait PGRecipeRepository[F[_]: Async] extends RecipeRepository[F]:
 
     optionT.value.transact[F](xa)
 
-  override def save(recipe: Recipe): F[Unit] = ???
+  override def save(recipe: Recipe): F[Unit] =
+    val transaction =
+      for {
+        _ <- sql"""
+          delete
+          from recipe_input
+          where
+            recipe_input.recipe_id = ${recipe.value.id.value}
+                """.update.run
+        _ <- sql"""
+          delete
+          from recipe_output
+          where
+            recipe_output.recipe_id = ${recipe.value.id.value}
+                """.update.run
+        _ <- sql"""
+          insert into recipe (id, name, created_at, updated_at)
+          values (
+            ${recipe.value.id.value},
+            ${recipe.value.name.value},
+            current_timestamp,
+            current_timestamp
+          )
+          on conflict (id) do
+          update set
+            name = excluded.name,
+            updated_at = current_timestamp
+                """.update.run
+        _ <- Update[(UUID, UUID, Long)](
+          """
+          insert into recipe_input (recipe_id, item_id, count, created_at, updated_at)
+          values (?, ?, ?, current_timestamp, current_timestamp)
+          """
+        ).updateMany(recipe.value.inputs.value.map { itemWithCount =>
+          (
+            recipe.value.id.value,
+            itemWithCount.item.value,
+            itemWithCount.count.value,
+          )
+        })
+        _ <- Update[(UUID, UUID, Long)](
+          """
+          insert into recipe_output (recipe_id, item_id, count, created_at, updated_at)
+          values (?, ?, ?, current_timestamp, current_timestamp)
+          """
+        ).updateMany(recipe.value.outputs.value.map { itemWithCount =>
+          (
+            recipe.value.id.value,
+            itemWithCount.item.value,
+            itemWithCount.count.value,
+          )
+        })
+      } yield ()
+
+    transaction.transact[F](xa)
 
   override def delete(recipe: Recipe): F[Unit] = ???
