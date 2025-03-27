@@ -176,3 +176,8 @@ trait PGRecipeRepository[F[_]: Async] extends RecipeRepository[F]:
     } yield ()
 
     transaction.transact[F](xa)
+
+object PGRecipeRepository:
+  given [F[_] : Async] => RecipeRepository[F] =
+    object repository extends PGRecipeRepository
+    repository
