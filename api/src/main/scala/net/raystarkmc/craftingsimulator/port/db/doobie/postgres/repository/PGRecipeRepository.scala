@@ -153,4 +153,26 @@ trait PGRecipeRepository[F[_]: Async] extends RecipeRepository[F]:
 
     transaction.transact[F](xa)
 
-  override def delete(recipe: Recipe): F[Unit] = ???
+  override def delete(recipe: Recipe): F[Unit] =
+    val transaction = for {
+      _ <- sql"""
+        delete
+        from recipe_input
+        where
+          recipe_input.recipe_id = ${recipe.value.id.value}
+            """.update.run
+      _ <- sql"""
+        delete
+        from recipe_output
+        where
+          recipe_output.recipe_id = ${recipe.value.id.value}
+            """.update.run
+      _ <- sql"""
+        delete
+        from recipe
+        where
+          recipe.id = ${recipe.value.id.value}
+              """.update.run
+    } yield ()
+
+    transaction.transact[F](xa)
