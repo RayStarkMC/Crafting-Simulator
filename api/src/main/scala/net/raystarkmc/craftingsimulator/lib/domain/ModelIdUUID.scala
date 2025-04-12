@@ -4,6 +4,7 @@ import cats.effect.std.UUIDGen
 import cats.syntax.all.given
 import cats.{Hash, Show}
 import io.github.iltotore.iron.*
+import io.github.iltotore.iron.cats.{*, given}
 
 import java.util.UUID
 
@@ -14,3 +15,6 @@ private inline def wrapFModelIdUUID[F[_], C](uuidF: F[UUID]): F[ModelIdUUID[C]] 
 trait ModelIdUUIDTypeOps[C] extends RefinedTypeOps[UUID, Pure, ModelIdUUID[C]]:
   def generate[F[_]: UUIDGen]: F[ModelIdUUID[C]] =
     wrapFModelIdUUID(UUIDGen.randomUUID)
+    
+  protected val hash: Hash[ModelIdUUID[C]] = Hash[ModelIdUUID[C]]
+  protected val show: Show[ModelIdUUID[C]] = Show[ModelIdUUID[C]]
