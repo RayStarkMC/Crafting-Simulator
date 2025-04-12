@@ -1,21 +1,17 @@
 package net.raystarkmc.craftingsimulator.domain.recipe
 
 import cats.*
+import cats.data.*
 import cats.implicits.*
 import cats.derived.*
 import cats.effect.std.UUIDGen
 import io.github.iltotore.iron.*
-import cats.{*, given}
 import io.github.iltotore.iron.constraint.all.*
-import net.raystarkmc.craftingsimulator.domain.item.ItemId.given
+import io.github.iltotore.iron.cats.{*, given}
 import net.raystarkmc.craftingsimulator.domain.item.{*, given}
 import net.raystarkmc.craftingsimulator.domain.item.ItemId.{*, given}
 import net.raystarkmc.craftingsimulator.lib.domain.*
 
-sealed trait RecipeContext
-
-type RecipeId = ModelIdUUID[RecipeContext]
-object RecipeId extends ModelIdUUIDTypeOps[RecipeContext]
 import net.raystarkmc.craftingsimulator.domain.recipe.RecipeId.given
 
 type RecipeName = ModelName[RecipeContext]
@@ -23,7 +19,20 @@ object RecipeName extends ModelNameTypeOps[RecipeContext]
 import net.raystarkmc.craftingsimulator.domain.recipe.RecipeName.given
 
 opaque type ItemCount = Long :| Greater[0]
-object ItemCount extends RefinedTypeOps[Long, Greater[0], ItemCount]
+object ItemCount extends RefinedTypeOps[Long, Greater[0], ItemCount]:
+  enum Failure:
+    case IsNotGreaterThen0
+
+  type AE[F[_]] = ApplicativeError[F, NonEmptyChain[Failure]]
+
+  def ae[F[_] : AE as F](value: Long): F[ItemCount] =
+    val checkGreaterThan0 = F.fromOption(
+      value.refineOption[Greater[0]],
+      NonEmptyChain.one(Failure.IsNotGreaterThen0)
+    )
+    ItemCount.assume(value).pure[F]
+      <* checkGreaterThan0
+import net.raystarkmc.craftingsimulator.domain.recipe.ItemCount.given
 
 case class ItemWithCount(item: ItemId, count: ItemCount) derives Hash, Show
 
