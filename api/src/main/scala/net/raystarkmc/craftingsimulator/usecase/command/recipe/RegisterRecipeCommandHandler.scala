@@ -6,9 +6,10 @@ import cats.derived.*
 import cats.effect.std.UUIDGen
 import cats.instances.all.given
 import cats.syntax.all.given
+import io.github.iltotore.iron.*
 import net.raystarkmc.craftingsimulator.domain.item.{*, given}
 import net.raystarkmc.craftingsimulator.domain.item.ItemId.{*, given}
-import net.raystarkmc.craftingsimulator.domain.recipe.{Recipe, RecipeName, RecipeRepository}
+import net.raystarkmc.craftingsimulator.domain.recipe.{ItemCount, ItemWithCount, Recipe, RecipeInput, RecipeName, RecipeOutput, RecipeRepository}
 import net.raystarkmc.craftingsimulator.domain.recipe.Recipe.{*, given}
 import net.raystarkmc.craftingsimulator.domain.recipe.RecipeId.{*, given}
 import net.raystarkmc.craftingsimulator.domain.recipe.RecipeName.{*, given}
@@ -22,9 +23,13 @@ trait RegisterRecipeCommandHandler[F[_]]:
   ): F[Either[RegisterRecipeCommandHandler.Error, Output]]
 
 object RegisterRecipeCommandHandler extends RegisterRecipeCommandHandlerGivens:
-  case class Command(name: String) derives Hash, Show
+  case class Command(
+    name: String,
+    inputs: Seq[(UUID, Long)],
+    outputs: Seq[(UUID, Long)],
+  ) derives Hash, Show
   case class Output(id: UUID) derives Hash, Show
-  case class Error(detail: RecipeName.Failure) derives Hash, Show
+  case class Error(detail: String) derives Hash, Show
 
 trait RegisterRecipeCommandHandlerGivens:
   given [F[_]: {Monad, UUIDGen, RecipeRepository}]
@@ -38,14 +43,47 @@ trait RegisterRecipeCommandHandlerGivens:
         val eitherT = for {
           name <- RecipeName
             .ae(command.name)
-            .leftMap(_.head)
-            .leftMap(RegisterRecipeCommandHandler.Error.apply)
+            .leftMap(_.toString)
+            .leftMap(RegisterRecipeCommandHandler.Error(_))
             .toEitherT[F]
+          inputs: RecipeInput <- EitherT.fromEither[F] {
+            command.inputs
+              .traverse { (uuid, count) =>
+                ItemCount.ae(count).map { c =>
+                  ItemWithCount(
+                    item = ItemId(uuid),
+                    count = c
+                  )
+                }
+              }
+              .map { icSeq =>
+                RecipeInput.apply(icSeq)
+              }
+              .leftMap(_.toString)
+              .leftMap(RegisterRecipeCommandHandler.Error(_))
+          }
+          outputs: RecipeOutput <- EitherT.fromEither[F] {
+            command.outputs
+              .traverse { (uuid, count) =>
+                ItemCount.ae(count).map { c =>
+                  ItemWithCount(
+                    item = ItemId(uuid),
+                    count = c
+                  )
+                }
+              }
+              .map { icSeq =>
+                RecipeOutput.apply(icSeq)
+              }
+              .leftMap(_.toString)
+              .leftMap(RegisterRecipeCommandHandler.Error(_))
+          }
+
           recipe <- EitherT.liftF(
             Recipe.create(
               name = name,
-              inputs = ???,
-              outputs = ???
+              inputs = inputs,
+              outputs = outputs
             )
           )
           _ <- EitherT.liftF(
