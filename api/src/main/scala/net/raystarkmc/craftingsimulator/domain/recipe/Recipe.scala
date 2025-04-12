@@ -14,24 +14,7 @@ import net.raystarkmc.craftingsimulator.lib.domain.*
 
 import net.raystarkmc.craftingsimulator.domain.recipe.RecipeId.given
 import net.raystarkmc.craftingsimulator.domain.recipe.RecipeName.given
-
-opaque type ItemCount = Long :| Greater[0]
-object ItemCount extends RefinedTypeOps[Long, Greater[0], ItemCount]:
-  enum Failure:
-    case IsNotGreaterThen0
-
-  type AE[F[_]] = ApplicativeError[F, NonEmptyChain[Failure]]
-
-  def ae[F[_] : AE as F](value: Long): F[ItemCount] =
-    val checkGreaterThan0 = F.fromOption(
-      value.refineOption[Greater[0]],
-      NonEmptyChain.one(Failure.IsNotGreaterThen0)
-    )
-    ItemCount.assume(value).pure[F]
-      <* checkGreaterThan0
 import net.raystarkmc.craftingsimulator.domain.recipe.ItemCount.given
-
-case class ItemWithCount(item: ItemId, count: ItemCount) derives Hash, Show
 
 opaque type RecipeInput = Seq[ItemWithCount] :| Pure
 object RecipeInput extends RefinedTypeOps[Seq[ItemWithCount], Pure, RecipeInput]
