@@ -13,9 +13,6 @@ import net.raystarkmc.craftingsimulator.domain.item.ItemId.{*, given}
 import net.raystarkmc.craftingsimulator.lib.domain.*
 
 import net.raystarkmc.craftingsimulator.domain.recipe.RecipeId.given
-
-type RecipeName = ModelName[RecipeContext]
-object RecipeName extends ModelNameTypeOps[RecipeContext]
 import net.raystarkmc.craftingsimulator.domain.recipe.RecipeName.given
 
 opaque type ItemCount = Long :| Greater[0]
