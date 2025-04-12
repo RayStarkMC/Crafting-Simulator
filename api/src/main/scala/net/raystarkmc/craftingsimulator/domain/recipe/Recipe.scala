@@ -16,13 +16,6 @@ import net.raystarkmc.craftingsimulator.domain.recipe.RecipeId.given
 import net.raystarkmc.craftingsimulator.domain.recipe.RecipeName.given
 import net.raystarkmc.craftingsimulator.domain.recipe.ItemCount.given
 
-opaque type RecipeInput = Seq[ItemWithCount] :| Pure
-object RecipeInput extends RefinedTypeOps[Seq[ItemWithCount], Pure, RecipeInput]
-
-opaque type RecipeOutput = Seq[ItemWithCount] :| Pure
-object RecipeOutput
-    extends RefinedTypeOps[Seq[ItemWithCount], Pure, RecipeOutput]
-
 case class RecipeData(
     id: RecipeId,
     name: RecipeName,
