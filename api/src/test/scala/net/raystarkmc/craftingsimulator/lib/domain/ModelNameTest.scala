@@ -10,10 +10,10 @@ import io.github.iltotore.iron.cats.given
 import io.github.iltotore.iron.constraint.all.Empty
 
 sealed trait TestContext
-type TestContextName = ModelName[TestContext]
-object TestContextName extends ModelNameTypeOps[TestContext]
+type TestContextName = TestContextName.T
+object TestContextName extends ModelName[TestContext]
 
-import TestContextName.{*, given}
+import TestContextName.*
 
 class ModelNameTest extends AnyFreeSpec:
   "制御文字が含まれる場合失敗" in :

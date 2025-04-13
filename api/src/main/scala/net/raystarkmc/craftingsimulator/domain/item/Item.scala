@@ -14,8 +14,8 @@ type ItemId = ItemId.T
 object ItemId extends ModelIdUUID[ItemContext]
 import ItemId.given
 
-type ItemName = ModelName[ItemContext]
-object ItemName extends ModelNameTypeOps[ItemContext]
+type ItemName = ItemName.T
+object ItemName extends ModelName[ItemContext]
 import ItemName.given
 
 case class ItemData(
