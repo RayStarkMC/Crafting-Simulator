@@ -6,6 +6,7 @@ import cats.syntax.all.given
 import cats.{ApplicativeError, Hash, Show}
 import io.github.iltotore.iron.*
 import io.github.iltotore.iron.constraint.all.*
+import io.github.iltotore.iron.cats.{*, given}
 
 type IncludeCntrlPattern = ".*\\p{Cntrl}.*"
 
@@ -18,6 +19,9 @@ private inline def wrapModelName[C](
 ): ModelName[C] = value
 
 trait ModelNameTypeOps[C] extends RefinedTypeOps[String, ModelNameConstraint, ModelName[C]]:
+  protected val hash: Hash[ModelName[C]] = summon
+  protected val show: Show[ModelName[C]] = summon
+  
   enum Failure derives Hash, Show:
     case IsBlank extends Failure
     case LengthExceeded extends Failure
