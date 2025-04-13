@@ -38,8 +38,3 @@ object Recipe extends RefinedTypeOps[RecipeData, Pure, Recipe]:
     RecipeId.generate.map(
       RecipeData(_, name, inputs, outputs)
     )
-
-trait RecipeRepository[F[_]]:
-  def resolveById(recipeId: RecipeId): F[Option[Recipe]]
-  def save(recipe: Recipe): F[Unit]
-  def delete(recipe: Recipe): F[Unit]
