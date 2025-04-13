@@ -52,24 +52,61 @@ trait PGRecipeRepository[F[_]: Async] extends RecipeRepository[F]:
           id = $recipeId
          """.query[RecipeOutputRecord]
 
-    val transactionT = for {
-      recipeRecord <- OptionT(selectRecipe.option)
-      recipeInputRecords <- OptionT.liftF(selectInput.to[Seq])
-      recipeOutputRecords <- OptionT.liftF(selectOutput.to[Seq])
-
-      recipeName <- OptionT.liftF {
+    def restoreRecipe[G[_]: ApplicativeThrow](
+        recipeRecord: RecipeTableRecord,
+        recipeInputRecords: Seq[RecipeInputRecord],
+        recipeOutputRecords: Seq[RecipeOutputRecord]
+    ): G[Recipe] =
+      (
+        RecipeId(recipeRecord.id).pure[G],
         RecipeName
           .ae[[A] =>> ValidatedNec[RecipeName.Failure, A]](recipeRecord.name)
           .leftMap(a => new IllegalStateException(a.show))
-          .fold[ConnectionIO[RecipeName]](_.raiseError, _.pure)
+          .fold[G[RecipeName]](_.raiseError, _.pure),
+        recipeInputRecords
+          .traverse { record =>
+            (
+              ItemId(record.itemId).pure[G],
+              ItemCount
+                .ae[[A] =>> ValidatedNec[ItemCount.Failure, A]](record.count)
+                .leftMap(a => new IllegalStateException(a.show))
+                .fold[G[ItemCount]](_.raiseError, _.pure)
+            ).mapN(ItemWithCount.apply)
+          }
+          .map(RecipeInput.apply),
+        recipeOutputRecords
+          .traverse { record =>
+            (
+              ItemId(record.itemId).pure[G],
+              ItemCount
+                .ae[[A] =>> ValidatedNec[ItemCount.Failure, A]](record.count)
+                .leftMap(a => new IllegalStateException(a.show))
+                .fold[G[ItemCount]](_.raiseError, _.pure)
+            ).mapN(ItemWithCount.apply)
+          }
+          .map(RecipeOutput.apply)
+      ).mapN(Recipe.restore)
+
+    val transactionT = for {
+      recipeRecord <- OptionT {
+        selectRecipe.option
+      }
+      recipeInputRecords <- OptionT.liftF {
+        selectInput.to[Seq]
+      }
+      recipeOutputRecords <- OptionT.liftF {
+        selectOutput.to[Seq]
+      }
+
+      recipe <- OptionT.liftF {
+        restoreRecipe[ConnectionIO](
+          recipeRecord,
+          recipeInputRecords,
+          recipeOutputRecords
+        )
       }
     } yield {
-      Recipe.restore(
-        id = RecipeId(recipeRecord.id),
-        name = recipeName,
-        inputs = RecipeInput(Seq.empty), // TODO 復元する
-        outputs = RecipeOutput(Seq.empty)
-      )
+      recipe
     }
 
     transactionT.value.transact[F](xa)
@@ -169,20 +206,20 @@ trait PGRecipeRepository[F[_]: Async] extends RecipeRepository[F]:
 
 object PGRecipeRepository:
   private case class RecipeTableRecord(
-    id: UUID,
-    name: String
+      id: UUID,
+      name: String
   )
 
   private case class RecipeInputRecord(
-    recipeId: UUID,
-    itemId: UUID,
-    count: Long
+      recipeId: UUID,
+      itemId: UUID,
+      count: Long
   )
 
   private case class RecipeOutputRecord(
-    recipeId: UUID,
-    itemId: UUID,
-    count: Long
+      recipeId: UUID,
+      itemId: UUID,
+      count: Long
   )
 
   given [F[_]: Async] => RecipeRepository[F] =
