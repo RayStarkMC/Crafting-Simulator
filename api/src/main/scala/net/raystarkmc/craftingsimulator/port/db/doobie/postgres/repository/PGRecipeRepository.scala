@@ -12,7 +12,6 @@ import doobie.postgres.*
 import doobie.postgres.implicits.given
 import io.github.iltotore.iron.*
 import io.github.iltotore.iron.doobie.given
-
 import net.raystarkmc.craftingsimulator.domain.item.ItemId.*
 import net.raystarkmc.craftingsimulator.domain.recipe.RecipeId.*
 import net.raystarkmc.craftingsimulator.domain.recipe.*
@@ -85,17 +84,18 @@ trait PGRecipeRepository[F[_]: Async] extends RecipeRepository[F]:
           .leftMap(a => new IllegalStateException(a.show))
           .fold(_.raiseError, _.pure)
       }
-      recipe = Recipe(
-        RecipeData(
-          id = RecipeId(recipeRecord.id),
-          name = recipeName,
-          inputs = RecipeInput(Seq.empty),
-          outputs = RecipeOutput(Seq.empty)
-        )
+      recipe = Recipe.restore(
+        id = RecipeId(recipeRecord.id),
+        name = recipeName,
+        inputs = RecipeInput(Seq.empty), //TODO 復元する
+        outputs = RecipeOutput(Seq.empty)
       )
     } yield recipe
 
-    optionT.value.transact[F](xa)
+    val b = optionT.value
+
+    val c = b.transact[F](xa)
+    c
 
   override def save(recipe: Recipe): F[Unit] =
     val transaction =
@@ -104,19 +104,19 @@ trait PGRecipeRepository[F[_]: Async] extends RecipeRepository[F]:
           delete
           from recipe_input
           where
-            recipe_input.recipe_id = ${recipe.value.id.value}
+            recipe_input.recipe_id = ${recipe.id.value}
                 """.update.run
         _ <- sql"""
           delete
           from recipe_output
           where
-            recipe_output.recipe_id = ${recipe.value.id.value}
+            recipe_output.recipe_id = ${recipe.id.value}
                 """.update.run
         _ <- sql"""
           insert into recipe (id, name, created_at, updated_at)
           values (
-            ${recipe.value.id.value},
-            ${recipe.value.name.value},
+            ${recipe.id.value},
+            ${recipe.name.value},
             current_timestamp,
             current_timestamp
           )
@@ -130,11 +130,11 @@ trait PGRecipeRepository[F[_]: Async] extends RecipeRepository[F]:
           insert into recipe_input (recipe_id, item_id, count, created_at, updated_at)
           values (?, ?, ?, current_timestamp, current_timestamp)
           """
-        ).updateMany(recipe.value.inputs.value.map { itemWithCount =>
+        ).updateMany(recipe.input.value.map { itemWithCount =>
           (
-            recipe.value.id.value,
+            recipe.id.value,
             itemWithCount.item.value,
-            itemWithCount.count.value,
+            itemWithCount.count.value
           )
         })
         _ <- Update[(UUID, UUID, Long)](
@@ -142,11 +142,11 @@ trait PGRecipeRepository[F[_]: Async] extends RecipeRepository[F]:
           insert into recipe_output (recipe_id, item_id, count, created_at, updated_at)
           values (?, ?, ?, current_timestamp, current_timestamp)
           """
-        ).updateMany(recipe.value.outputs.value.map { itemWithCount =>
+        ).updateMany(recipe.output.value.map { itemWithCount =>
           (
-            recipe.value.id.value,
+            recipe.id.value,
             itemWithCount.item.value,
-            itemWithCount.count.value,
+            itemWithCount.count.value
           )
         })
       } yield ()
@@ -159,25 +159,25 @@ trait PGRecipeRepository[F[_]: Async] extends RecipeRepository[F]:
         delete
         from recipe_input
         where
-          recipe_input.recipe_id = ${recipe.value.id.value}
+          recipe_input.recipe_id = ${recipe.id.value}
             """.update.run
       _ <- sql"""
         delete
         from recipe_output
         where
-          recipe_output.recipe_id = ${recipe.value.id.value}
+          recipe_output.recipe_id = ${recipe.id.value}
             """.update.run
       _ <- sql"""
         delete
         from recipe
         where
-          recipe.id = ${recipe.value.id.value}
+          recipe.id = ${recipe.id.value}
               """.update.run
     } yield ()
 
     transaction.transact[F](xa)
 
 object PGRecipeRepository:
-  given [F[_] : Async] => RecipeRepository[F] =
+  given [F[_]: Async] => RecipeRepository[F] =
     object repository extends PGRecipeRepository
     repository
