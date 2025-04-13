@@ -12,11 +12,9 @@ private sealed trait ItemContext
 
 type ItemId = ItemId.T
 object ItemId extends ModelIdUUID[ItemContext]
-import ItemId.given
 
 type ItemName = ItemName.T
 object ItemName extends ModelName[ItemContext]
-import ItemName.given
 
 case class ItemData(
     id: ItemId,
