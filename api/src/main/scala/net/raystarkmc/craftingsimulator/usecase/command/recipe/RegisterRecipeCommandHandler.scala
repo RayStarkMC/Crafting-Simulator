@@ -7,12 +7,11 @@ import cats.effect.std.UUIDGen
 import cats.instances.all.given
 import cats.syntax.all.given
 import io.github.iltotore.iron.*
-import net.raystarkmc.craftingsimulator.domain.item.{*, given}
 import net.raystarkmc.craftingsimulator.domain.item.ItemId.{*, given}
-import net.raystarkmc.craftingsimulator.domain.recipe.{ItemCount, ItemWithCount, Recipe, RecipeInput, RecipeName, RecipeOutput, RecipeRepository}
-import net.raystarkmc.craftingsimulator.domain.recipe.Recipe.{*, given}
+import net.raystarkmc.craftingsimulator.domain.item.{*, given}
 import net.raystarkmc.craftingsimulator.domain.recipe.RecipeId.{*, given}
-import net.raystarkmc.craftingsimulator.domain.recipe.RecipeName.{*, given}
+import net.raystarkmc.craftingsimulator.domain.recipe.RecipeName.given
+import net.raystarkmc.craftingsimulator.domain.recipe.*
 import net.raystarkmc.craftingsimulator.usecase.command.recipe.RegisterRecipeCommandHandler.*
 
 import java.util.UUID
@@ -24,10 +23,11 @@ trait RegisterRecipeCommandHandler[F[_]]:
 
 object RegisterRecipeCommandHandler extends RegisterRecipeCommandHandlerGivens:
   case class Command(
-    name: String,
-    inputs: Seq[(UUID, Long)],
-    outputs: Seq[(UUID, Long)],
-  ) derives Hash, Show
+      name: String,
+      inputs: Seq[(UUID, Long)],
+      outputs: Seq[(UUID, Long)]
+  ) derives Hash,
+        Show
   case class Output(id: UUID) derives Hash, Show
   case class Error(detail: String) derives Hash, Show
 
