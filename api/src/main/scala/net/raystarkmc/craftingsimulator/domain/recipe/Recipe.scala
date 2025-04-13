@@ -3,16 +3,20 @@ package net.raystarkmc.craftingsimulator.domain.recipe
 import cats.*
 import cats.effect.std.UUIDGen
 import cats.implicits.*
-import io.github.iltotore.iron.cats.given
+import cats.derived.*
+import io.github.iltotore.iron.*
+import io.github.iltotore.iron.cats.{*, given}
 import net.raystarkmc.craftingsimulator.domain.item.ItemId.given
 import net.raystarkmc.craftingsimulator.domain.item.given
+import net.raystarkmc.craftingsimulator.domain.recipe.RecipeId.given
+import net.raystarkmc.craftingsimulator.domain.recipe.RecipeName.given
 
 case class Recipe private (
     id: RecipeId,
     name: RecipeName,
     input: RecipeInput,
     output: RecipeOutput
-):
+) derives Hash, Show:
   def update(newName: RecipeName): Recipe =
     copy(name = newName)
 
