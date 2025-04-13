@@ -2,6 +2,6 @@ package net.raystarkmc.craftingsimulator.domain.recipe
 
 import io.github.iltotore.iron.*
 
-opaque type RecipeOutput = Seq[ItemWithCount] :| Pure
+type RecipeOutput = RecipeOutput.T
 object RecipeOutput
-    extends RefinedTypeOps[Seq[ItemWithCount], Pure, RecipeOutput]
+    extends RefinedType[Seq[ItemWithCount], Pure]

@@ -40,10 +40,10 @@ class ModelNameTest extends AnyFreeSpec:
 
   "日本語で生成" in :
     val expected = "サンプルアイテム".asRight[TestContextName.Failure].toEitherNec
-    val actual = TestContextName.ae("サンプルアイテム").map(_.value)
+    val actual = TestContextName.ae("サンプルアイテム")
     assert(expected eqv actual)
 
   "空文字列を含んだ日本語で生成" in :
     val expected = "サンプル アイテム".asRight[TestContextName.Failure].toEitherNec
-    val actual = TestContextName.ae("サンプル アイテム").map(_.value)
+    val actual = TestContextName.ae("サンプル アイテム")
     assert(expected eqv actual)

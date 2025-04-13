@@ -6,8 +6,8 @@ import cats.implicits.*
 import io.github.iltotore.iron.*
 import io.github.iltotore.iron.constraint.all.*
 
-opaque type ItemCount = Long :| Greater[0]
-object ItemCount extends RefinedTypeOps[Long, Greater[0], ItemCount]:
+type ItemCount = ItemCount.T
+object ItemCount extends RefinedType[Long, Greater[0]]:
   enum Failure:
     case IsNotGreaterThen0
 

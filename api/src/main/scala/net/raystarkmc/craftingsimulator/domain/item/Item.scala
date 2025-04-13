@@ -23,16 +23,19 @@ case class ItemData(
     name: ItemName
 ) derives Hash,
       Show
-opaque type Item = ItemData :| Pure
+type Item = Item.T
 
-object Item extends RefinedTypeOps[ItemData, Pure, Item]:
-
+object Item extends RefinedType[ItemData, Pure]:
   extension (self: Item)
     def update(newName: ItemName): Item =
-      self.copy(name = newName)
+      Item(
+        self.copy(name = newName)
+      )
 
   def create[F[_]: {Functor, UUIDGen}](name: ItemName): F[Item] =
-    ItemId.generate.map(ItemData(_, name))
+    ItemId.generate
+      .map(ItemData(_, name))
+      .map(Item(_))
 
 trait ItemRepository[F[_]]:
   def resolveById(itemId: ItemId): F[Option[Item]]

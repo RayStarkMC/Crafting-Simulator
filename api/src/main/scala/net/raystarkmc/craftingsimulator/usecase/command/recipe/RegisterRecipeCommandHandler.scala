@@ -89,6 +89,6 @@ trait RegisterRecipeCommandHandlerGivens:
           _ <- EitherT.liftF(
             recipeRepository.save(recipe)
           )
-        } yield Output(recipe.id.value)
+        } yield Output(recipe.id)
         eitherT.value
     instance

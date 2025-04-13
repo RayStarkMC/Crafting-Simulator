@@ -46,7 +46,7 @@ trait PGRecipeRepository[F[_]: Async] extends RecipeRepository[F]:
         from
           recipe
         where
-          id = ${recipeId.value}
+          id = ${recipeId}
       """.query[RecipeTableRecord]
 
     val selectInput = sql"""
@@ -57,7 +57,7 @@ trait PGRecipeRepository[F[_]: Async] extends RecipeRepository[F]:
         from
           recipe_input
         where
-          id = ${recipeId.value}
+          id = ${recipeId}
          """.query[RecipeInputRecord]
 
     val selectOutput =
@@ -68,7 +68,7 @@ trait PGRecipeRepository[F[_]: Async] extends RecipeRepository[F]:
         from
           recipe_output
         where
-          id = ${recipeId.value}
+          id = ${recipeId}
          """.query[RecipeOutputRecord]
 
     type G[A] = Either[NonEmptyChain[RecipeName.Failure], A]
@@ -92,10 +92,7 @@ trait PGRecipeRepository[F[_]: Async] extends RecipeRepository[F]:
       )
     } yield recipe
 
-    val b = optionT.value
-
-    val c = b.transact[F](xa)
-    c
+    optionT.value.transact[F](xa)
 
   override def save(recipe: Recipe): F[Unit] =
     val transaction =
@@ -104,19 +101,19 @@ trait PGRecipeRepository[F[_]: Async] extends RecipeRepository[F]:
           delete
           from recipe_input
           where
-            recipe_input.recipe_id = ${recipe.id.value}
+            recipe_input.recipe_id = ${recipe.id}
                 """.update.run
         _ <- sql"""
           delete
           from recipe_output
           where
-            recipe_output.recipe_id = ${recipe.id.value}
+            recipe_output.recipe_id = ${recipe.id}
                 """.update.run
         _ <- sql"""
           insert into recipe (id, name, created_at, updated_at)
           values (
-            ${recipe.id.value},
-            ${recipe.name.value},
+            ${recipe.id},
+            ${recipe.name},
             current_timestamp,
             current_timestamp
           )
@@ -132,9 +129,9 @@ trait PGRecipeRepository[F[_]: Async] extends RecipeRepository[F]:
           """
         ).updateMany(recipe.input.value.map { itemWithCount =>
           (
-            recipe.id.value,
-            itemWithCount.item.value,
-            itemWithCount.count.value
+            recipe.id,
+            itemWithCount.item,
+            itemWithCount.count
           )
         })
         _ <- Update[(UUID, UUID, Long)](
@@ -144,9 +141,9 @@ trait PGRecipeRepository[F[_]: Async] extends RecipeRepository[F]:
           """
         ).updateMany(recipe.output.value.map { itemWithCount =>
           (
-            recipe.id.value,
-            itemWithCount.item.value,
-            itemWithCount.count.value
+            recipe.id,
+            itemWithCount.item,
+            itemWithCount.count
           )
         })
       } yield ()
@@ -159,19 +156,19 @@ trait PGRecipeRepository[F[_]: Async] extends RecipeRepository[F]:
         delete
         from recipe_input
         where
-          recipe_input.recipe_id = ${recipe.id.value}
+          recipe_input.recipe_id = ${recipe.id}
             """.update.run
       _ <- sql"""
         delete
         from recipe_output
         where
-          recipe_output.recipe_id = ${recipe.id.value}
+          recipe_output.recipe_id = ${recipe.id}
             """.update.run
       _ <- sql"""
         delete
         from recipe
         where
-          recipe.id = ${recipe.id.value}
+          recipe.id = ${recipe.id}
               """.update.run
     } yield ()
 

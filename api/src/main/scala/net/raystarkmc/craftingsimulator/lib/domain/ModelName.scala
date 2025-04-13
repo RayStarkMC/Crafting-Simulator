@@ -12,13 +12,13 @@ type IncludeCntrlPattern = ".*\\p{Cntrl}.*"
 
 type ModelNameConstraint =
   Not[Blank] & MaxLength[100] & Not[Match[IncludeCntrlPattern]]
-opaque type ModelName[C] = String :| ModelNameConstraint
+type ModelName[C] = String :| ModelNameConstraint
 
 private inline def wrapModelName[C](
     value: String :| ModelNameConstraint
 ): ModelName[C] = value
 
-trait ModelNameTypeOps[C] extends RefinedTypeOps[String, ModelNameConstraint, ModelName[C]]:
+trait ModelNameTypeOps[C] extends RefinedType[String, ModelNameConstraint]:
   protected val hash: Hash[ModelName[C]] = summon
   protected val show: Show[ModelName[C]] = summon
   
