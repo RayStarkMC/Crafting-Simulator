@@ -1,12 +1,10 @@
-package net.raystarkmc.craftingsimulator.port.api.http4s.controller
+package net.raystarkmc.craftingsimulator.port.api.http4s.controller.item
 
 import cats.effect.Concurrent
 import cats.syntax.all.given
-import io.circe.syntax.given
 import net.raystarkmc.craftingsimulator.usecase.command.DeleteItemCommandHandler
 import net.raystarkmc.craftingsimulator.usecase.command.DeleteItemCommandHandler.Command
 import org.http4s.*
-import org.http4s.circe.CirceEntityCodec.given
 
 trait DeleteItemController[F[_]]:
   def run: PartialFunction[Request[F], F[Response[F]]]

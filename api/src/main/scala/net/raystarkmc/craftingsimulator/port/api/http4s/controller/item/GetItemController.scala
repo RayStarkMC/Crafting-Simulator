@@ -1,18 +1,15 @@
-package net.raystarkmc.craftingsimulator.port.api.http4s.controller
+package net.raystarkmc.craftingsimulator.port.api.http4s.controller.item
 
 import cats.*
-import cats.data.*
-import cats.instances.all.given
-import cats.syntax.all.given
 import cats.effect.Concurrent
-import net.raystarkmc.craftingsimulator.port.api.http4s.controller.GetItemController.ResponseBody
-import net.raystarkmc.craftingsimulator.usecase.command.DeleteItemCommandHandler
+import cats.syntax.all.given
+import io.circe.generic.auto.given
+import io.circe.syntax.given
+import net.raystarkmc.craftingsimulator.port.api.http4s.controller.item.GetItemController.ResponseBody
 import net.raystarkmc.craftingsimulator.usecase.query.GetItemQueryHandler
 import net.raystarkmc.craftingsimulator.usecase.query.GetItemQueryHandler.Input
 import org.http4s.*
 import org.http4s.circe.CirceEntityCodec.given
-import io.circe.syntax.given
-import io.circe.generic.auto.given
 
 import java.util.UUID
 

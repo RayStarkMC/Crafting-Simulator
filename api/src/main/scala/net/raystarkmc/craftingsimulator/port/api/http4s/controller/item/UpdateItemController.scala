@@ -1,9 +1,10 @@
-package net.raystarkmc.craftingsimulator.port.api.http4s.controller
+package net.raystarkmc.craftingsimulator.port.api.http4s.controller.item
 
 import cats.effect.Concurrent
+import cats.effect.kernel.Async
 import cats.syntax.all.given
 import io.circe.generic.auto.given
-import net.raystarkmc.craftingsimulator.port.api.http4s.controller.UpdateItemController.RequestBody
+import net.raystarkmc.craftingsimulator.port.api.http4s.controller.item.UpdateItemController.RequestBody
 import net.raystarkmc.craftingsimulator.usecase.command.UpdateItemCommandHandler
 import net.raystarkmc.craftingsimulator.usecase.command.UpdateItemCommandHandler.Command
 import org.http4s.*

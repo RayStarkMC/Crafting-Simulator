@@ -1,4 +1,4 @@
-package net.raystarkmc.craftingsimulator.port.api.http4s.controller
+package net.raystarkmc.craftingsimulator.port.api.http4s.controller.item
 
 import cats.*
 import cats.effect.*
