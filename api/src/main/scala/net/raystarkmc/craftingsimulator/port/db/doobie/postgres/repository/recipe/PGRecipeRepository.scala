@@ -1,4 +1,4 @@
-package net.raystarkmc.craftingsimulator.port.db.doobie.postgres.repository
+package net.raystarkmc.craftingsimulator.port.db.doobie.postgres.repository.recipe
 
 import cats.*
 import cats.data.{NonEmptyChain, NonEmptyList, OptionT}
@@ -13,6 +13,7 @@ import io.github.iltotore.iron.*
 import io.github.iltotore.iron.doobie.given
 import net.raystarkmc.craftingsimulator.domain.item.*
 import net.raystarkmc.craftingsimulator.domain.recipe.*
+import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.repository.PGRecipeRepository
 import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.xa
 
 import java.util.UUID
@@ -70,7 +71,7 @@ trait PGRecipeRepository[F[_]: Async] extends RecipeRepository[F]:
 
     type G[A] = Either[NonEmptyChain[RecipeName.Failure], A]
 
-    val optionT = for {
+    val transactionT = for {
       recipeRecord <- OptionT(selectRecipe.option)
       recipeInputRecords <- OptionT.liftF(selectInput.to[Seq])
       recipeOutputRecords <- OptionT.liftF(selectOutput.to[Seq])
@@ -89,7 +90,7 @@ trait PGRecipeRepository[F[_]: Async] extends RecipeRepository[F]:
       )
     } yield recipe
 
-    optionT.value.transact[F](xa)
+    transactionT.value.transact[F](xa)
 
   override def save(recipe: Recipe): F[Unit] =
     val deleteInput =

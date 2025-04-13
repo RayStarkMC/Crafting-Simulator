@@ -1,9 +1,9 @@
-package net.raystarkmc.craftingsimulator.port.db.doobie.postgres.repository
+package net.raystarkmc.craftingsimulator.port.db.doobie.postgres.repository.item
 
 import cats.*
 import cats.data.*
-import cats.implicits.*
 import cats.effect.*
+import cats.implicits.*
 import doobie.*
 import doobie.implicits.*
 import doobie.postgres.*
@@ -11,6 +11,8 @@ import doobie.postgres.implicits.given
 import io.github.iltotore.iron.*
 import io.github.iltotore.iron.doobie.given
 import net.raystarkmc.craftingsimulator.domain.item.*
+import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.repository.PGItemRepository
+import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.repository.recipe.PGItemRepository
 import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.table.ItemTableRecord
 import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.xa
 

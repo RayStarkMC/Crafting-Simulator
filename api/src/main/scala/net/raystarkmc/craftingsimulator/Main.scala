@@ -6,7 +6,7 @@ import com.comcast.ip4s.{ipv4, port}
 import net.raystarkmc.craftingsimulator.port.api.http4s.controller.*
 import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.queryhandler.PGGetItemQueryHandler.given
 import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.queryhandler.PGSearchItemsQueryHandler.given
-import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.repository.PGItemRepository.given
+import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.repository.item.PGItemRepository.given
 import net.raystarkmc.craftingsimulator.usecase.command.*
 import org.http4s.ember.server.EmberServerBuilder
 import org.http4s.server.middleware.ErrorHandling
