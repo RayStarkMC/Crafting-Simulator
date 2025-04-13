@@ -12,10 +12,8 @@ import doobie.postgres.*
 import doobie.postgres.implicits.given
 import io.github.iltotore.iron.*
 import io.github.iltotore.iron.doobie.given
-import net.raystarkmc.craftingsimulator.domain.item.ItemId.*
-import net.raystarkmc.craftingsimulator.domain.recipe.RecipeId.*
+import net.raystarkmc.craftingsimulator.domain.item.*
 import net.raystarkmc.craftingsimulator.domain.recipe.*
-import net.raystarkmc.craftingsimulator.domain.recipe.RecipeName.*
 import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.xa
 
 import java.util.UUID

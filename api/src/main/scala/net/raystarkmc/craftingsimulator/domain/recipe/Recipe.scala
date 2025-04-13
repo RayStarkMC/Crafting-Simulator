@@ -6,10 +6,6 @@ import cats.implicits.*
 import cats.derived.*
 import io.github.iltotore.iron.*
 import io.github.iltotore.iron.cats.{*, given}
-import net.raystarkmc.craftingsimulator.domain.item.ItemId.given
-import net.raystarkmc.craftingsimulator.domain.item.given
-import net.raystarkmc.craftingsimulator.domain.recipe.RecipeId.given
-import net.raystarkmc.craftingsimulator.domain.recipe.RecipeName.given
 
 case class Recipe private (
     id: RecipeId,

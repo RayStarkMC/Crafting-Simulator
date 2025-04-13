@@ -6,7 +6,6 @@ import cats.syntax.all.given
 import cats.{ApplicativeError, Hash, Show}
 import io.github.iltotore.iron.*
 import io.github.iltotore.iron.constraint.all.*
-import io.github.iltotore.iron.cats.{*, given}
 
 type IncludeCntrlPattern = ".*\\p{Cntrl}.*"
 
@@ -14,9 +13,6 @@ type ModelNameConstraint =
   Not[Blank] & MaxLength[100] & Not[Match[IncludeCntrlPattern]]
 
 trait ModelName[C] extends RefinedType[String, ModelNameConstraint]:
-  protected val hash: Hash[T] = summon
-  protected val show: Show[T] = summon
-
   enum Failure derives Hash, Show:
     case IsBlank extends Failure
     case LengthExceeded extends Failure
