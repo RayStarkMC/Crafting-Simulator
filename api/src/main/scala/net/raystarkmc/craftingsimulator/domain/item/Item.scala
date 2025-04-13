@@ -10,8 +10,8 @@ import io.github.iltotore.iron.cats.{*, given}
 
 private sealed trait ItemContext
 
-type ItemId = ModelIdUUID[ItemContext]
-object ItemId extends ModelIdUUIDTypeOps[ItemContext]
+type ItemId = ItemId.T
+object ItemId extends ModelIdUUID[ItemContext]
 import ItemId.given
 
 type ItemName = ModelName[ItemContext]

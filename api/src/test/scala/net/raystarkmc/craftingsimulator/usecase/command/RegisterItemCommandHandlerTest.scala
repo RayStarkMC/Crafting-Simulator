@@ -15,11 +15,11 @@ import java.util.UUID
 
 class RegisterItemCommandHandlerTest extends AnyFreeSpec:
   "名前が不正な場合エラーが返される" in:
-    val testUUID = UUID.randomUUID().nn
+    val testUUID: UUID = UUID.randomUUID().nn
     type TestState[A] = State[Option[Item], A]
     given ItemRepository[TestState]:
       def resolveById(itemId: ItemId): TestState[Option[Item]] =
-        if itemId eqv testUUID then State.get else fail()
+        if itemId.value eqv testUUID then State.get else fail()
       def save(item: Item): TestState[Unit] =
         State.set(item.some)
       def delete(item: Item): TestState[Unit] =
@@ -52,7 +52,7 @@ class RegisterItemCommandHandlerTest extends AnyFreeSpec:
     type TestState[A] = State[Option[Item], A]
     given ItemRepository[TestState]:
       def resolveById(itemId: ItemId): TestState[Option[Item]] =
-        if itemId eqv testUUID then State.get else fail()
+        if itemId.value eqv testUUID then State.get else fail()
       def save(item: Item): TestState[Unit] =
         State.set(Some(item))
       def delete(item: Item): TestState[Unit] =
