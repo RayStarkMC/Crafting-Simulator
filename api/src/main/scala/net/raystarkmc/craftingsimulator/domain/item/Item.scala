@@ -8,35 +8,11 @@ import net.raystarkmc.craftingsimulator.lib.domain.*
 import io.github.iltotore.iron.*
 import io.github.iltotore.iron.cats.{*, given}
 
-private sealed trait ItemContext
+case class Item private (id: ItemId, name: ItemName) derives Hash, Show:
+  def update(newName: ItemName): Item = copy(name = newName)
 
-type ItemId = ItemId.T
-object ItemId extends ModelIdUUID[ItemContext]
-
-type ItemName = ItemName.T
-object ItemName extends ModelName[ItemContext]
-
-case class ItemData(
-    id: ItemId,
-    name: ItemName
-) derives Hash,
-      Show
-type Item = Item.T
-
-object Item extends RefinedType[ItemData, Pure]:
-  extension (self: Item)
-    def update(newName: ItemName): Item =
-      Item(
-        self.copy(name = newName)
-      )
-
+object Item:
   def create[F[_]: {Functor, UUIDGen}](name: ItemName): F[Item] =
-    ItemId.generate
-      .map(ItemData(_, name))
-      .map(Item(_))
-
-trait ItemRepository[F[_]]:
-  def resolveById(itemId: ItemId): F[Option[Item]]
-  def save(item: Item): F[Unit]
-  def delete(item: Item): F[Unit]
-
+    ItemId.generate.map(Item(_, name))
+    
+  def restore(id: ItemId, name: ItemName): Item = Item(id, name)

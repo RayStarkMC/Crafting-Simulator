@@ -1,14 +1,11 @@
 package net.raystarkmc.craftingsimulator.usecase.command
 
-import cats.Eq
 import cats.data.State
 import cats.effect.std.UUIDGen
-import cats.instances.all.given
-import cats.syntax.all.given
+import cats.implicits.*
 import io.github.iltotore.iron.*
 import io.github.iltotore.iron.cats.{*, given}
-import net.raystarkmc.craftingsimulator.domain.item.{*, given}
-import net.raystarkmc.craftingsimulator.domain.item.ItemId.{*, given}
+import net.raystarkmc.craftingsimulator.domain.item.*
 import org.scalatest.freespec.AnyFreeSpec
 
 import java.util.UUID
@@ -73,12 +70,12 @@ class RegisterItemCommandHandlerTest extends AnyFreeSpec:
       .value
 
     val expected = (
-      Item(
-        ItemData(
+      Item
+        .restore(
           id = ItemId(testUUID),
           name = ItemName.ae("item").getOrElse(fail())
         )
-      ).some,
+        .some,
       RegisterItemCommandHandler
         .Output(id = testUUID)
         .asRight[RegisterItemCommandHandler.Error]
