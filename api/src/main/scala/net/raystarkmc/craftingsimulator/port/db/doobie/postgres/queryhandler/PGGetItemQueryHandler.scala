@@ -6,13 +6,12 @@ import cats.effect.*
 import doobie.*
 import doobie.implicits.given
 import doobie.postgres.implicits.given
-import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.table.ItemTableRecord
+import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.queryhandler.PGGetItemQueryHandler.ItemTableRecord
 import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.xa
 import net.raystarkmc.craftingsimulator.usecase.query.GetItemQueryHandler
-import net.raystarkmc.craftingsimulator.usecase.query.GetItemQueryHandler.{
-  Input,
-  Item
-}
+import net.raystarkmc.craftingsimulator.usecase.query.GetItemQueryHandler.*
+
+import java.util.UUID
 
 trait PGGetItemQueryHandler[F[_]: Async] extends GetItemQueryHandler[F]:
   def run(input: Input): F[Option[Item]] =
@@ -37,7 +36,11 @@ trait PGGetItemQueryHandler[F[_]: Async] extends GetItemQueryHandler[F]:
       )
     }.value
 
-object PGGetItemQueryHandler extends PGGetItemQueryHandlerGivens
+object PGGetItemQueryHandler extends PGGetItemQueryHandlerGivens:
+  private case class ItemTableRecord(
+    id: UUID,
+    name: String
+  )
 
 trait PGGetItemQueryHandlerGivens:
   given [F[_]: Async] => GetItemQueryHandler[F] =

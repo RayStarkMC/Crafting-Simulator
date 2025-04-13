@@ -11,9 +11,7 @@ import doobie.postgres.implicits.given
 import io.github.iltotore.iron.*
 import io.github.iltotore.iron.doobie.given
 import net.raystarkmc.craftingsimulator.domain.item.*
-import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.repository.PGItemRepository
-import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.repository.recipe.PGItemRepository
-import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.table.ItemTableRecord
+import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.repository.item.PGItemRepository.*
 import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.xa
 
 import java.util.UUID
@@ -29,15 +27,14 @@ trait PGItemRepository[F[_]: Async] extends ItemRepository[F]:
         query.option
       }
       itemId = ItemId(id)
-      itemName: ItemName <-
-        ItemName.ae(name) match {
-          case Left(err) =>
-            OptionT.liftF(
-              new RuntimeException(err.show).raiseError[ConnectionIO, ItemName]
-            )
-          case Right(v) =>
-            OptionT.some[ConnectionIO](v)
-        }
+      itemName: ItemName <- OptionT.liftF {
+        ItemName
+          .ae[[A] =>> ValidatedNec[ItemName.Failure, A]](name)
+          .fold[ConnectionIO[ItemName]](
+            err => new RuntimeException(err.show).raiseError,
+            _.pure
+          )
+      }
     } yield {
       Item.restore(
         id = itemId,
@@ -46,7 +43,6 @@ trait PGItemRepository[F[_]: Async] extends ItemRepository[F]:
     }
 
     transactionT.value.transact[F](xa)
-
 
   override def save(item: Item): F[Unit] =
     val insertSql =
@@ -80,6 +76,11 @@ trait PGItemRepository[F[_]: Async] extends ItemRepository[F]:
     deleteSql.void.transact[F](xa)
 
 object PGItemRepository:
+  private case class ItemTableRecord(
+    id: UUID,
+    name: String
+  )
+
   given [F[_]: Async] => ItemRepository[F] =
     object repository extends PGItemRepository
     repository

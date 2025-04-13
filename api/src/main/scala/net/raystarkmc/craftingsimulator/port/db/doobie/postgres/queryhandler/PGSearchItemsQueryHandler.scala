@@ -7,17 +7,21 @@ import cats.instances.given
 import cats.effect.*
 import cats.effect.syntax.all.given
 import cats.effect.instances.all.given
-import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.table.ItemTableRecord
 import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.xa
 import doobie.*
 import doobie.implicits.given
 import doobie.postgres.implicits.given
+import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.queryhandler.PGSearchItemsQueryHandler.ItemTableRecord
 import net.raystarkmc.craftingsimulator.usecase.query.SearchItemsQueryHandler
 import net.raystarkmc.craftingsimulator.usecase.query.SearchItemsQueryHandler.*
 
+import java.util.UUID
+
 trait PGSearchItemsQueryHandler[F[_]: Async] extends SearchItemsQueryHandler[F]:
   def run(input: Input): F[Items] =
-    val whereClause = input.name.fold(Fragment.empty)(name => fr"WHERE name LIKE ${"%" + name + "%"}")
+    val whereClause = input.name.fold(Fragment.empty)(name =>
+      fr"WHERE name LIKE ${"%" + name + "%"}"
+    )
 
     val query = sql"""
       select
@@ -45,7 +49,11 @@ trait PGSearchItemsQueryHandler[F[_]: Async] extends SearchItemsQueryHandler[F]:
       )
     }
 
-object PGSearchItemsQueryHandler extends PGSearchItemsQueryHandlerGivens
+object PGSearchItemsQueryHandler extends PGSearchItemsQueryHandlerGivens:
+  private case class ItemTableRecord(
+    id: UUID,
+    name: String
+  )
 
 trait PGSearchItemsQueryHandlerGivens:
   given [F[_]: Async] => SearchItemsQueryHandler[F] =

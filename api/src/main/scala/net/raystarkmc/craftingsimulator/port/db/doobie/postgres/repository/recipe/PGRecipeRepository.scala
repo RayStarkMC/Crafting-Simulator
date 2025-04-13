@@ -1,7 +1,7 @@
 package net.raystarkmc.craftingsimulator.port.db.doobie.postgres.repository.recipe
 
 import cats.*
-import cats.data.{NonEmptyChain, NonEmptyList, OptionT}
+import cats.data.*
 import cats.effect.*
 import cats.implicits.*
 import doobie.*
@@ -13,29 +13,12 @@ import io.github.iltotore.iron.*
 import io.github.iltotore.iron.doobie.given
 import net.raystarkmc.craftingsimulator.domain.item.*
 import net.raystarkmc.craftingsimulator.domain.recipe.*
-import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.repository.PGRecipeRepository
+import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.repository.recipe.PGRecipeRepository.*
 import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.xa
 
 import java.util.UUID
 
 trait PGRecipeRepository[F[_]: Async] extends RecipeRepository[F]:
-  private case class RecipeTableRecord(
-      id: UUID,
-      name: String
-  )
-
-  private case class RecipeInputRecord(
-      recipeId: UUID,
-      itemId: UUID,
-      count: Long
-  )
-
-  private case class RecipeOutputRecord(
-      recipeId: UUID,
-      itemId: UUID,
-      count: Long
-  )
-
   override def resolveById(recipeId: RecipeId): F[Option[Recipe]] =
     val selectRecipe = sql"""
         select
@@ -69,26 +52,25 @@ trait PGRecipeRepository[F[_]: Async] extends RecipeRepository[F]:
           id = $recipeId
          """.query[RecipeOutputRecord]
 
-    type G[A] = Either[NonEmptyChain[RecipeName.Failure], A]
-
     val transactionT = for {
       recipeRecord <- OptionT(selectRecipe.option)
       recipeInputRecords <- OptionT.liftF(selectInput.to[Seq])
       recipeOutputRecords <- OptionT.liftF(selectOutput.to[Seq])
 
-      recipeName <- OptionT.liftF[ConnectionIO, RecipeName] {
+      recipeName <- OptionT.liftF {
         RecipeName
-          .ae[G](recipeRecord.name)
+          .ae[[A] =>> ValidatedNec[RecipeName.Failure, A]](recipeRecord.name)
           .leftMap(a => new IllegalStateException(a.show))
-          .fold(_.raiseError, _.pure)
+          .fold[ConnectionIO[RecipeName]](_.raiseError, _.pure)
       }
-      recipe = Recipe.restore(
+    } yield {
+      Recipe.restore(
         id = RecipeId(recipeRecord.id),
         name = recipeName,
         inputs = RecipeInput(Seq.empty), // TODO 復元する
         outputs = RecipeOutput(Seq.empty)
       )
-    } yield recipe
+    }
 
     transactionT.value.transact[F](xa)
 
@@ -186,6 +168,23 @@ trait PGRecipeRepository[F[_]: Async] extends RecipeRepository[F]:
     transaction.transact[F](xa)
 
 object PGRecipeRepository:
+  private case class RecipeTableRecord(
+    id: UUID,
+    name: String
+  )
+
+  private case class RecipeInputRecord(
+    recipeId: UUID,
+    itemId: UUID,
+    count: Long
+  )
+
+  private case class RecipeOutputRecord(
+    recipeId: UUID,
+    itemId: UUID,
+    count: Long
+  )
+
   given [F[_]: Async] => RecipeRepository[F] =
     object repository extends PGRecipeRepository
     repository
