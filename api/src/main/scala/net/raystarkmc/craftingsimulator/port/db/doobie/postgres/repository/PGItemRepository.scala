@@ -2,13 +2,10 @@ package net.raystarkmc.craftingsimulator.port.db.doobie.postgres.repository
 
 import cats.*
 import cats.data.*
-import cats.instances.all.given
-import cats.syntax.all.given
+import cats.implicits.*
 import cats.effect.*
-import cats.effect.instances.all.given
-import cats.effect.syntax.all.given
 import doobie.*
-import doobie.implicits.given
+import doobie.implicits.*
 import doobie.postgres.*
 import doobie.postgres.implicits.given
 import io.github.iltotore.iron.*
@@ -24,7 +21,7 @@ trait PGItemRepository[F[_]: Async] extends ItemRepository[F]:
     val query =
       sql"select item.id, item.name from item where id = $itemId"
         .query[ItemTableRecord]
-      
+
     val transactionT = for {
       ItemTableRecord(id, name) <- OptionT {
         query.option
