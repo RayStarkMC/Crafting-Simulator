@@ -1,7 +1,8 @@
 package net.raystarkmc.craftingsimulator.port.db.doobie.postgres.repository.recipe
 
+import cats.data.{NonEmptyList, OptionT}
 import cats.implicits.*
-import doobie.{ConnectionIO, Read}
+import doobie.*
 import doobie.implicits.*
 import doobie.postgres.implicits.*
 
@@ -78,3 +79,61 @@ private[recipe] def deleteRecipe(recipeId: UUID): ConnectionIO[Unit] =
     where
       recipe.id = $recipeId
   """.update.run.void
+
+private[recipe] def upsertRecipe(
+    recipeId: UUID,
+    recipeName: String
+): ConnectionIO[Unit] =
+  sql"""
+    insert into recipe (id, name, created_at, updated_at)
+    values (
+      $recipeId,
+      $recipeName,
+      current_timestamp,
+      current_timestamp
+    )
+    on conflict (id) do
+    update set
+      name = excluded.name,
+      updated_at = current_timestamp
+  """.update.run.void
+
+private[recipe] case class InsertRecipeOutputsRecord(
+    recipeId: UUID,
+    itemId: UUID,
+    count: Long
+)
+private[recipe] def insertRecipeOutputs(
+    records: List[InsertRecipeOutputsRecord]
+): ConnectionIO[Unit] = {
+  val option = for {
+    values <- records.toNel.map(Fragments.values)
+    insertSql =
+      fr"""
+        insert into recipe_output (recipe_id, item_id, count)
+      """ +~+ values
+  } yield {
+    insertSql
+  }
+  option.traverse_(_.update.run)
+}
+
+private[recipe] case class InsertRecipeInputsRecord(
+  recipeId: UUID,
+  itemId: UUID,
+  count: Long
+)
+private[recipe] def insertRecipeInputs(
+  records: List[InsertRecipeInputsRecord]
+): ConnectionIO[Unit] = {
+  val option = for {
+    values <- records.toNel.map(Fragments.values)
+    insertSql =
+      fr"""
+        insert into recipe_input (recipe_id, item_id, count)
+      """ +~+ values
+  } yield {
+    insertSql
+  }
+  option.traverse_(_.update.run)
+}

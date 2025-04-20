@@ -5,12 +5,8 @@ import cats.data.*
 import cats.effect.*
 import cats.implicits.*
 import doobie.*
-import doobie.hi.*
 import doobie.implicits.*
-import doobie.postgres.*
-import doobie.postgres.implicits.given
 import io.github.iltotore.iron.*
-import io.github.iltotore.iron.doobie.given
 import net.raystarkmc.craftingsimulator.domain.item.*
 import net.raystarkmc.craftingsimulator.domain.recipe.*
 import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.repository.recipe.PGRecipeRepository.*
@@ -74,54 +70,29 @@ trait PGRecipeRepository[F[_]: Async] extends RecipeRepository[F]:
     transactionT.value.transact[F](xa)
 
   override def save(recipe: Recipe): F[Unit] =
-    val upsertRecipe =
-      sql"""
-        insert into recipe (id, name, created_at, updated_at)
-        values (
-          ${recipe.id},
-          ${recipe.name},
-          current_timestamp,
-          current_timestamp
-        )
-        on conflict (id) do
-        update set
-          name = excluded.name,
-          updated_at = current_timestamp
-      """.update
-
-    def itemWithCountFragment(
-        recipeId: RecipeId,
-        itemWithCounts: NonEmptyList[ItemWithCount]
-    ): Fragment =
-      Fragments.values {
-        itemWithCounts.map { itemWithCount =>
-          (recipeId, itemWithCount.item, itemWithCount.count)
-        }
-      }
-
-    val insertOutputOption = recipe.output.value.toList.toNel
-      .map(itemWithCountFragment(recipe.id, _))
-      .map { values =>
-        fr"""
-              insert into recipe_output (recipe_id, item_id, count) ++ $values
-              """.update
-      }
-
-    val insertInputOption = recipe.input.value.toList.toNel
-      .map(itemWithCountFragment(recipe.id, _))
-      .map { values =>
-        fr"""
-              insert into recipe_input (recipe_id, item_id, count) ++ $values
-              """.update
-      }
-
     val transaction =
       for {
         _ <- deleteRecipeInput(recipe.id.value)
         _ <- deleteRecipeOutput(recipe.id.value)
-        _ <- upsertRecipe.run
-        _ <- insertInputOption.traverse_(_.run)
-        _ <- insertOutputOption.traverse_(_.run)
+        _ <- upsertRecipe(recipe.id.value, recipe.name.value)
+        _ <- insertRecipeOutputs(
+          recipe.output.toList.map { recipeOutput =>
+            InsertRecipeOutputsRecord(
+              recipeId = recipe.id.value,
+              itemId = recipeOutput.item.value,
+              count = recipeOutput.count.value
+            )
+          }
+        )
+        _ <- insertRecipeInputs(
+          recipe.input.toList.map { recipeInput =>
+            InsertRecipeInputsRecord(
+              recipeId = recipe.id.value,
+              itemId = recipeInput.item.value,
+              count = recipeInput.count.value
+            )
+          }
+        )
       } yield ()
 
     transaction.transact[F](xa)
