@@ -20,42 +20,10 @@ import java.util.UUID
 
 trait PGRecipeRepository[F[_]: Async] extends RecipeRepository[F]:
   override def resolveById(recipeId: RecipeId): F[Option[Recipe]] =
-    val selectRecipe = sql"""
-        select
-          recipe.id,
-          recipe.name
-        from
-          recipe
-        where
-          id = $recipeId
-      """.query[RecipeTableRecord]
-
-    val selectInput = sql"""
-        select
-          recipe_input.recipe_id,
-          recipe_input.item_id,
-          recipe_input.count,
-        from
-          recipe_input
-        where
-          id = $recipeId
-         """.query[RecipeInputRecord]
-
-    val selectOutput =
-      sql"""
-        select
-          recipe_output.id,
-          recipe_output.name
-        from
-          recipe_output
-        where
-          id = $recipeId
-         """.query[RecipeOutputRecord]
-
     def restoreRecipe[G[_]: ApplicativeThrow](
-        recipeRecord: RecipeTableRecord,
-        recipeInputRecords: Seq[RecipeInputRecord],
-        recipeOutputRecords: Seq[RecipeOutputRecord]
+        recipeRecord: SelectRecipeOutput,
+        recipeInputRecords: List[SelectRecipeInputRecord],
+        recipeOutputRecords: List[SelectRecipeOutputRecord]
     ): G[Recipe] =
       (
         RecipeId(recipeRecord.id).pure[G],
@@ -88,15 +56,9 @@ trait PGRecipeRepository[F[_]: Async] extends RecipeRepository[F]:
       ).mapN(Recipe.restore)
 
     val transactionT = for {
-      recipeRecord <- OptionT {
-        selectRecipe.option
-      }
-      recipeInputRecords <- OptionT.liftF {
-        selectInput.to[Seq]
-      }
-      recipeOutputRecords <- OptionT.liftF {
-        selectOutput.to[Seq]
-      }
+      recipeRecord <- OptionT(selectRecipe(recipeId.value))
+      recipeInputRecords <- OptionT.liftF(selectRecipeInput(recipeId.value))
+      recipeOutputRecords <- OptionT.liftF(selectRecipeOutput(recipeId.value))
 
       recipe <- OptionT.liftF {
         restoreRecipe[ConnectionIO](
@@ -112,22 +74,6 @@ trait PGRecipeRepository[F[_]: Async] extends RecipeRepository[F]:
     transactionT.value.transact[F](xa)
 
   override def save(recipe: Recipe): F[Unit] =
-    val deleteInput =
-      sql"""
-      delete
-      from recipe_input
-      where
-        recipe_input.recipe_id = ${recipe.id}
-      """.update
-
-    val deleteOutput =
-      sql"""
-      delete
-      from recipe_output
-      where
-        recipe_output.recipe_id = ${recipe.id}
-      """.update
-
     val upsertRecipe =
       sql"""
         insert into recipe (id, name, created_at, updated_at)
@@ -171,8 +117,8 @@ trait PGRecipeRepository[F[_]: Async] extends RecipeRepository[F]:
 
     val transaction =
       for {
-        _ <- deleteInput.run
-        _ <- deleteOutput.run
+        _ <- deleteRecipeInput(recipe.id.value)
+        _ <- deleteRecipeOutput(recipe.id.value)
         _ <- upsertRecipe.run
         _ <- insertInputOption.traverse_(_.run)
         _ <- insertOutputOption.traverse_(_.run)
@@ -182,46 +128,14 @@ trait PGRecipeRepository[F[_]: Async] extends RecipeRepository[F]:
 
   override def delete(recipe: Recipe): F[Unit] =
     val transaction = for {
-      _ <- sql"""
-        delete
-        from recipe_input
-        where
-          recipe_input.recipe_id = ${recipe.id}
-            """.update.run
-      _ <- sql"""
-        delete
-        from recipe_output
-        where
-          recipe_output.recipe_id = ${recipe.id}
-            """.update.run
-      _ <- sql"""
-        delete
-        from recipe
-        where
-          recipe.id = ${recipe.id}
-              """.update.run
+      _ <- deleteRecipeInput(recipe.id.value)
+      _ <- deleteRecipeOutput(recipe.id.value)
+      _ <- deleteRecipe(recipe.id.value)
     } yield ()
 
     transaction.transact[F](xa)
 
 object PGRecipeRepository:
-  private case class RecipeTableRecord(
-      id: UUID,
-      name: String
-  )
-
-  private case class RecipeInputRecord(
-      recipeId: UUID,
-      itemId: UUID,
-      count: Long
-  )
-
-  private case class RecipeOutputRecord(
-      recipeId: UUID,
-      itemId: UUID,
-      count: Long
-  )
-
   given [F[_]: Async] => RecipeRepository[F] =
     object repository extends PGRecipeRepository
     repository
