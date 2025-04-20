@@ -51,7 +51,7 @@ trait PGItemRepository[F[_]: Async] extends ItemRepository[F]:
           into item (id, name, created_at, updated_at)
           values (
             ${item.id},
-            ${item.name},
+            ${item.name.value},
             current_timestamp,
             current_timestamp
           )

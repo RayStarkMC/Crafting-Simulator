@@ -1,42 +1,37 @@
 package net.raystarkmc.craftingsimulator.lib.domain
 
-import cats.data.NonEmptyChain
+import cats.*
+import cats.implicits.*
 import cats.derived.*
-import cats.syntax.all.given
-import cats.{ApplicativeError, Hash, Show}
-import io.github.iltotore.iron.*
-import io.github.iltotore.iron.constraint.all.*
+import cats.data.*
 
-type IncludeCntrlPattern = ".*\\p{Cntrl}.*"
+opaque type ModelName = String
+object ModelName extends ModelNameGivens:
+  extension(self: ModelName)
+    def value: String = self
 
-type ModelNameConstraint =
-  Not[Blank] & MaxLength[100] & Not[Match[IncludeCntrlPattern]]
+  def unapply(s: ModelName): String = s
 
-trait ModelName[C] extends RefinedType[String, ModelNameConstraint]:
   enum Failure derives Hash, Show:
     case IsBlank extends Failure
     case LengthExceeded extends Failure
     case ContainsControlCharacter extends Failure
 
-  def ae[F[_]](
+  def ae[F[_]: ([H[_]] =>> ApplicativeError[H, NonEmptyChain[Failure]]) as F](
       value: String
-  )(using F: ApplicativeError[F, NonEmptyChain[Failure]]): F[T] =
-    val checkBlank = F.fromOption(
-      value.refineOption[Not[Blank]],
-      NonEmptyChain.one(Failure.IsBlank)
-    )
+  ): F[ModelName] =
 
-    val checkMaxLength = F.fromOption(
-      value.refineOption[MaxLength[100]],
-      NonEmptyChain.one(Failure.LengthExceeded)
-    )
+    val pattern = ".*\\p{Cntrl}.*".r
+    
+    F.raiseWhen(value.isBlank)(NonEmptyChain.one(Failure.IsBlank)) *> 
+      F.raiseWhen(value.length > 100)(NonEmptyChain.one(Failure.LengthExceeded)) *>
+      F.raiseWhen(pattern.findFirstIn(value).nonEmpty)(NonEmptyChain.one(Failure.ContainsControlCharacter)) *>
+      F.pure(value)
 
-    val checkControlCharacter = F.fromOption(
-      value.refineOption[Not[Match[IncludeCntrlPattern]]],
-      NonEmptyChain.one(Failure.ContainsControlCharacter)
-    )
+private inline def wrapF[F[_]](f: F[String]): F[ModelName] = f
 
-    assume(value).pure[F]
-      <* checkBlank
-      <* checkMaxLength
-      <* checkControlCharacter
+private trait ModelNameGivens:
+  given Eq[ModelName] = wrapF(Eq[String])
+  given Hash[ModelName] = wrapF(Hash[String])
+  given Order[ModelName] = wrapF(Order[String])
+  given Show[ModelName] = wrapF(Show[String])
