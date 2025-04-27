@@ -3,7 +3,7 @@ package net.raystarkmc.craftingsimulator.domain.recipe
 import cats.*
 import cats.derived.*
 import cats.effect.std.UUIDGen
-import cats.implicits.*
+import cats.syntax.all.*
 
 case class Recipe private (
     id: RecipeId,

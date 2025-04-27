@@ -1,21 +1,18 @@
 package net.raystarkmc.craftingsimulator.domain.recipe
 
 import cats.*
-import cats.implicits.*
-import net.raystarkmc.craftingsimulator.domain.recipe.RecipeOutput.*
+import cats.instances.all.given
 
-opaque type RecipeOutput <: Data = Data
+opaque type RecipeOutput = Seq[ItemWithCount]
 object RecipeOutput extends RecipeOutputGivens:
-  type Data = Seq[ItemWithCount]
+  inline def apply(data: Seq[ItemWithCount]): RecipeOutput = data
+  extension (self: RecipeOutput) inline def value: Seq[ItemWithCount] = self
 
-  inline def apply(data: Data): RecipeOutput = data
-
-  extension(self: RecipeOutput)
-    inline def value: Data = self
-
-  extension [F[_]](self: F[Data])
-    inline def mask: F[RecipeOutput] = self
+private inline def wrapRecipeOutputF[F[_]](
+    f: F[Seq[ItemWithCount]]
+): F[RecipeOutput] = f
 
 trait RecipeOutputGivens:
-  given Hash[RecipeOutput] = Hash[Data].mask
-  given Show[RecipeOutput] = Show[Data].mask
+  given Eq[RecipeOutput] = wrapRecipeOutputF(Eq[Seq[ItemWithCount]])
+  given Hash[RecipeOutput] = wrapRecipeOutputF(Hash[Seq[ItemWithCount]])
+  given Show[RecipeOutput] = wrapRecipeOutputF(Show[Seq[ItemWithCount]])

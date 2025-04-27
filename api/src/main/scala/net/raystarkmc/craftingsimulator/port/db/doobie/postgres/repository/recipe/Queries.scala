@@ -1,7 +1,8 @@
 package net.raystarkmc.craftingsimulator.port.db.doobie.postgres.repository.recipe
 
-import cats.data.{NonEmptyList, OptionT}
-import cats.implicits.*
+import cats.data.NonEmptyList
+import cats.instances.all.given
+import cats.syntax.all.*
 import doobie.*
 import doobie.implicits.*
 import doobie.postgres.implicits.*
@@ -27,7 +28,7 @@ private[recipe] case class SelectRecipeInputRecord(itemId: UUID, count: Long)
     derives Read
 private[recipe] def selectRecipeInput(
     recipeId: UUID
-): ConnectionIO[List[SelectRecipeInputRecord]] =
+): ConnectionIO[Seq[SelectRecipeInputRecord]] =
   sql"""
     select
       recipe_input.item_id,
@@ -36,7 +37,7 @@ private[recipe] def selectRecipeInput(
       recipe_input
     where
       recipe_input.id = $recipeId
-  """.query[SelectRecipeInputRecord].to[List]
+  """.query[SelectRecipeInputRecord].to[Seq]
 
 private[recipe] case class SelectRecipeOutputRecord(
     recipeId: UUID,
@@ -45,7 +46,7 @@ private[recipe] case class SelectRecipeOutputRecord(
 ) derives Read
 private[recipe] def selectRecipeOutput(
     recipeId: UUID
-): ConnectionIO[List[SelectRecipeOutputRecord]] =
+): ConnectionIO[Seq[SelectRecipeOutputRecord]] =
   sql"""
     select
       recipe_output.item_id,
@@ -54,7 +55,7 @@ private[recipe] def selectRecipeOutput(
       recipe_output
     where
       recipe_output.id = $recipeId
-  """.query[SelectRecipeOutputRecord].to[List]
+  """.query[SelectRecipeOutputRecord].to[Seq]
 
 private[recipe] def deleteRecipeInput(recipeId: UUID): ConnectionIO[Unit] =
   sql"""
@@ -104,10 +105,10 @@ private[recipe] case class InsertRecipeOutputsRecord(
     count: Long
 )
 private[recipe] def insertRecipeOutputs(
-    records: List[InsertRecipeOutputsRecord]
+    records: Seq[InsertRecipeOutputsRecord]
 ): ConnectionIO[Unit] = {
   val option = for {
-    values <- records.toNel.map(Fragments.values)
+    values <- records.toList.toNel.map(Fragments.values)
     insertSql =
       fr"""
         insert into recipe_output (recipe_id, item_id, count)
@@ -119,15 +120,15 @@ private[recipe] def insertRecipeOutputs(
 }
 
 private[recipe] case class InsertRecipeInputsRecord(
-  recipeId: UUID,
-  itemId: UUID,
-  count: Long
+    recipeId: UUID,
+    itemId: UUID,
+    count: Long
 )
 private[recipe] def insertRecipeInputs(
-  records: List[InsertRecipeInputsRecord]
+    records: Seq[InsertRecipeInputsRecord]
 ): ConnectionIO[Unit] = {
   val option = for {
-    values <- records.toNel.map(Fragments.values)
+    values <- records.toList.toNel.map(Fragments.values)
     insertSql =
       fr"""
         insert into recipe_input (recipe_id, item_id, count)
