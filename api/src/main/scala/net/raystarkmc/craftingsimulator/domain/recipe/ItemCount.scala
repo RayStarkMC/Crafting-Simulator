@@ -14,12 +14,9 @@ object ItemCount extends ItemCountGivens:
   enum Failure derives Eq, Hash, Show:
     case IsNotGreaterThen0
 
-  type AE[F[_]] = ApplicativeError[F, NonEmptyChain[Failure]]
-
-  def ae[F[_] : AE as F](value: Long): F[ItemCount] = {
+  def ae[F[_] : ([G[_]] =>> ApplicativeError[G, NonEmptyChain[Failure]]) as F](value: Long): F[ItemCount] =
     F.raiseWhen(value <= 0)(NonEmptyChain.one(Failure.IsNotGreaterThen0)) *>
       F.pure(value)
-  }
 
 private inline def wrapItemCountF[F[_]](f: F[Long]): F[ItemCount] = f
 

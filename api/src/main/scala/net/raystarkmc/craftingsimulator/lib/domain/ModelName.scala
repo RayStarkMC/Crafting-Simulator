@@ -17,7 +17,7 @@ object ModelName extends ModelNameGivens:
     case LengthExceeded extends Failure
     case ContainsControlCharacter extends Failure
 
-  def ae[F[_]: ([H[_]] =>> ApplicativeError[H, NonEmptyChain[Failure]]) as F](
+  def ae[F[_]: ([G[_]] =>> ApplicativeError[G, NonEmptyChain[Failure]]) as F](
       value: String
   ): F[ModelName] =
 
