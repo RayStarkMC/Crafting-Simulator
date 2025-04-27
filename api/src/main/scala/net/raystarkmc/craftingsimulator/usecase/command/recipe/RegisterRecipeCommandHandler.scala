@@ -5,11 +5,8 @@ import cats.data.*
 import cats.derived.*
 import cats.effect.std.UUIDGen
 import cats.instances.all.given
-import cats.syntax.all.given
-import io.github.iltotore.iron.*
-import net.raystarkmc.craftingsimulator.domain.item.ItemId.{*, given}
-import net.raystarkmc.craftingsimulator.domain.item.{*, given}
-import net.raystarkmc.craftingsimulator.domain.recipe.RecipeId.{*, given}
+import cats.syntax.all.*
+import net.raystarkmc.craftingsimulator.domain.item.*
 import net.raystarkmc.craftingsimulator.domain.recipe.RecipeName.given
 import net.raystarkmc.craftingsimulator.domain.recipe.*
 import net.raystarkmc.craftingsimulator.usecase.command.recipe.RegisterRecipeCommandHandler.*
@@ -89,6 +86,6 @@ trait RegisterRecipeCommandHandlerGivens:
           _ <- EitherT.liftF(
             recipeRepository.save(recipe)
           )
-        } yield Output(recipe.id)
+        } yield Output(recipe.id.value)
         eitherT.value
     instance

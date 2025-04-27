@@ -8,8 +8,6 @@ import doobie.*
 import doobie.implicits.*
 import doobie.postgres.*
 import doobie.postgres.implicits.given
-import io.github.iltotore.iron.*
-import io.github.iltotore.iron.doobie.given
 import net.raystarkmc.craftingsimulator.domain.item.*
 import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.repository.item.PGItemRepository.*
 import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.xa
@@ -19,7 +17,7 @@ import java.util.UUID
 trait PGItemRepository[F[_]: Async] extends ItemRepository[F]:
   override def resolveById(itemId: ItemId): F[Option[Item]] =
     val query =
-      sql"select item.id, item.name from item where id = $itemId"
+      sql"select item.id, item.name from item where id = ${itemId.value}"
         .query[ItemTableRecord]
 
     val transactionT = for {
@@ -50,7 +48,7 @@ trait PGItemRepository[F[_]: Async] extends ItemRepository[F]:
         insert
           into item (id, name, created_at, updated_at)
           values (
-            ${item.id},
+            ${item.id.value},
             ${item.name.value},
             current_timestamp,
             current_timestamp
@@ -70,7 +68,7 @@ trait PGItemRepository[F[_]: Async] extends ItemRepository[F]:
       from
         item
       where
-        item.id = ${item.id}
+        item.id = ${item.id.value}
     """.update.run
 
     deleteSql.void.transact[F](xa)
