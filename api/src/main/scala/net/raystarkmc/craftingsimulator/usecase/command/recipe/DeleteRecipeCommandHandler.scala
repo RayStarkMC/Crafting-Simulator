@@ -5,7 +5,6 @@ import cats.effect.std.UUIDGen
 import cats.instances.all.given
 import cats.syntax.all.given
 import cats.{Applicative, Hash, Monad, Show}
-import io.github.iltotore.iron.*
 import net.raystarkmc.craftingsimulator.domain.recipe.{
   RecipeId,
   RecipeRepository

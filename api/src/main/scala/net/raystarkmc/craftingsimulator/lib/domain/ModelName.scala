@@ -1,9 +1,9 @@
 package net.raystarkmc.craftingsimulator.lib.domain
 
 import cats.*
-import cats.implicits.*
-import cats.derived.*
 import cats.data.*
+import cats.derived.*
+import cats.implicits.*
 
 opaque type ModelName = String
 object ModelName extends ModelNameGivens:

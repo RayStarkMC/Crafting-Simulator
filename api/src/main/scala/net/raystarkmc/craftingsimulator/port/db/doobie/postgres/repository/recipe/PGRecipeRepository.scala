@@ -6,7 +6,6 @@ import cats.effect.*
 import cats.implicits.*
 import doobie.*
 import doobie.implicits.*
-import io.github.iltotore.iron.*
 import net.raystarkmc.craftingsimulator.domain.item.*
 import net.raystarkmc.craftingsimulator.domain.recipe.*
 import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.repository.recipe.PGRecipeRepository.*

@@ -32,9 +32,6 @@ lazy val root = (project in file("."))
       "ch.qos.logback" % "logback-classic" % logbackVersion,
       "org.tpolecat" %% "doobie-core"      % doobieVersion,
       "org.tpolecat" %% "doobie-postgres"  % doobieVersion,
-      "io.github.iltotore" %% "iron" % ironVersion,
-      "io.github.iltotore" %% "iron-cats" % ironVersion,
-      "io.github.iltotore" %% "iron-doobie" % ironVersion,
       "org.scalatest" %% "scalatest" % scalaTestVersion % "test",
       "org.scalatest" %% "scalatest-freespec" % scalaTestVersion % "test"
     ),

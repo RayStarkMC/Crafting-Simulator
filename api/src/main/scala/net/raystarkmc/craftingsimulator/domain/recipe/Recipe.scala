@@ -1,11 +1,9 @@
 package net.raystarkmc.craftingsimulator.domain.recipe
 
 import cats.*
+import cats.derived.*
 import cats.effect.std.UUIDGen
 import cats.implicits.*
-import cats.derived.*
-import io.github.iltotore.iron.*
-import io.github.iltotore.iron.cats.{*, given}
 
 case class Recipe private (
     id: RecipeId,

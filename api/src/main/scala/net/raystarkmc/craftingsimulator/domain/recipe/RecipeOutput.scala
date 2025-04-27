@@ -2,7 +2,7 @@ package net.raystarkmc.craftingsimulator.domain.recipe
 
 import cats.*
 import cats.implicits.*
-import RecipeOutput.*
+import net.raystarkmc.craftingsimulator.domain.recipe.RecipeOutput.*
 
 opaque type RecipeOutput <: Data = Data
 object RecipeOutput extends RecipeOutputGivens:

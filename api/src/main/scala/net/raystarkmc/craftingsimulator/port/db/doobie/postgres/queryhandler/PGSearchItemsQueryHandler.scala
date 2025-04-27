@@ -2,16 +2,16 @@ package net.raystarkmc.craftingsimulator.port.db.doobie.postgres.queryhandler
 
 import cats.*
 import cats.data.*
-import cats.syntax.all.given
-import cats.instances.given
 import cats.effect.*
-import cats.effect.syntax.all.given
 import cats.effect.instances.all.given
-import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.xa
+import cats.effect.syntax.all.given
+import cats.instances.given
+import cats.syntax.all.given
 import doobie.*
 import doobie.implicits.given
 import doobie.postgres.implicits.given
 import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.queryhandler.PGSearchItemsQueryHandler.ItemTableRecord
+import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.xa
 import net.raystarkmc.craftingsimulator.usecase.query.SearchItemsQueryHandler
 import net.raystarkmc.craftingsimulator.usecase.query.SearchItemsQueryHandler.*
 

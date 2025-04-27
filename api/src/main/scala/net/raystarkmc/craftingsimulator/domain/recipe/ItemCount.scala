@@ -2,9 +2,9 @@ package net.raystarkmc.craftingsimulator.domain.recipe
 
 import cats.*
 import cats.data.*
-import cats.syntax.all.*
-import cats.instances.all.given
 import cats.derived.*
+import cats.instances.all.given
+import cats.syntax.all.*
 
 opaque type ItemCount = Long
 object ItemCount extends ItemCountGivens:

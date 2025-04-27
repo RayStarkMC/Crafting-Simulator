@@ -7,7 +7,6 @@ import cats.effect.std.UUIDGen
 import cats.instances.all.given
 import cats.syntax.all.*
 import net.raystarkmc.craftingsimulator.domain.item.*
-import net.raystarkmc.craftingsimulator.domain.recipe.RecipeName.given
 import net.raystarkmc.craftingsimulator.domain.recipe.*
 import net.raystarkmc.craftingsimulator.usecase.command.recipe.RegisterRecipeCommandHandler.*
 

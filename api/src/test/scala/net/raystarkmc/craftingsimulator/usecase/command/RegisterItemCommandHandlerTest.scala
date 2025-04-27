@@ -3,8 +3,6 @@ package net.raystarkmc.craftingsimulator.usecase.command
 import cats.data.State
 import cats.effect.std.UUIDGen
 import cats.implicits.*
-import io.github.iltotore.iron.*
-import io.github.iltotore.iron.cats.{*, given}
 import net.raystarkmc.craftingsimulator.domain.item.*
 import org.scalatest.freespec.AnyFreeSpec
 

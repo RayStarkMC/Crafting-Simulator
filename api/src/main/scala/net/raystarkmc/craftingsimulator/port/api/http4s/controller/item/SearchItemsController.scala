@@ -5,7 +5,7 @@ import cats.effect.*
 import cats.syntax.all.given
 import io.circe.generic.auto.given
 import io.circe.syntax.given
-import SearchItemsController.RequestBody
+import net.raystarkmc.craftingsimulator.port.api.http4s.controller.item.SearchItemsController.RequestBody
 import net.raystarkmc.craftingsimulator.usecase.query.SearchItemsQueryHandler
 import net.raystarkmc.craftingsimulator.usecase.query.SearchItemsQueryHandler.Input
 import org.http4s.*
