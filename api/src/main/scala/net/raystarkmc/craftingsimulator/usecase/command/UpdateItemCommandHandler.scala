@@ -6,15 +6,9 @@ import cats.derived.*
 import cats.effect.std.UUIDGen
 import cats.instances.all.given
 import cats.syntax.all.given
-import net.raystarkmc.craftingsimulator.domain.item.{
-  ItemId,
-  ItemName,
-  ItemRepository
-}
-import net.raystarkmc.craftingsimulator.usecase.command.UpdateItemCommandHandler.{
-  Command,
-  Output
-}
+import net.raystarkmc.craftingsimulator.domain.item.*
+import net.raystarkmc.craftingsimulator.lib.domain.ModelName
+import net.raystarkmc.craftingsimulator.usecase.command.UpdateItemCommandHandler.{Command, Output}
 
 import java.util.UUID
 
@@ -25,7 +19,7 @@ object UpdateItemCommandHandler extends UpdateItemCommandHandlerGivens:
   case class Command(id: UUID, name: String) derives Hash, Show
   case class Output() derives Hash, Show
   enum Error derives Hash, Show:
-    case NameError(detail: ItemName.Failure)
+    case NameError(detail: ModelName.Failure)
     case NotFound
 
 trait UpdateItemCommandHandlerGivens:
@@ -38,8 +32,9 @@ trait UpdateItemCommandHandlerGivens:
           command: Command
       ): F[Either[UpdateItemCommandHandler.Error, Output]] =
         val eitherT: EitherT[F, UpdateItemCommandHandler.Error, Output] = for {
-          name <- ItemName
+          name <- ModelName
             .ae(command.name)
+            .map(ItemName.apply)
             .leftMap(_.head)
             .leftMap(UpdateItemCommandHandler.Error.NameError.apply)
             .toEitherT[F]

@@ -4,6 +4,7 @@ import cats.data.State
 import cats.effect.std.UUIDGen
 import cats.implicits.*
 import net.raystarkmc.craftingsimulator.domain.item.*
+import net.raystarkmc.craftingsimulator.lib.domain.ModelName
 import org.scalatest.freespec.AnyFreeSpec
 
 import java.util.UUID
@@ -36,7 +37,7 @@ class RegisterItemCommandHandlerTest extends AnyFreeSpec:
     val expected = (
       Option.empty[Item],
       RegisterItemCommandHandler
-        .Error(detail = ItemName.Failure.IsBlank)
+        .Error(detail = ModelName.Failure.IsBlank)
         .asLeft[RegisterItemCommandHandler.Output]
     )
 
@@ -71,7 +72,7 @@ class RegisterItemCommandHandlerTest extends AnyFreeSpec:
       Item
         .restore(
           id = ItemId(testUUID),
-          name = ItemName.ae("item").getOrElse(fail())
+          name = ModelName.ae("item").map(ItemName.apply).getOrElse(fail())
         )
         .some,
       RegisterItemCommandHandler

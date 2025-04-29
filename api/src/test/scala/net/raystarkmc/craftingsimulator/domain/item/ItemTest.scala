@@ -1,5 +1,6 @@
 package net.raystarkmc.craftingsimulator.domain.item
 
+import net.raystarkmc.craftingsimulator.lib.domain.ModelName
 import org.scalatest.freespec.AnyFreeSpec
 
 import java.util.UUID
@@ -10,14 +11,14 @@ class ItemTest extends AnyFreeSpec {
   "名前を変更する" in {
     val item = Item.restore(
       id = ItemId(testingUUID),
-      name = ItemName.ae("item").getOrElse(fail())
+      name = ModelName.ae("item").map(ItemName.apply).getOrElse(fail())
     )
     val expected = Item.restore(
       id = ItemId(testingUUID),
-      name = ItemName.ae("newItem").getOrElse(fail())
+      name = ModelName.ae("newItem").map(ItemName.apply).getOrElse(fail())
     )
     val actual = item.update(
-      ItemName.ae("newItem").getOrElse(fail())
+      ModelName.ae("newItem").map(ItemName.apply).getOrElse(fail())
     )
     assert(expected === actual)
   }

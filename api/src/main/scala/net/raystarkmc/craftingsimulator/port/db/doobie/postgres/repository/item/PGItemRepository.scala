@@ -10,6 +10,7 @@ import doobie.postgres.*
 import doobie.postgres.implicits.given
 import net.raystarkmc.craftingsimulator.domain.item.*
 import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.xa
+import net.raystarkmc.craftingsimulator.lib.domain.ModelName
 
 import java.util.UUID
 
@@ -32,8 +33,9 @@ object PGItemRepository:
           }
           itemId = ItemId(id)
           itemName: ItemName <- OptionT.liftF {
-            ItemName
-              .ae[[A] =>> ValidatedNec[ItemName.Failure, A]](name)
+            ModelName
+              .ae[[A] =>> ValidatedNec[ModelName.Failure, A]](name)
+              .map(ItemName.apply)
               .fold[ConnectionIO[ItemName]](
                 err => new RuntimeException(err.show).raiseError,
                 _.pure
@@ -55,7 +57,7 @@ object PGItemRepository:
               into item (id, name, created_at, updated_at)
               values (
                 ${item.id.value},
-                ${item.name.value},
+                ${item.name.value.value},
                 current_timestamp,
                 current_timestamp
               )

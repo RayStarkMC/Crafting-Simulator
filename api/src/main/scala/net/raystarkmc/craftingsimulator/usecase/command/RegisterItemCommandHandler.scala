@@ -11,6 +11,7 @@ import net.raystarkmc.craftingsimulator.usecase.command.RegisterItemCommandHandl
   Command,
   Output
 }
+import net.raystarkmc.craftingsimulator.lib.domain.ModelName
 
 import java.util.UUID
 
@@ -20,7 +21,7 @@ trait RegisterItemCommandHandler[F[_]]:
 object RegisterItemCommandHandler extends RegisterItemCommandHandlerGivens:
   case class Command(name: String) derives Hash, Show
   case class Output(id: UUID) derives Hash, Show
-  case class Error(detail: ItemName.Failure) derives Hash, Show
+  case class Error(detail: ModelName.Failure) derives Hash, Show
 
 trait RegisterItemCommandHandlerGivens:
   given [F[_]: {Monad, UUIDGen, ItemRepository}]
@@ -32,8 +33,9 @@ trait RegisterItemCommandHandlerGivens:
           command: Command
       ): F[Either[RegisterItemCommandHandler.Error, Output]] =
         val eitherT = for {
-          name <- ItemName
+          name <- ModelName
             .ae(command.name)
+            .map(ItemName.apply)
             .leftMap(_.head)
             .leftMap(RegisterItemCommandHandler.Error.apply)
             .toEitherT[F]
