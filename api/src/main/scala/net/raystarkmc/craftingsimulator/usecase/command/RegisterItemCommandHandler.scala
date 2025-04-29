@@ -10,6 +10,7 @@ import net.raystarkmc.craftingsimulator.domain.item.*
 import net.raystarkmc.craftingsimulator.lib.cats.*
 import net.raystarkmc.craftingsimulator.usecase.command.RegisterItemCommandHandler.*
 import net.raystarkmc.craftingsimulator.lib.domain.ModelName
+import net.raystarkmc.craftingsimulator.lib.transaction.Transaction
 
 import java.util.UUID
 
@@ -23,6 +24,28 @@ object RegisterItemCommandHandler extends RegisterItemCommandHandlerGivens:
     case ValidationFailed(detail: String) extends Failure
 
 trait RegisterItemCommandHandlerGivens:
+  given [
+    F[_] : {Monad, UUIDGen},
+    G[_] : ItemRepository as itemRepository
+  ] =>(T: Transaction[G, F]) =>RegisterItemCommandHandler[F]:
+    def run(
+      command: Command
+    ): F[Either[Failure, Output]] =
+      val eitherT = for {
+        name <- ModelName
+          .inParallel[EitherWithNec[ModelName.Failure]](command.name)
+          .map(ItemName.apply)
+          .leftMap { e => Failure.ValidationFailed(e.show) }
+          .toEitherT[F]
+        item <- EitherT.right[Failure](
+          Item.create(name)
+        )
+        _ <- T.mapK(EitherT.liftK[F, Failure]).withTransaction {
+          itemRepository.save(item)
+        }
+      } yield Output(item.id.value)
+      eitherT.value
+
   given [F[_]: {Monad, UUIDGen, ItemRepository}]
     => RegisterItemCommandHandler[F] =
     object instance extends RegisterItemCommandHandler[F]:
