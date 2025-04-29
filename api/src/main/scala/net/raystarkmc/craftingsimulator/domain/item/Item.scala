@@ -1,11 +1,11 @@
 package net.raystarkmc.craftingsimulator.domain.item
 
+import cats.*
+import cats.syntax.all.given
 import cats.derived.*
 import cats.effect.std.UUIDGen
-import cats.syntax.all.given
-import cats.{Functor, Hash, Show}
 
-case class Item private (id: ItemId, name: ItemName) derives Hash, Show:
+case class Item private (id: ItemId, name: ItemName) derives Eq, Hash, Show:
   def update(newName: ItemName): Item = copy(name = newName)
 
 object Item:

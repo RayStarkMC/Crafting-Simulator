@@ -7,21 +7,20 @@ import cats.effect.std.UUIDGen
 import cats.instances.all.given
 import cats.syntax.all.*
 import net.raystarkmc.craftingsimulator.domain.item.*
-import net.raystarkmc.craftingsimulator.usecase.command.RegisterItemCommandHandler.{
-  Command,
-  Output
-}
+import net.raystarkmc.craftingsimulator.lib.cats.*
+import net.raystarkmc.craftingsimulator.usecase.command.RegisterItemCommandHandler.*
 import net.raystarkmc.craftingsimulator.lib.domain.ModelName
 
 import java.util.UUID
 
 trait RegisterItemCommandHandler[F[_]]:
-  def run(command: Command): F[Either[RegisterItemCommandHandler.Error, Output]]
+  def run(command: Command): F[Either[Failure, Output]]
 
 object RegisterItemCommandHandler extends RegisterItemCommandHandlerGivens:
-  case class Command(name: String) derives Hash, Show
-  case class Output(id: UUID) derives Hash, Show
-  case class Error(detail: ModelName.Failure) derives Hash, Show
+  case class Command(name: String) derives Eq, Hash, Show, Order
+  case class Output(id: UUID) derives Eq, Hash, Show, Order
+  enum Failure derives Eq, Hash, Show, Order:
+    case ValidationFailed(detail: String) extends Failure
 
 trait RegisterItemCommandHandlerGivens:
   given [F[_]: {Monad, UUIDGen, ItemRepository}]
@@ -31,18 +30,17 @@ trait RegisterItemCommandHandlerGivens:
 
       def run(
           command: Command
-      ): F[Either[RegisterItemCommandHandler.Error, Output]] =
+      ): F[Either[Failure, Output]] =
         val eitherT = for {
           name <- ModelName
-            .ae(command.name)
+            .inParallel[EitherWithNec[ModelName.Failure]](command.name)
             .map(ItemName.apply)
-            .leftMap(_.head)
-            .leftMap(RegisterItemCommandHandler.Error.apply)
+            .leftMap { e => Failure.ValidationFailed(e.show) }
             .toEitherT[F]
-          item <- EitherT.liftF(
+          item <- EitherT.right[Failure](
             Item.create(name)
           )
-          _ <- EitherT.liftF(
+          _ <- EitherT.right[Failure](
             itemRepository.save(item)
           )
         } yield Output(item.id.value)

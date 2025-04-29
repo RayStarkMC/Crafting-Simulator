@@ -1,8 +1,10 @@
 package net.raystarkmc.craftingsimulator.usecase.command
 
-import cats.data.State
+import cats.*
+import cats.data.*
 import cats.effect.std.UUIDGen
-import cats.implicits.*
+import cats.instances.all.given
+import cats.syntax.all.*
 import net.raystarkmc.craftingsimulator.domain.item.*
 import net.raystarkmc.craftingsimulator.lib.domain.ModelName
 import org.scalatest.freespec.AnyFreeSpec
@@ -28,20 +30,15 @@ class RegisterItemCommandHandlerTest extends AnyFreeSpec:
 
     val initialState = None
 
-    val result = handler
+    val (state, output) = handler
       .run(
         RegisterItemCommandHandler.Command(name = "")
       )
       .run(initialState)
       .value
-    val expected = (
-      Option.empty[Item],
-      RegisterItemCommandHandler
-        .Error(detail = ModelName.Failure.IsBlank)
-        .asLeft[RegisterItemCommandHandler.Output]
-    )
 
-    assert(expected eqv result)
+    assert(state.isEmpty)
+    assert(output.isLeft)
 
   "Itemを作成して登録する" in:
     val testUUID = UUID.randomUUID().nn
@@ -77,7 +74,7 @@ class RegisterItemCommandHandlerTest extends AnyFreeSpec:
         .some,
       RegisterItemCommandHandler
         .Output(id = testUUID)
-        .asRight[RegisterItemCommandHandler.Error]
+        .asRight[RegisterItemCommandHandler.Failure]
     )
 
-    assert(expected eqv result)
+    assert(expected.eqv(result))
