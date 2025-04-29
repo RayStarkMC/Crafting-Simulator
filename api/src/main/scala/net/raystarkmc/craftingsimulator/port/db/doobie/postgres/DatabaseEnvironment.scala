@@ -14,5 +14,10 @@ def xa[F[_]: Async]: Transactor[F] = Transactor.fromDriverManager[F](
   logHandler = None
 )
 
-given [F[_]: Async] => Transaction[ConnectionIO, F]:
-  def withTransaction[A](program: ConnectionIO[A]): F[A] = program.transact(xa)
+trait TransactionInstances:
+  given [F[_] : Async] =>Transaction[ConnectionIO, F]:
+    def withTransaction[A](program: ConnectionIO[A]): F[A] = program.transact(xa)  
+  
+trait DbPortInstances extends TransactionInstances
+    
+object instances extends DbPortInstances
