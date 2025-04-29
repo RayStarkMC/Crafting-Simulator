@@ -25,11 +25,11 @@ object RegisterItemCommandHandler extends RegisterItemCommandHandlerGivens:
 
 trait RegisterItemCommandHandlerGivens:
   given [
-    F[_] : {Monad, UUIDGen},
-    G[_] : ItemRepository as itemRepository
-  ] =>(T: Transaction[G, F]) =>RegisterItemCommandHandler[F]:
+      F[_]: {Monad, UUIDGen},
+      G[_]: ItemRepository as itemRepository
+  ] => (T: Transaction[G, F]) => RegisterItemCommandHandler[F]:
     def run(
-      command: Command
+        command: Command
     ): F[Either[Failure, Output]] =
       val eitherT = for {
         name <- ModelName
@@ -45,27 +45,3 @@ trait RegisterItemCommandHandlerGivens:
         }
       } yield Output(item.id.value)
       eitherT.value
-
-  given [F[_]: {Monad, UUIDGen, ItemRepository}]
-    => RegisterItemCommandHandler[F] =
-    object instance extends RegisterItemCommandHandler[F]:
-      private val itemRepository: ItemRepository[F] = summon
-
-      def run(
-          command: Command
-      ): F[Either[Failure, Output]] =
-        val eitherT = for {
-          name <- ModelName
-            .inParallel[EitherWithNec[ModelName.Failure]](command.name)
-            .map(ItemName.apply)
-            .leftMap { e => Failure.ValidationFailed(e.show) }
-            .toEitherT[F]
-          item <- EitherT.right[Failure](
-            Item.create(name)
-          )
-          _ <- EitherT.right[Failure](
-            itemRepository.save(item)
-          )
-        } yield Output(item.id.value)
-        eitherT.value
-    instance

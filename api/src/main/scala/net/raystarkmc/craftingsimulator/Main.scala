@@ -9,6 +9,7 @@ import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.queryhandler.PGG
 import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.queryhandler.PGSearchItemsQueryHandler.given
 import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.repository.item.PGItemRepository.given
 import net.raystarkmc.craftingsimulator.usecase.command.*
+import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.instances.given
 import org.http4s.ember.server.EmberServerBuilder
 import org.http4s.server.middleware.ErrorHandling
 import org.http4s.{HttpRoutes, Response}
