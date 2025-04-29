@@ -16,9 +16,66 @@ import java.util.UUID
 
 object PGItemRepository:
   private case class ItemTableRecord(
-    id: UUID,
-    name: String
+      id: UUID,
+      name: String
   )
+
+  given ItemRepository[ConnectionIO]:
+    override def resolveById(itemId: ItemId): ConnectionIO[Option[Item]] =
+      val query =
+        sql"select item.id, item.name from item where id = ${itemId.value}"
+          .query[ItemTableRecord]
+
+      val transactionT = for {
+        ItemTableRecord(id, name) <- OptionT {
+          query.option
+        }
+        itemId = ItemId(id)
+        itemName: ItemName <- OptionT.liftF {
+          ModelName
+            .ae[[A] =>> ValidatedNec[ModelName.Failure, A]](name)
+            .map(ItemName.apply)
+            .fold[ConnectionIO[ItemName]](
+              err => new RuntimeException(err.show).raiseError,
+              _.pure
+            )
+        }
+      } yield {
+        Item.restore(
+          id = itemId,
+          name = itemName
+        )
+      }
+      transactionT.value
+
+    override def save(item: Item): ConnectionIO[Unit] =
+      val insertSql =
+        sql"""
+            insert
+              into item (id, name, created_at, updated_at)
+              values (
+                ${item.id.value},
+                ${item.name.value.value},
+                current_timestamp,
+                current_timestamp
+              )
+            on conflict(id) do
+            update
+            set name = excluded.name,
+                updated_at = current_timestamp
+          """.update.run
+      insertSql.void
+
+    override def delete(item: Item): ConnectionIO[Unit] =
+      val deleteSql =
+        sql"""
+          delete
+          from
+            item
+          where
+            item.id = ${item.id.value}
+        """.update.run
+      deleteSql.void
 
   given [F[_]: Async] => ItemRepository[F] =
     object repository extends ItemRepository[F]:
