@@ -14,7 +14,7 @@ ThisBuild / scalaVersion := "3.6.3"
 ThisBuild / scalacOptions ++= Seq(
   "-Wnonunit-statement",
   "-Yexplicit-nulls",
-  "-Xkind-projector",
+  "-Xkind-projector:underscores",
   "-source:future"
 )
 
