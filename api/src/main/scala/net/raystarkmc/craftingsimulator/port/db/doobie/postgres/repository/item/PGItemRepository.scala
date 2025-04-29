@@ -14,7 +14,7 @@ import net.raystarkmc.craftingsimulator.lib.domain.ModelName
 
 import java.util.UUID
 
-object PGItemRepository:
+trait PGItemRepositoryInstance:
   private case class ItemTableRecord(
       id: UUID,
       name: String

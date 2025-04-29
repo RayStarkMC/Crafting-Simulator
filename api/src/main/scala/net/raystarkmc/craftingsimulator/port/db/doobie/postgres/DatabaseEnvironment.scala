@@ -5,6 +5,7 @@ import doobie.*
 import doobie.implicits.given
 import doobie.util.transactor.Transactor
 import net.raystarkmc.craftingsimulator.lib.transaction.Transaction
+import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.repository.item.PGItemRepositoryInstance
 
 def xa[F[_]: Async]: Transactor[F] = Transactor.fromDriverManager[F](
   driver = "org.postgresql.Driver",
@@ -15,9 +16,9 @@ def xa[F[_]: Async]: Transactor[F] = Transactor.fromDriverManager[F](
 )
 
 trait TransactionInstances:
-  given [F[_] : Async] =>Transaction[ConnectionIO, F]:
-    def withTransaction[A](program: ConnectionIO[A]): F[A] = program.transact(xa)  
-  
-trait DbPortInstances extends TransactionInstances
-    
+  given [F[_]: Async] => Transaction[ConnectionIO, F]:
+    def withTransaction[A](program: ConnectionIO[A]): F[A] = program.transact(xa)
+
+trait DbPortInstances extends TransactionInstances with PGItemRepositoryInstance
+
 object instances extends DbPortInstances

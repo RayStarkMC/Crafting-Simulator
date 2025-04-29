@@ -7,6 +7,7 @@ import cats.instances.all.given
 import cats.syntax.all.*
 import net.raystarkmc.craftingsimulator.domain.item.*
 import net.raystarkmc.craftingsimulator.lib.domain.ModelName
+import net.raystarkmc.craftingsimulator.lib.transaction.Transaction
 import org.scalatest.freespec.AnyFreeSpec
 
 import java.util.UUID
@@ -14,19 +15,21 @@ import java.util.UUID
 class RegisterItemCommandHandlerTest extends AnyFreeSpec:
   "名前が不正な場合エラーが返される" in:
     val testUUID: UUID = UUID.randomUUID().nn
-    type TestState[A] = State[Option[Item], A]
-    given ItemRepository[TestState]:
-      def resolveById(itemId: ItemId): TestState[Option[Item]] =
+    type MockDB[A] = State[Option[Item], A]
+    given ItemRepository[MockDB]:
+      def resolveById(itemId: ItemId): MockDB[Option[Item]] =
         if itemId.value eqv testUUID then State.get else fail()
-      def save(item: Item): TestState[Unit] =
+      def save(item: Item): MockDB[Unit] =
         State.set(item.some)
-      def delete(item: Item): TestState[Unit] =
+      def delete(item: Item): MockDB[Unit] =
         fail()
 
-    given UUIDGen[TestState]:
-      def randomUUID: TestState[UUID] = testUUID.pure[TestState]
-
-    val handler = summon[RegisterItemCommandHandler[TestState]]
+    given UUIDGen[MockDB]:
+      def randomUUID: MockDB[UUID] = testUUID.pure
+      
+    given Transaction[MockDB, MockDB] = Transaction.noop
+        
+    val handler = summon[RegisterItemCommandHandler[MockDB]]
 
     val initialState = None
 
@@ -42,19 +45,21 @@ class RegisterItemCommandHandlerTest extends AnyFreeSpec:
 
   "Itemを作成して登録する" in:
     val testUUID = UUID.randomUUID().nn
-    type TestState[A] = State[Option[Item], A]
-    given ItemRepository[TestState]:
-      def resolveById(itemId: ItemId): TestState[Option[Item]] =
+    type MockDB[A] = State[Option[Item], A]
+    given ItemRepository[MockDB]:
+      def resolveById(itemId: ItemId): MockDB[Option[Item]] =
         if itemId.value eqv testUUID then State.get else fail()
-      def save(item: Item): TestState[Unit] =
+      def save(item: Item): MockDB[Unit] =
         State.set(Some(item))
-      def delete(item: Item): TestState[Unit] =
+      def delete(item: Item): MockDB[Unit] =
         fail()
 
-    given UUIDGen[TestState]:
-      def randomUUID: TestState[UUID] = testUUID.pure
+    given UUIDGen[MockDB]:
+      def randomUUID: MockDB[UUID] = testUUID.pure
 
-    val handler = summon[RegisterItemCommandHandler[TestState]]
+    given Transaction[MockDB, MockDB] = Transaction.noop
+
+    val handler = summon[RegisterItemCommandHandler[MockDB]]
 
     val initialState = None
 
