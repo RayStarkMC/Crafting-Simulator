@@ -10,3 +10,8 @@ trait Transaction[F[_], G[_]]:
   def mapK[H[_]](f: G ~> H): Transaction[F, H] = new Transaction[F, H] {
     override def withTransaction[A](program: F[A]): H[A] = f(self.withTransaction(program))
   }
+  
+object Transaction:
+  def noop[F[_]]: Transaction[F, F] = new Transaction[F, F] {
+    override def withTransaction[A](program: F[A]): F[A] = program
+  }
