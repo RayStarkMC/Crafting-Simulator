@@ -6,20 +6,8 @@ import cats.derived.*
 import cats.effect.std.UUIDGen
 import cats.instances.all.given
 import cats.syntax.all.given
-import net.raystarkmc.craftingsimulator.domain.item.{
-  ItemId,
-  ItemName,
-  ItemRepository
-}
-import net.raystarkmc.craftingsimulator.domain.recipe.{
-  RecipeId,
-  RecipeName,
-  RecipeRepository
-}
-import net.raystarkmc.craftingsimulator.usecase.command.UpdateItemCommandHandler.{
-  Command,
-  Output
-}
+import net.raystarkmc.craftingsimulator.domain.recipe.*
+import net.raystarkmc.craftingsimulator.usecase.command.recipe.UpdateRecipeCommandHandler.*
 
 import java.util.UUID
 

@@ -8,16 +8,15 @@ import cats.instances.all.given
 import cats.syntax.all.given
 import net.raystarkmc.craftingsimulator.domain.item.*
 import net.raystarkmc.craftingsimulator.lib.domain.ModelName
-import net.raystarkmc.craftingsimulator.usecase.command.UpdateItemCommandHandler.{Command, Output}
+import net.raystarkmc.craftingsimulator.usecase.command.UpdateItemCommandHandler.*
 
 import java.util.UUID
 
 trait UpdateItemCommandHandler[F[_]]:
-  def run(command: Command): F[Either[UpdateItemCommandHandler.Error, Output]]
+  def run(command: Command): F[Either[UpdateItemCommandHandler.Error, Unit]]
 
 object UpdateItemCommandHandler extends UpdateItemCommandHandlerGivens:
   case class Command(id: UUID, name: String) derives Hash, Show
-  case class Output() derives Hash, Show
   enum Error derives Hash, Show:
     case NameError(detail: ModelName.Failure)
     case NotFound
@@ -26,8 +25,8 @@ trait UpdateItemCommandHandlerGivens:
   given [F[_]: {Monad, UUIDGen, ItemRepository as itemRepository}] => UpdateItemCommandHandler[F]:
     def run(
         command: Command
-    ): F[Either[UpdateItemCommandHandler.Error, Output]] =
-      val eitherT: EitherT[F, UpdateItemCommandHandler.Error, Output] = for {
+    ): F[Either[UpdateItemCommandHandler.Error, Unit]] =
+      val eitherT: EitherT[F, UpdateItemCommandHandler.Error, Unit] = for {
         name <- ModelName
           .ae(command.name)
           .map(ItemName.apply)
@@ -43,5 +42,5 @@ trait UpdateItemCommandHandlerGivens:
         _ <- EitherT.liftF(
           itemRepository.save(updated)
         )
-      } yield Output()
+      } yield ()
       eitherT.value
