@@ -12,12 +12,12 @@ import net.raystarkmc.craftingsimulator.usecase.command.recipe.UpdateRecipeComma
 import java.util.UUID
 
 trait UpdateRecipeCommandHandler[F[_]]:
-  def run(command: Command): F[Either[UpdateRecipeCommandHandler.Error, Output]]
+  def run(command: Command): F[Either[Failure, Output]]
 
 object UpdateRecipeCommandHandler extends UpdateRecipeCommandHandlerGivens:
   case class Command(id: UUID, name: String) derives Hash, Show
   case class Output() derives Hash, Show
-  enum Error derives Hash, Show:
+  enum Failure derives Hash, Show:
     case NameError(detail: RecipeName.Failure)
     case NotFound
 
@@ -29,20 +29,20 @@ trait UpdateRecipeCommandHandlerGivens:
 
       def run(
           command: Command
-      ): F[Either[UpdateRecipeCommandHandler.Error, Output]] =
-        val eitherT: EitherT[F, UpdateRecipeCommandHandler.Error, Output] = for {
+      ): F[Either[Failure, Output]] =
+        val eitherT: EitherT[F, Failure, Output] = for {
           name <- RecipeName
             .ae(command.name)
             .leftMap(_.head)
-            .leftMap(UpdateRecipeCommandHandler.Error.NameError.apply)
+            .leftMap(Failure.NameError.apply)
             .toEitherT[F]
           recipeId = RecipeId(command.id)
           recipe <- EitherT.fromOptionF(
             recipeRepository.resolveById(recipeId),
-            UpdateRecipeCommandHandler.Error.NotFound
+            Failure.NotFound
           )
           updated = recipe.update(name)
-          _ <- EitherT.right[UpdateRecipeCommandHandler.Error](
+          _ <- EitherT.right[Failure](
             recipeRepository.save(updated)
           )
         } yield Output()
