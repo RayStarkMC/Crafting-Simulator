@@ -21,29 +21,24 @@ object UpdateRecipeCommandHandler extends UpdateRecipeCommandHandlerGivens:
     case NotFound
 
 trait UpdateRecipeCommandHandlerGivens:
-  given [F[_]: {Monad, UUIDGen, RecipeRepository}]
-    => UpdateRecipeCommandHandler[F] =
-    object instance extends UpdateRecipeCommandHandler[F]:
-      private val recipeRepository: RecipeRepository[F] = summon
-
-      def run(
-          command: Command
-      ): F[Either[Failure, Unit]] =
-        val eitherT: EitherT[F, Failure, Unit] = for {
-          name <- RecipeName
-            .ae(command.name)
-            .leftMap(_.head)
-            .leftMap(Failure.NameError.apply)
-            .toEitherT[F]
-          recipeId = RecipeId(command.id)
-          recipe <- EitherT.fromOptionF(
-            recipeRepository.resolveById(recipeId),
-            Failure.NotFound
-          )
-          updated = recipe.update(name)
-          _ <- EitherT.right[Failure](
-            recipeRepository.save(updated)
-          )
-        } yield ()
-        eitherT.value
-    instance
+  given [F[_]: {Monad, UUIDGen, RecipeRepository as recipeRepository}] => UpdateRecipeCommandHandler[F]:
+    def run(
+        command: Command
+    ): F[Either[Failure, Unit]] =
+      val eitherT: EitherT[F, Failure, Unit] = for {
+        name <- RecipeName
+          .ae(command.name)
+          .leftMap(_.head)
+          .leftMap(Failure.NameError.apply)
+          .toEitherT[F]
+        recipeId = RecipeId(command.id)
+        recipe <- EitherT.fromOptionF(
+          recipeRepository.resolveById(recipeId),
+          Failure.NotFound
+        )
+        updated = recipe.update(name)
+        _ <- EitherT.right[Failure](
+          recipeRepository.save(updated)
+        )
+      } yield ()
+      eitherT.value
