@@ -30,7 +30,7 @@ trait UpdateRecipeCommandHandlerGivens:
           .inParallel[EitherNec[ModelName.Failure, _]](command.name)
           .leftMap(_.show)
           .map(RecipeName.apply)
-          .leftMap(Failure.ValidationFailed)
+          .leftMap(Failure.ValidationFailed.apply)
           .toEitherT[F]
         recipe <- EitherT.fromOptionF(
           recipeRepository.resolveById(recipeId),
