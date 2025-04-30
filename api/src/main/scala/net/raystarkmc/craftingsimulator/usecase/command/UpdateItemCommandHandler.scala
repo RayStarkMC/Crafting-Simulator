@@ -23,33 +23,25 @@ object UpdateItemCommandHandler extends UpdateItemCommandHandlerGivens:
     case NotFound
 
 trait UpdateItemCommandHandlerGivens:
-  given [F[_]: {Monad, UUIDGen, ItemRepository}]
-    => UpdateItemCommandHandler[F] =
-    object instance extends UpdateItemCommandHandler[F]:
-      private val itemRepository: ItemRepository[F] = summon
-
-      def run(
-          command: Command
-      ): F[Either[UpdateItemCommandHandler.Error, Output]] =
-        val eitherT: EitherT[F, UpdateItemCommandHandler.Error, Output] = for {
-          name <- ModelName
-            .ae(command.name)
-            .map(ItemName.apply)
-            .leftMap(_.head)
-            .leftMap(UpdateItemCommandHandler.Error.NameError.apply)
-            .toEitherT[F]
-          itemId = ItemId(command.id)
-          itemOption <- EitherT.liftF(
-            itemRepository.resolveById(itemId)
-          )
-          item <- EitherT.fromOption(
-            itemOption,
-            UpdateItemCommandHandler.Error.NotFound
-          )
-          updated = item.update(name)
-          _ <- EitherT.liftF(
-            itemRepository.save(updated)
-          )
-        } yield Output()
-        eitherT.value
-    instance
+  given [F[_]: {Monad, UUIDGen, ItemRepository as itemRepository}] => UpdateItemCommandHandler[F]:
+    def run(
+        command: Command
+    ): F[Either[UpdateItemCommandHandler.Error, Output]] =
+      val eitherT: EitherT[F, UpdateItemCommandHandler.Error, Output] = for {
+        name <- ModelName
+          .ae(command.name)
+          .map(ItemName.apply)
+          .leftMap(_.head)
+          .leftMap(UpdateItemCommandHandler.Error.NameError.apply)
+          .toEitherT[F]
+        itemId = ItemId(command.id)
+        item <- EitherT.fromOptionF(
+          itemRepository.resolveById(itemId),
+          UpdateItemCommandHandler.Error.NotFound
+        )
+        updated = item.update(name)
+        _ <- EitherT.liftF(
+          itemRepository.save(updated)
+        )
+      } yield Output()
+      eitherT.value
