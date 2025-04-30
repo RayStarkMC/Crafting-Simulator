@@ -13,30 +13,30 @@ import net.raystarkmc.craftingsimulator.usecase.command.UpdateItemCommandHandler
 import java.util.UUID
 
 trait UpdateItemCommandHandler[F[_]]:
-  def run(command: Command): F[Either[UpdateItemCommandHandler.Error, Unit]]
+  def run(command: Command): F[Either[Failure, Unit]]
 
 object UpdateItemCommandHandler extends UpdateItemCommandHandlerGivens:
   case class Command(id: UUID, name: String) derives Hash, Show
-  enum Error derives Hash, Show:
-    case NameError(detail: String)
+  enum Failure derives Hash, Show:
+    case ValidationFailed(detail: String)
     case NotFound
 
 trait UpdateItemCommandHandlerGivens:
   given [F[_]: {Monad, UUIDGen, ItemRepository as itemRepository}] => UpdateItemCommandHandler[F]:
     def run(
         command: Command
-    ): F[Either[UpdateItemCommandHandler.Error, Unit]] =
+    ): F[Either[Failure, Unit]] =
       val itemId = ItemId(command.id)
-      val eitherT: EitherT[F, UpdateItemCommandHandler.Error, Unit] = for {
+      val eitherT: EitherT[F, Failure, Unit] = for {
         name <- ModelName
           .inParallel[EitherNec[ModelName.Failure, _]](command.name)
           .leftMap(_.show)
           .map(ItemName.apply)
-          .leftMap(UpdateItemCommandHandler.Error.NameError.apply)
+          .leftMap(Failure.ValidationFailed.apply)
           .toEitherT[F]
         item <- EitherT.fromOptionF(
           itemRepository.resolveById(itemId),
-          UpdateItemCommandHandler.Error.NotFound
+          Failure.NotFound
         )
         updated = item.update(name)
         _ <- EitherT.liftF(

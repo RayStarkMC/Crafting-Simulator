@@ -6,7 +6,7 @@ import cats.syntax.all.given
 import io.circe.generic.auto.given
 import net.raystarkmc.craftingsimulator.port.api.http4s.controller.item.UpdateItemController.RequestBody
 import net.raystarkmc.craftingsimulator.usecase.command.UpdateItemCommandHandler
-import net.raystarkmc.craftingsimulator.usecase.command.UpdateItemCommandHandler.Command
+import net.raystarkmc.craftingsimulator.usecase.command.UpdateItemCommandHandler.*
 import org.http4s.*
 import org.http4s.circe.CirceEntityCodec.given
 
@@ -36,9 +36,8 @@ trait UpdateItemControllerGivens:
             res <- result.fold(
               error =>
                 error match {
-                  case UpdateItemCommandHandler.Error.NameError(detail) =>
-                    BadRequest()
-                  case UpdateItemCommandHandler.Error.NotFound => NotFound()
+                  case Failure.ValidationFailed(detail) => BadRequest()
+                  case Failure.NotFound                 => NotFound()
                 },
               _ => Ok()
             )
