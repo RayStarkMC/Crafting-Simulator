@@ -12,11 +12,10 @@ import net.raystarkmc.craftingsimulator.usecase.command.recipe.UpdateRecipeComma
 import java.util.UUID
 
 trait UpdateRecipeCommandHandler[F[_]]:
-  def run(command: Command): F[Either[Failure, Output]]
+  def run(command: Command): F[Either[Failure, Unit]]
 
 object UpdateRecipeCommandHandler extends UpdateRecipeCommandHandlerGivens:
   case class Command(id: UUID, name: String) derives Hash, Show
-  case class Output() derives Hash, Show
   enum Failure derives Hash, Show:
     case NameError(detail: RecipeName.Failure)
     case NotFound
@@ -29,8 +28,8 @@ trait UpdateRecipeCommandHandlerGivens:
 
       def run(
           command: Command
-      ): F[Either[Failure, Output]] =
-        val eitherT: EitherT[F, Failure, Output] = for {
+      ): F[Either[Failure, Unit]] =
+        val eitherT: EitherT[F, Failure, Unit] = for {
           name <- RecipeName
             .ae(command.name)
             .leftMap(_.head)
@@ -45,6 +44,6 @@ trait UpdateRecipeCommandHandlerGivens:
           _ <- EitherT.right[Failure](
             recipeRepository.save(updated)
           )
-        } yield Output()
+        } yield ()
         eitherT.value
     instance
