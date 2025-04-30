@@ -37,15 +37,12 @@ trait UpdateRecipeCommandHandlerGivens:
             .leftMap(UpdateRecipeCommandHandler.Error.NameError.apply)
             .toEitherT[F]
           recipeId = RecipeId(command.id)
-          recipeOption <- EitherT.liftF(
-            recipeRepository.resolveById(recipeId)
-          )
-          recipe <- EitherT.fromOption(
-            recipeOption,
+          recipe <- EitherT.fromOptionF(
+            recipeRepository.resolveById(recipeId),
             UpdateRecipeCommandHandler.Error.NotFound
           )
           updated = recipe.update(name)
-          _ <- EitherT.liftF(
+          _ <- EitherT.right[UpdateRecipeCommandHandler.Error](
             recipeRepository.save(updated)
           )
         } yield Output()
