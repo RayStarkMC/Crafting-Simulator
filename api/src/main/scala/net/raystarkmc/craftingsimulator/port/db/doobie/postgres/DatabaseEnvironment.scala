@@ -9,7 +9,10 @@ import doobie.*
 import doobie.implicits.given
 import doobie.util.transactor.Transactor
 import net.raystarkmc.craftingsimulator.lib.transaction.Transaction
-import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.queryhandler.PGGetItemQueryHandlerGivens
+import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.queryhandler.{
+  PGGetItemQueryHandlerGivens,
+  PGSearchItemsQueryHandlerGivens
+}
 import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.repository.item.PGItemRepositoryGivens
 
 def xa[F[_]: Async]: Transactor[F] = Transactor.fromDriverManager[F](
@@ -26,6 +29,10 @@ trait TransactionGivens:
 
     def withTransaction[E, A](program: EitherT[ConnectionIO, E, A]): EitherT[F, E, A] = program.transact(xa)
 
-trait DbPortInstances extends TransactionGivens with PGItemRepositoryGivens with PGGetItemQueryHandlerGivens
+trait DbPortInstances
+    extends TransactionGivens
+    with PGItemRepositoryGivens
+    with PGGetItemQueryHandlerGivens
+    with PGSearchItemsQueryHandlerGivens
 
 object instances extends DbPortInstances
