@@ -40,4 +40,3 @@ object Main extends IOApp:
       .withShutdownTimeout(1.second)
       .build
       .useForever
-      .as(ExitCode.Success)
