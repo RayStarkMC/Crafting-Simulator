@@ -16,13 +16,12 @@ import java.util.UUID
 trait UpdateItemCommandHandler[F[_]]:
   def run(command: Command): F[Either[Failure, Unit]]
 
-object UpdateItemCommandHandler extends UpdateItemCommandHandlerGivens:
+object UpdateItemCommandHandler:
   case class Command(id: UUID, name: String) derives Hash, Show
   enum Failure derives Hash, Show:
     case ValidationFailed(detail: String)
     case NotFound
 
-trait UpdateItemCommandHandlerGivens:
   given [
       F[_]: {UUIDGen, Monad},
       G[_]: {ItemRepository as itemRepository, Monad}
