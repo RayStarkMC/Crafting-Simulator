@@ -22,22 +22,20 @@ object DeleteItemCommandHandler extends DeleteItemCommandHandlerGivens:
 
 trait DeleteItemCommandHandlerGivens:
   given [
-      F[_]: Monad,
+      F[_],
       G[_]: {ItemRepository as itemRepository, Monad}
   ] => (T: Transaction[G, F]) => DeleteItemCommandHandler[F]:
     def run(command: Command): F[Either[Failure, Unit]] =
       val itemId = ItemId(command.id)
-      val eitherT = for {
-        _ <- T.withTransaction {
-          for {
-            item <- EitherT.fromOptionF(
-              itemRepository.resolveById(itemId),
-              Failure.ModelNotFound
-            )
-            _ <- EitherT.right[Failure] {
-              itemRepository.delete(item)
-            }
-          } yield ()
-        }
-      } yield ()
+      val eitherT = T.withTransaction {
+        for {
+          item <- EitherT.fromOptionF(
+            itemRepository.resolveById(itemId),
+            Failure.ModelNotFound
+          )
+          _ <- EitherT.right[Failure] {
+            itemRepository.delete(item)
+          }
+        } yield ()
+      }
       eitherT.value
