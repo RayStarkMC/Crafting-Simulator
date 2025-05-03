@@ -32,21 +32,20 @@ trait PGItemRepositoryGivens:
         }
         itemId = ItemId(id)
         itemName: ItemName <- OptionT.liftF {
-          ModelName
-            .inParallel[EitherNec[ModelName.Failure, _]](name)
-            .leftMap(_.show)
-            .map(ItemName.apply)
-            .fold[ConnectionIO[ItemName]](
-              err => new RuntimeException(err).raiseError,
-              _.pure
-            )
+          ApplicativeThrow[ConnectionIO].fromEither {
+            ModelName
+              .inParallel[EitherNec[ModelName.Failure, _]](name)
+              .leftMap(_.show)
+              .map(ItemName.apply)
+              .leftMap(IllegalStateException(_))
+          }
         }
-      } yield {
-        Item.restore(
+        restoredItem = Item.restore(
           id = itemId,
           name = itemName
         )
-      }
+      } yield restoredItem
+
       transactionT.value
 
     def save(item: Item): ConnectionIO[Unit] =
