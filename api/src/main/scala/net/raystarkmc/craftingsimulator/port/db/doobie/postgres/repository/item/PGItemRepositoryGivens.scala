@@ -21,7 +21,7 @@ trait PGItemRepositoryGivens:
   )
 
   given ItemRepository[ConnectionIO]:
-    override def resolveById(itemId: ItemId): ConnectionIO[Option[Item]] =
+    def resolveById(itemId: ItemId): ConnectionIO[Option[Item]] =
       val query =
         sql"select item.id, item.name from item where id = ${itemId.value}"
           .query[ItemTableRecord]
@@ -48,7 +48,7 @@ trait PGItemRepositoryGivens:
       }
       transactionT.value
 
-    override def save(item: Item): ConnectionIO[Unit] =
+    def save(item: Item): ConnectionIO[Unit] =
       val insertSql =
         sql"""
             insert
@@ -66,7 +66,7 @@ trait PGItemRepositoryGivens:
           """.update.run
       insertSql.void
 
-    override def delete(item: Item): ConnectionIO[Unit] =
+    def delete(item: Item): ConnectionIO[Unit] =
       val deleteSql =
         sql"""
           delete
@@ -76,65 +76,3 @@ trait PGItemRepositoryGivens:
             item.id = ${item.id.value}
         """.update.run
       deleteSql.void
-
-  given [F[_]: Async] => ItemRepository[F] =
-    object repository extends ItemRepository[F]:
-      override def resolveById(itemId: ItemId): F[Option[Item]] =
-        val query =
-          sql"select item.id, item.name from item where id = ${itemId.value}"
-            .query[ItemTableRecord]
-
-        val transactionT = for {
-          ItemTableRecord(id, name) <- OptionT {
-            query.option
-          }
-          itemId = ItemId(id)
-          itemName: ItemName <- OptionT.liftF {
-            ModelName
-              .ae[[A] =>> ValidatedNec[ModelName.Failure, A]](name)
-              .map(ItemName.apply)
-              .fold[ConnectionIO[ItemName]](
-                err => new RuntimeException(err.show).raiseError,
-                _.pure
-              )
-          }
-        } yield {
-          Item.restore(
-            id = itemId,
-            name = itemName
-          )
-        }
-
-        transactionT.value.transact[F](xa)
-
-      override def save(item: Item): F[Unit] =
-        val insertSql =
-          sql"""
-            insert
-              into item (id, name, created_at, updated_at)
-              values (
-                ${item.id.value},
-                ${item.name.value.value},
-                current_timestamp,
-                current_timestamp
-              )
-            on conflict(id) do
-            update
-            set name = excluded.name,
-                updated_at = current_timestamp
-          """.update.run
-
-        insertSql.void.transact[F](xa)
-
-      override def delete(item: Item): F[Unit] =
-        val deleteSql =
-          sql"""
-          delete
-          from
-            item
-          where
-            item.id = ${item.id.value}
-        """.update.run
-
-        deleteSql.void.transact[F](xa)
-    repository
