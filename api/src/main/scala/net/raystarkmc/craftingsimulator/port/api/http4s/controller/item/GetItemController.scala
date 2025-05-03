@@ -8,8 +8,8 @@ import cats.effect.Concurrent
 import io.circe.generic.auto.given
 import io.circe.syntax.given
 import net.raystarkmc.craftingsimulator.port.api.http4s.controller.item.GetItemController.ResponseBody
-import net.raystarkmc.craftingsimulator.usecase.query.GetItemQueryHandler
-import net.raystarkmc.craftingsimulator.usecase.query.GetItemQueryHandler.Input
+import net.raystarkmc.craftingsimulator.usecase.query.item.GetItemQueryHandler.Input
+import net.raystarkmc.craftingsimulator.usecase.query.item.GetItemQueryHandler
 import org.http4s.*
 import org.http4s.circe.CirceEntityCodec.given
 import org.http4s.dsl.*

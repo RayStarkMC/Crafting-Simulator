@@ -1,6 +1,6 @@
-package net.raystarkmc.craftingsimulator.usecase.query
+package net.raystarkmc.craftingsimulator.usecase.query.item
 
-import net.raystarkmc.craftingsimulator.usecase.query.SearchItemsQueryHandler.*
+import SearchItemsQueryHandler.*
 
 import java.util.UUID
 

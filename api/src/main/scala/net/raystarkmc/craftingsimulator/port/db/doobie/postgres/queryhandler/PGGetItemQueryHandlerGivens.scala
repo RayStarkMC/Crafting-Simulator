@@ -6,9 +6,9 @@ import cats.effect.*
 import doobie.*
 import doobie.implicits.given
 import doobie.postgres.implicits.given
-import net.raystarkmc.craftingsimulator.usecase.query.GetItemQueryHandler
-import net.raystarkmc.craftingsimulator.usecase.query.GetItemQueryHandler.*
+import net.raystarkmc.craftingsimulator.usecase.query.item.GetItemQueryHandler.*
 import net.raystarkmc.craftingsimulator.lib.transaction.Transaction
+import net.raystarkmc.craftingsimulator.usecase.query.item.GetItemQueryHandler
 
 import java.util.UUID
 

@@ -10,9 +10,9 @@ import cats.syntax.all.given
 import doobie.*
 import doobie.implicits.given
 import doobie.postgres.implicits.given
-import net.raystarkmc.craftingsimulator.usecase.query.SearchItemsQueryHandler
-import net.raystarkmc.craftingsimulator.usecase.query.SearchItemsQueryHandler.*
+import net.raystarkmc.craftingsimulator.usecase.query.item.SearchItemsQueryHandler.*
 import net.raystarkmc.craftingsimulator.lib.transaction.Transaction
+import net.raystarkmc.craftingsimulator.usecase.query.item.SearchItemsQueryHandler
 
 import java.util.UUID
 
