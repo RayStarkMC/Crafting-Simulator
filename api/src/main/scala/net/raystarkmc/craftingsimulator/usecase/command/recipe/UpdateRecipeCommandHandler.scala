@@ -15,13 +15,12 @@ import java.util.UUID
 trait UpdateRecipeCommandHandler[F[_]]:
   def run(command: Command): F[Either[Failure, Unit]]
 
-object UpdateRecipeCommandHandler extends UpdateRecipeCommandHandlerGivens:
+object UpdateRecipeCommandHandler:
   case class Command(id: UUID, name: String) derives Hash, Show
   enum Failure derives Hash, Show:
     case ValidationFailed(detail: String)
     case NotFound
 
-trait UpdateRecipeCommandHandlerGivens:
   given [F[_]: {Monad, UUIDGen, RecipeRepository as recipeRepository}] => UpdateRecipeCommandHandler[F]:
     def run(command: Command): F[Either[Failure, Unit]] =
       val recipeId = RecipeId(command.id)
