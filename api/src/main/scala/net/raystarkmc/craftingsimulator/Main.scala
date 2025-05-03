@@ -5,7 +5,6 @@ import cats.effect.*
 import com.comcast.ip4s.{ipv4, port}
 import net.raystarkmc.craftingsimulator.port.api.http4s.controller.*
 import net.raystarkmc.craftingsimulator.port.api.http4s.controller.item.*
-import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.queryhandler.PGGetItemQueryHandler.given
 import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.queryhandler.PGSearchItemsQueryHandler.given
 import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.instances.given
 import org.http4s.ember.server.EmberServerBuilder
