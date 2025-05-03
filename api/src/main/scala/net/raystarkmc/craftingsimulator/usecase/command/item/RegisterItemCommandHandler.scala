@@ -17,19 +17,18 @@ import java.util.UUID
 trait RegisterItemCommandHandler[F[_]]:
   def run(command: Command): F[Either[Failure, Output]]
 
-object RegisterItemCommandHandler extends RegisterItemCommandHandlerGivens:
+object RegisterItemCommandHandler:
   case class Command(name: String) derives Eq, Hash, Show, Order
   case class Output(id: UUID) derives Eq, Hash, Show, Order
   enum Failure derives Eq, Hash, Show, Order:
     case ValidationFailed(detail: String) extends Failure
 
-trait RegisterItemCommandHandlerGivens:
   given [
-      F[_]: {UUIDGen, Monad},
-      G[_]: {ItemRepository as itemRepository, Functor}
-  ] => (T: Transaction[G, F]) => RegisterItemCommandHandler[F]:
+    F[_] : {UUIDGen, Monad},
+    G[_] : {ItemRepository as itemRepository, Functor}
+  ] =>(T: Transaction[G, F]) =>RegisterItemCommandHandler[F]:
     def run(
-        command: Command
+      command: Command
     ): F[Either[Failure, Output]] =
       val eitherT = for {
         name <- ModelName
