@@ -8,6 +8,7 @@ import cats.instances.all.given
 import cats.syntax.all.given
 import net.raystarkmc.craftingsimulator.domain.item.*
 import net.raystarkmc.craftingsimulator.lib.domain.ModelName
+import net.raystarkmc.craftingsimulator.lib.transaction.Transaction
 import net.raystarkmc.craftingsimulator.usecase.command.UpdateItemCommandHandler.*
 
 import java.util.UUID
@@ -22,10 +23,11 @@ object UpdateItemCommandHandler extends UpdateItemCommandHandlerGivens:
     case NotFound
 
 trait UpdateItemCommandHandlerGivens:
-  given [F[_]: {Monad, UUIDGen, ItemRepository as itemRepository}] => UpdateItemCommandHandler[F]:
-    def run(
-        command: Command
-    ): F[Either[Failure, Unit]] =
+  given [
+      F[_]: {UUIDGen, Monad},
+      G[_]: {ItemRepository as itemRepository, Monad}
+  ] => (T: Transaction[G, F]) => UpdateItemCommandHandler[F]:
+    def run(command: Command): F[Either[Failure, Unit]] =
       val itemId = ItemId(command.id)
       val eitherT: EitherT[F, Failure, Unit] = for {
         name <- ModelName
@@ -34,13 +36,19 @@ trait UpdateItemCommandHandlerGivens:
           .map(ItemName.apply)
           .leftMap(Failure.ValidationFailed.apply)
           .toEitherT[F]
-        item <- EitherT.fromOptionF(
-          itemRepository.resolveById(itemId),
-          Failure.NotFound
-        )
-        updated = item.update(name)
-        _ <- EitherT.liftF(
-          itemRepository.save(updated)
-        )
+
+        _ <- T.withTransaction {
+          for {
+            item <- EitherT.fromOptionF(
+              itemRepository.resolveById(itemId),
+              Failure.NotFound
+            )
+            updated = item.update(name)
+            _ <- EitherT.liftF(
+              itemRepository.save(updated)
+            )
+          } yield ()
+        }
       } yield ()
       eitherT.value
+    end run
