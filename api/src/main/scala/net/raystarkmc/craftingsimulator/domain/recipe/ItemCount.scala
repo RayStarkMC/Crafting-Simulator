@@ -12,7 +12,7 @@ object ItemCount extends ItemCountGivens:
   extension (self: ItemCount)
     def value: Long = self
 
-  enum Failure derives Eq, Hash, Show:
+  enum Failure derives Eq, Hash, Order, Show:
     case IsNotGreaterThen0
 
   def ae[F[_] : ApplicativeErrorWithNec[Failure] as F](value: Long): F[ItemCount] =
