@@ -14,12 +14,11 @@ trait DeleteItemController[F[_]]:
 object DeleteItemController extends DeleteItemControllerGivens
 
 trait DeleteItemControllerGivens:
-  given [F[_]: {Concurrent, DeleteItemCommandHandler}] => DeleteItemController[F]:
+  given [F[_]: {Concurrent, DeleteItemCommandHandler as handler}] => DeleteItemController[F]:
     private val dsl = org.http4s.dsl.Http4sDsl[F]
     import dsl.*
-    private val handler = summon[DeleteItemCommandHandler[F]]
 
-    def run: PartialFunction[Request[F], F[Response[F]]] = {
+    def run: PartialFunction[Request[F], F[Response[F]]] =
       case req @ DELETE -> Root / "api" / "items" / UUIDVar(itemId) =>
         val command = DeleteItemCommandHandler.Command(
           id = itemId
@@ -36,4 +35,3 @@ trait DeleteItemControllerGivens:
         eitherT.valueOrF { case DeleteItemCommandHandler.Failure.ModelNotFound =>
           NotFound()
         }
-    }
