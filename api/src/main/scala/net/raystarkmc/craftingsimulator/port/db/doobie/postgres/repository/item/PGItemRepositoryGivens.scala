@@ -9,7 +9,6 @@ import doobie.implicits.*
 import doobie.postgres.*
 import doobie.postgres.implicits.given
 import net.raystarkmc.craftingsimulator.domain.item.*
-import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.xa
 import net.raystarkmc.craftingsimulator.lib.domain.ModelName
 
 import java.util.UUID
