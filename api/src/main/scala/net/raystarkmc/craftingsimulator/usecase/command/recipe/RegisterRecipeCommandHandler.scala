@@ -13,11 +13,9 @@ import net.raystarkmc.craftingsimulator.usecase.command.recipe.RegisterRecipeCom
 import java.util.UUID
 
 trait RegisterRecipeCommandHandler[F[_]]:
-  def run(
-      command: Command
-  ): F[Either[RegisterRecipeCommandHandler.Error, Output]]
+  def run(command: Command): F[Either[RegisterRecipeCommandHandler.Error, Output]]
 
-object RegisterRecipeCommandHandler extends RegisterRecipeCommandHandlerGivens:
+object RegisterRecipeCommandHandler:
   case class Command(
       name: String,
       inputs: Seq[(UUID, Long)],
@@ -27,7 +25,6 @@ object RegisterRecipeCommandHandler extends RegisterRecipeCommandHandlerGivens:
   case class Output(id: UUID) derives Hash, Show
   case class Error(detail: String) derives Hash, Show
 
-trait RegisterRecipeCommandHandlerGivens:
   given [F[_]: {Monad, UUIDGen, RecipeRepository}]
     => RegisterRecipeCommandHandler[F] =
     object instance extends RegisterRecipeCommandHandler[F]:
