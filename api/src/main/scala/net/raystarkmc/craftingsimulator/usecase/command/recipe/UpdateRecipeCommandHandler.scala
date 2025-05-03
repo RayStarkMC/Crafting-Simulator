@@ -16,10 +16,10 @@ trait UpdateRecipeCommandHandler[F[_]]:
   def run(command: Command): F[Either[Failure, Unit]]
 
 object UpdateRecipeCommandHandler:
-  case class Command(id: UUID, name: String) derives Hash, Show
-  enum Failure derives Hash, Show:
+  case class Command(id: UUID, name: String) derives Eq, Hash, Show
+  enum Failure derives Eq, Hash, Show:
     case ValidationFailed(detail: String)
-    case NotFound
+    case ModelNotFound
 
   given [F[_]: {Monad, UUIDGen, RecipeRepository as recipeRepository}] => UpdateRecipeCommandHandler[F]:
     def run(command: Command): F[Either[Failure, Unit]] =
@@ -33,7 +33,7 @@ object UpdateRecipeCommandHandler:
           .toEitherT[F]
         recipe <- EitherT.fromOptionF(
           recipeRepository.resolveById(recipeId),
-          Failure.NotFound
+          Failure.ModelNotFound
         )
         updated = recipe.update(name)
         _ <- EitherT.right[Failure](

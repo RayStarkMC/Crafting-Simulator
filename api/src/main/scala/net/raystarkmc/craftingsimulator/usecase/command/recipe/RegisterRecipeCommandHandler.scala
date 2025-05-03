@@ -13,75 +13,70 @@ import net.raystarkmc.craftingsimulator.usecase.command.recipe.RegisterRecipeCom
 import java.util.UUID
 
 trait RegisterRecipeCommandHandler[F[_]]:
-  def run(command: Command): F[Either[RegisterRecipeCommandHandler.Error, Output]]
+  def run(command: Command): F[Either[Failure, Output]]
 
 object RegisterRecipeCommandHandler:
   case class Command(
       name: String,
       inputs: Seq[(UUID, Long)],
       outputs: Seq[(UUID, Long)]
-  ) derives Hash,
+  ) derives Eq,
+        Hash,
         Show
-  case class Output(id: UUID) derives Hash, Show
-  case class Error(detail: String) derives Hash, Show
+  case class Output(id: UUID) derives Eq, Hash, Show
+  enum Failure derives Eq, Hash, Show:
+    case ValidationFailed(detail: String)
 
-  given [F[_]: {Monad, UUIDGen, RecipeRepository}]
-    => RegisterRecipeCommandHandler[F] =
-    object instance extends RegisterRecipeCommandHandler[F]:
-      private val recipeRepository: RecipeRepository[F] = summon
-
-      def run(
-          command: Command
-      ): F[Either[RegisterRecipeCommandHandler.Error, Output]] =
-        val eitherT = for {
-          name <- RecipeName
-            .ae(command.name)
+  given [F[_]: {Monad, UUIDGen, RecipeRepository as recipeRepository}] => RegisterRecipeCommandHandler[F]:
+    def run(command: Command): F[Either[Failure, Output]] =
+      val eitherT = for {
+        name <- RecipeName
+          .ae(command.name)
+          .leftMap(_.toString)
+          .leftMap(Failure.ValidationFailed(_))
+          .toEitherT[F]
+        inputs: RecipeInput <- EitherT.fromEither[F] {
+          command.inputs
+            .traverse { (uuid, count) =>
+              ItemCount.ae(count).map { c =>
+                ItemWithCount(
+                  item = ItemId(uuid),
+                  count = c
+                )
+              }
+            }
+            .map { icSeq =>
+              RecipeInput.apply(icSeq)
+            }
             .leftMap(_.toString)
-            .leftMap(RegisterRecipeCommandHandler.Error(_))
-            .toEitherT[F]
-          inputs: RecipeInput <- EitherT.fromEither[F] {
-            command.inputs
-              .traverse { (uuid, count) =>
-                ItemCount.ae(count).map { c =>
-                  ItemWithCount(
-                    item = ItemId(uuid),
-                    count = c
-                  )
-                }
+            .leftMap(Failure.ValidationFailed(_))
+        }
+        outputs: RecipeOutput <- EitherT.fromEither[F] {
+          command.outputs
+            .traverse { (uuid, count) =>
+              ItemCount.ae(count).map { c =>
+                ItemWithCount(
+                  item = ItemId(uuid),
+                  count = c
+                )
               }
-              .map { icSeq =>
-                RecipeInput.apply(icSeq)
-              }
-              .leftMap(_.toString)
-              .leftMap(RegisterRecipeCommandHandler.Error(_))
-          }
-          outputs: RecipeOutput <- EitherT.fromEither[F] {
-            command.outputs
-              .traverse { (uuid, count) =>
-                ItemCount.ae(count).map { c =>
-                  ItemWithCount(
-                    item = ItemId(uuid),
-                    count = c
-                  )
-                }
-              }
-              .map { icSeq =>
-                RecipeOutput.apply(icSeq)
-              }
-              .leftMap(_.toString)
-              .leftMap(RegisterRecipeCommandHandler.Error(_))
-          }
+            }
+            .map { icSeq =>
+              RecipeOutput.apply(icSeq)
+            }
+            .leftMap(_.toString)
+            .leftMap(Failure.ValidationFailed(_))
+        }
 
-          recipe <- EitherT.liftF(
-            Recipe.create(
-              name = name,
-              inputs = inputs,
-              outputs = outputs
-            )
+        recipe <- EitherT.liftF(
+          Recipe.create(
+            name = name,
+            inputs = inputs,
+            outputs = outputs
           )
-          _ <- EitherT.liftF(
-            recipeRepository.save(recipe)
-          )
-        } yield Output(recipe.id.value)
-        eitherT.value
-    instance
+        )
+        _ <- EitherT.liftF(
+          recipeRepository.save(recipe)
+        )
+      } yield Output(recipe.id.value)
+      eitherT.value

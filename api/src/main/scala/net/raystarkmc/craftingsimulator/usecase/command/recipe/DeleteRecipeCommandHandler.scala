@@ -11,27 +11,19 @@ import net.raystarkmc.craftingsimulator.usecase.command.recipe.DeleteRecipeComma
 import java.util.UUID
 
 trait DeleteRecipeCommandHandler[F[_]]:
-  def run(command: Command): F[Output]
+  def run(command: Command): F[Unit]
 
 object DeleteRecipeCommandHandler:
-  case class Command(id: UUID) derives Hash, Show
-  case class Output() derives Hash, Show
+  case class Command(id: UUID) derives Eq, Hash, Order, Show
 
-  given [F[_] : {Monad, UUIDGen, RecipeRepository}]
-  => DeleteRecipeCommandHandler[F] =
-    object instance extends DeleteRecipeCommandHandler[F]:
-      private val recipeRepository = summon[RecipeRepository[F]]
-
-      def run(
-        command: Command
-      ): F[Output] =
-        val recipeId = RecipeId(command.id)
-        for {
-          recipeOpt <- recipeRepository.resolveById(recipeId)
-          _ <- recipeOpt.fold {
-            Applicative[F].unit
-          } { item =>
-            recipeRepository.delete(item)
-          }
-        } yield Output()
-    instance
+  given [F[_]: {Monad, UUIDGen, RecipeRepository as recipeRepository}] => DeleteRecipeCommandHandler[F]:
+    def run(command: Command): F[Unit] =
+      val recipeId = RecipeId(command.id)
+      for {
+        recipeOpt <- recipeRepository.resolveById(recipeId)
+        _ <- recipeOpt.fold {
+          Applicative[F].unit
+        } { item =>
+          recipeRepository.delete(item)
+        }
+      } yield ()
