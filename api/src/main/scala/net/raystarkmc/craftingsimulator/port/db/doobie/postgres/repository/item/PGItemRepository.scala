@@ -13,7 +13,7 @@ import net.raystarkmc.craftingsimulator.lib.domain.ModelName
 
 import java.util.UUID
 
-trait PGItemRepositoryGivens:
+trait PGItemRepository:
   given ItemRepository[ConnectionIO]:
     def resolveById(itemId: ItemId): ConnectionIO[Option[Item]] =
       case class ItemTableRecord(id: UUID, name: String)

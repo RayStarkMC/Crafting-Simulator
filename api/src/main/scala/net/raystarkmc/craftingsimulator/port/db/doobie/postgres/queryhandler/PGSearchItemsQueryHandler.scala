@@ -16,7 +16,7 @@ import net.raystarkmc.craftingsimulator.usecase.query.item.SearchItemsQueryHandl
 
 import java.util.UUID
 
-trait PGSearchItemsQueryHandlerGivens:
+trait PGSearchItemsQueryHandler:
   given [F[_]] => (T: Transaction[ConnectionIO, F]) => SearchItemsQueryHandler[F]:
     def run(input: Input): F[Items] =
       case class ItemTableRecord(

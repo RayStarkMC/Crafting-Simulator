@@ -12,7 +12,7 @@ import net.raystarkmc.craftingsimulator.usecase.query.item.GetItemQueryHandler
 
 import java.util.UUID
 
-trait PGGetItemQueryHandlerGivens:
+trait PGGetItemQueryHandler:
   given [F[_]] => (T: Transaction[ConnectionIO, F]) => GetItemQueryHandler[F]:
     def run(input: Input): F[Option[Item]] =
       case class ItemTableRecord(

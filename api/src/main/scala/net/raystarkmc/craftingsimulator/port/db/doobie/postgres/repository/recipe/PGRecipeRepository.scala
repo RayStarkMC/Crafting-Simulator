@@ -10,7 +10,7 @@ import doobie.implicits.*
 import net.raystarkmc.craftingsimulator.domain.item.*
 import net.raystarkmc.craftingsimulator.domain.recipe.*
 
-trait PGRecipeRepositoryGivens:
+trait PGRecipeRepository:
   given RecipeRepository[ConnectionIO]:
     def resolveById(recipeId: RecipeId): ConnectionIO[Option[Recipe]] =
       def restoreRecipe[G[_]: ApplicativeThrow](
