@@ -18,9 +18,7 @@ object DeleteItemCommandHandler extends DeleteItemCommandHandlerGivens:
   case class Output() derives Hash, Show
 
 trait DeleteItemCommandHandlerGivens:
-  given [F[_]: {Monad, UUIDGen, ItemRepository}] => DeleteItemCommandHandler[F]:
-    private val itemRepository = summon[ItemRepository[F]]
-
+  given [F[_]: {Monad, UUIDGen, ItemRepository as itemRepository}] => DeleteItemCommandHandler[F]:
     def run(
         command: Command
     ): F[Output] =
