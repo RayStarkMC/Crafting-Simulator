@@ -15,7 +15,7 @@ trait DeleteItemController[F[_]]:
 object DeleteItemController extends DeleteItemControllerGivens
 
 trait DeleteItemControllerGivens:
-  given [F[_]: {Concurrent, DeleteItemCommandHandler as handler}] => DeleteItemController[F]:
+  given [F[_]: {DeleteItemCommandHandler as handler, Concurrent}] => DeleteItemController[F]:
     private val dsl = Http4sDsl[F]
     import dsl.*
 
