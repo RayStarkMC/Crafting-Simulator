@@ -4,16 +4,15 @@ import cats.*
 import cats.data.*
 import cats.effect.*
 import cats.instances.all.given
-import cats.syntax.all.given
+import cats.syntax.all.*
 import doobie.*
 import doobie.implicits.*
 import net.raystarkmc.craftingsimulator.domain.item.*
 import net.raystarkmc.craftingsimulator.domain.recipe.*
-import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.xa
 
 trait PGRecipeRepositoryGivens:
-  given [F[_]: Async] => RecipeRepository[F]:
-    def resolveById(recipeId: RecipeId): F[Option[Recipe]] =
+  given RecipeRepository[ConnectionIO]:
+    def resolveById(recipeId: RecipeId): ConnectionIO[Option[Recipe]] =
       def restoreRecipe[G[_]: ApplicativeThrow](
           recipeRecord: SelectRecipeOutput,
           recipeInputRecords: Seq[SelectRecipeInputRecord],
@@ -61,46 +60,39 @@ trait PGRecipeRepositoryGivens:
             recipeOutputRecords
           )
         }
-      } yield {
-        recipe
-      }
+      } yield recipe
 
-      transactionT.value.transact[F](xa)
+      transactionT.value
 
-    def save(recipe: Recipe): F[Unit] =
-      val transaction =
-        for {
-          _ <- deleteRecipeInput(recipe.id.value)
-          _ <- deleteRecipeOutput(recipe.id.value)
-          _ <- upsertRecipe(recipe.id.value, recipe.name.value)
-          _ <- insertRecipeOutputs(
-            recipe.output.value.map { recipeOutput =>
-              InsertRecipeOutputsRecord(
-                recipeId = recipe.id.value,
-                itemId = recipeOutput.item.value,
-                count = recipeOutput.count.value
-              )
-            }
-          )
-          _ <- insertRecipeInputs(
-            recipe.input.value.map { recipeInput =>
-              InsertRecipeInputsRecord(
-                recipeId = recipe.id.value,
-                itemId = recipeInput.item.value,
-                count = recipeInput.count.value
-              )
-            }
-          )
-        } yield ()
+    def save(recipe: Recipe): ConnectionIO[Unit] =
+      for {
+        _ <- deleteRecipeInput(recipe.id.value)
+        _ <- deleteRecipeOutput(recipe.id.value)
+        _ <- upsertRecipe(recipe.id.value, recipe.name.value)
+        _ <- insertRecipeOutputs(
+          recipe.output.value.map { recipeOutput =>
+            InsertRecipeOutputsRecord(
+              recipeId = recipe.id.value,
+              itemId = recipeOutput.item.value,
+              count = recipeOutput.count.value
+            )
+          }
+        )
+        _ <- insertRecipeInputs(
+          recipe.input.value.map { recipeInput =>
+            InsertRecipeInputsRecord(
+              recipeId = recipe.id.value,
+              itemId = recipeInput.item.value,
+              count = recipeInput.count.value
+            )
+          }
+        )
+      } yield ()
 
-      transaction.transact[F](xa)
-
-    def delete(recipe: Recipe): F[Unit] =
-      val transaction = for {
+    def delete(recipe: Recipe): ConnectionIO[Unit] =
+      for {
         _ <- deleteRecipeInput(recipe.id.value)
         _ <- deleteRecipeOutput(recipe.id.value)
         _ <- deleteRecipe(recipe.id.value)
       } yield ()
-
-      transaction.transact[F](xa)
   end given
