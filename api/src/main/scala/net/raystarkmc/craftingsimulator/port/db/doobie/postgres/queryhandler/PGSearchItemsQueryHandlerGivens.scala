@@ -10,22 +10,20 @@ import cats.syntax.all.given
 import doobie.*
 import doobie.implicits.given
 import doobie.postgres.implicits.given
-import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.xa
 import net.raystarkmc.craftingsimulator.usecase.query.SearchItemsQueryHandler
 import net.raystarkmc.craftingsimulator.usecase.query.SearchItemsQueryHandler.*
+import net.raystarkmc.craftingsimulator.lib.transaction.Transaction
 
 import java.util.UUID
 
 trait PGSearchItemsQueryHandlerGivens:
-  given [F[_]: Async] => SearchItemsQueryHandler[F]:
+  given [F[_]] => (T: Transaction[ConnectionIO, F]) => SearchItemsQueryHandler[F]:
     def run(input: Input): F[Items] =
       case class ItemTableRecord(
-        id: UUID,
-        name: String
+          id: UUID,
+          name: String
       )
-      val whereClause = input.name.fold(Fragment.empty)(name =>
-        fr"WHERE name LIKE ${"%" + name + "%"}"
-      )
+      val whereClause = input.name.fold(Fragment.empty)(name => fr"WHERE name LIKE ${"%" + name + "%"}")
 
       val query = sql"""
         select
@@ -38,18 +36,17 @@ trait PGSearchItemsQueryHandlerGivens:
           item.id
       """
         .query[ItemTableRecord]
-        .to[Seq]
 
-      for {
-        records <- query.transact[F](xa)
-      } yield {
-        Items(
-          list = records.map { record =>
-            Item(
-              id = record.id,
-              name = record.name
-            )
-          }
-        )
+      T.withTransaction {
+        for {
+          records <- query.to[Seq]
+          items = Items(
+            list = records.map { record =>
+              Item(
+                id = record.id,
+                name = record.name
+              )
+            }
+          )
+        } yield items
       }
-
