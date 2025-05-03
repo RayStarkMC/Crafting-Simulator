@@ -33,10 +33,11 @@ trait PGItemRepositoryGivens:
         itemId = ItemId(id)
         itemName: ItemName <- OptionT.liftF {
           ModelName
-            .ae[[A] =>> ValidatedNec[ModelName.Failure, A]](name)
+            .inParallel[EitherNec[ModelName.Failure, _]](name)
+            .leftMap(_.show)
             .map(ItemName.apply)
             .fold[ConnectionIO[ItemName]](
-              err => new RuntimeException(err.show).raiseError,
+              err => new RuntimeException(err).raiseError,
               _.pure
             )
         }
