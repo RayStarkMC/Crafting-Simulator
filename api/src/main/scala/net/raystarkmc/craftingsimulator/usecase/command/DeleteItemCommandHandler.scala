@@ -8,6 +8,7 @@ import cats.instances.all.given
 import cats.syntax.all.given
 import net.raystarkmc.craftingsimulator.domain.item.*
 import net.raystarkmc.craftingsimulator.usecase.command.DeleteItemCommandHandler.*
+import net.raystarkmc.craftingsimulator.lib.transaction.Transaction
 
 import java.util.UUID
 
@@ -21,18 +22,22 @@ object DeleteItemCommandHandler extends DeleteItemCommandHandlerGivens:
 
 trait DeleteItemCommandHandlerGivens:
   given [
-    F[_]: {Monad, UUIDGen, ItemRepository as itemRepository}
-  ] => DeleteItemCommandHandler[F]:
+      F[_]: Monad,
+      G[_]: {ItemRepository as itemRepository, Monad}
+  ] => (T: Transaction[G, F]) => DeleteItemCommandHandler[F]:
     def run(command: Command): F[Either[Failure, Unit]] =
       val itemId = ItemId(command.id)
       val eitherT = for {
-        item <- EitherT.fromOptionF(
-          itemRepository.resolveById(itemId),
-          Failure.ModelNotFound
-        )
-        _ <- EitherT.right[Failure] {
-          itemRepository.delete(item)
+        _ <- T.withTransaction {
+          for {
+            item <- EitherT.fromOptionF(
+              itemRepository.resolveById(itemId),
+              Failure.ModelNotFound
+            )
+            _ <- EitherT.right[Failure] {
+              itemRepository.delete(item)
+            }
+          } yield ()
         }
       } yield ()
       eitherT.value
-  end given
