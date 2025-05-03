@@ -1,9 +1,11 @@
 package net.raystarkmc.craftingsimulator.port.api.http4s.controller.item
 
+import cats.*
+import cats.data.*
+import cats.syntax.all.*
+import cats.instances.all.given
 import cats.effect.Concurrent
-import cats.syntax.all.given
 import net.raystarkmc.craftingsimulator.usecase.command.DeleteItemCommandHandler
-import net.raystarkmc.craftingsimulator.usecase.command.DeleteItemCommandHandler.Command
 import org.http4s.*
 
 trait DeleteItemController[F[_]]:
@@ -21,12 +23,20 @@ trait DeleteItemControllerGivens:
 
       def run: PartialFunction[Request[F], F[Response[F]]] = {
         case req @ DELETE -> Root / "api" / "items" / UUIDVar(itemId) =>
-          val command = Command(
+          val command = DeleteItemCommandHandler.Command(
             id = itemId
           )
-          for {
-            _ <- handler.run(command)
-            res <- Ok()
+          val eitherT = for {
+            _ <- EitherT {
+              handler.run(command)
+            }
+            res <- EitherT.right[DeleteItemCommandHandler.Failure] {
+              Ok()
+            }
           } yield res
+
+          eitherT.valueOrF {
+            case DeleteItemCommandHandler.Failure.ModelNotFound => NotFound()
+          }
       }
     instance
