@@ -8,7 +8,7 @@ import cats.effect.Concurrent
 import cats.effect.kernel.Async
 import io.circe.generic.auto.given
 import net.raystarkmc.craftingsimulator.port.api.http4s.controller.item.UpdateItemController.RequestBody
-import net.raystarkmc.craftingsimulator.usecase.command.UpdateItemCommandHandler
+import net.raystarkmc.craftingsimulator.usecase.command.item.UpdateItemCommandHandler
 import org.http4s.*
 import org.http4s.circe.CirceEntityCodec.given
 import org.http4s.dsl.*

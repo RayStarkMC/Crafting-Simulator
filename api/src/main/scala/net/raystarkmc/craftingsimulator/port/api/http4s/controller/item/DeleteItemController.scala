@@ -5,7 +5,7 @@ import cats.data.*
 import cats.syntax.all.*
 import cats.instances.all.given
 import cats.effect.Concurrent
-import net.raystarkmc.craftingsimulator.usecase.command.DeleteItemCommandHandler
+import net.raystarkmc.craftingsimulator.usecase.command.item.DeleteItemCommandHandler
 import org.http4s.*
 import org.http4s.dsl.*
 

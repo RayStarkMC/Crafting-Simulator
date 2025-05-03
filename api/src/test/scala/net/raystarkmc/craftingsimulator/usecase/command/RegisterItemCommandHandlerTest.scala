@@ -8,6 +8,7 @@ import cats.syntax.all.*
 import net.raystarkmc.craftingsimulator.domain.item.*
 import net.raystarkmc.craftingsimulator.lib.domain.ModelName
 import net.raystarkmc.craftingsimulator.lib.transaction.Transaction
+import net.raystarkmc.craftingsimulator.usecase.command.item.RegisterItemCommandHandler
 import org.scalatest.freespec.AnyFreeSpec
 
 import java.util.UUID

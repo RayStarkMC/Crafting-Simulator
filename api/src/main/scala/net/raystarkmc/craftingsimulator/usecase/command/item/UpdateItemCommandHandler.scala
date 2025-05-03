@@ -1,4 +1,4 @@
-package net.raystarkmc.craftingsimulator.usecase.command
+package net.raystarkmc.craftingsimulator.usecase.command.item
 
 import cats.*
 import cats.data.*
@@ -9,7 +9,7 @@ import cats.syntax.all.given
 import net.raystarkmc.craftingsimulator.domain.item.*
 import net.raystarkmc.craftingsimulator.lib.domain.ModelName
 import net.raystarkmc.craftingsimulator.lib.transaction.Transaction
-import net.raystarkmc.craftingsimulator.usecase.command.UpdateItemCommandHandler.*
+import net.raystarkmc.craftingsimulator.usecase.command.item.UpdateItemCommandHandler.*
 
 import java.util.UUID
 

@@ -6,7 +6,7 @@ import cats.effect.*
 import cats.syntax.all.given
 import io.circe.generic.auto.given
 import io.circe.syntax.given
-import net.raystarkmc.craftingsimulator.usecase.command.RegisterItemCommandHandler
+import net.raystarkmc.craftingsimulator.usecase.command.item.RegisterItemCommandHandler
 import org.http4s.*
 import org.http4s.circe.*
 import org.http4s.circe.CirceEntityCodec.given
