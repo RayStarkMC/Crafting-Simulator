@@ -1,18 +1,12 @@
 package net.raystarkmc.craftingsimulator.usecase.command.recipe
 
+import cats.*
 import cats.derived.*
 import cats.effect.std.UUIDGen
 import cats.instances.all.given
 import cats.syntax.all.given
-import cats.{Applicative, Hash, Monad, Show}
-import net.raystarkmc.craftingsimulator.domain.recipe.{
-  RecipeId,
-  RecipeRepository
-}
-import net.raystarkmc.craftingsimulator.usecase.command.DeleteItemCommandHandler.{
-  Command,
-  Output
-}
+import net.raystarkmc.craftingsimulator.domain.recipe.*
+import net.raystarkmc.craftingsimulator.usecase.command.recipe.DeleteRecipeCommandHandler.*
 
 import java.util.UUID
 
