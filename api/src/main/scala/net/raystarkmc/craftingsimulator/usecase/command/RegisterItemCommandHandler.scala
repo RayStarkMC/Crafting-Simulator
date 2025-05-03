@@ -25,8 +25,8 @@ object RegisterItemCommandHandler extends RegisterItemCommandHandlerGivens:
 
 trait RegisterItemCommandHandlerGivens:
   given [
-      F[_]: {Monad, UUIDGen},
-      G[_]: ItemRepository as itemRepository
+      F[_]: {UUIDGen, Monad},
+      G[_]: {ItemRepository as itemRepository, Functor}
   ] => (T: Transaction[G, F]) => RegisterItemCommandHandler[F]:
     def run(
         command: Command
@@ -38,10 +38,11 @@ trait RegisterItemCommandHandlerGivens:
           .leftMap { e => Failure.ValidationFailed(e.show) }
           .toEitherT[F]
         item <- EitherT.right[Failure](
-          Item.create(name)
+          Item.create[F](name)
         )
-        _ <- T.mapK(EitherT.liftK[F, Failure]).withTransaction {
-          itemRepository.save(item)
+        _ <- T.withTransaction {
+          EitherT.right[Failure](itemRepository.save(item))
         }
       } yield Output(item.id.value)
+
       eitherT.value
