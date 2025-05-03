@@ -14,29 +14,26 @@ trait DeleteItemController[F[_]]:
 object DeleteItemController extends DeleteItemControllerGivens
 
 trait DeleteItemControllerGivens:
-  given [F[_]: {Concurrent, DeleteItemCommandHandler}]
-    => DeleteItemController[F] =
-    object instance extends DeleteItemController[F]:
-      private val dsl = org.http4s.dsl.Http4sDsl[F]
-      import dsl.*
-      private val handler = summon[DeleteItemCommandHandler[F]]
+  given [F[_]: {Concurrent, DeleteItemCommandHandler}] => DeleteItemController[F]:
+    private val dsl = org.http4s.dsl.Http4sDsl[F]
+    import dsl.*
+    private val handler = summon[DeleteItemCommandHandler[F]]
 
-      def run: PartialFunction[Request[F], F[Response[F]]] = {
-        case req @ DELETE -> Root / "api" / "items" / UUIDVar(itemId) =>
-          val command = DeleteItemCommandHandler.Command(
-            id = itemId
-          )
-          val eitherT = for {
-            _ <- EitherT {
-              handler.run(command)
-            }
-            res <- EitherT.right[DeleteItemCommandHandler.Failure] {
-              Ok()
-            }
-          } yield res
-
-          eitherT.valueOrF {
-            case DeleteItemCommandHandler.Failure.ModelNotFound => NotFound()
+    def run: PartialFunction[Request[F], F[Response[F]]] = {
+      case req @ DELETE -> Root / "api" / "items" / UUIDVar(itemId) =>
+        val command = DeleteItemCommandHandler.Command(
+          id = itemId
+        )
+        val eitherT = for {
+          _ <- EitherT {
+            handler.run(command)
           }
-      }
-    instance
+          res <- EitherT.right[DeleteItemCommandHandler.Failure] {
+            Ok()
+          }
+        } yield res
+
+        eitherT.valueOrF { case DeleteItemCommandHandler.Failure.ModelNotFound =>
+          NotFound()
+        }
+    }
