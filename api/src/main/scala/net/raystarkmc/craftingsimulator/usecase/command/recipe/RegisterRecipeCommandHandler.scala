@@ -9,6 +9,7 @@ import cats.syntax.all.*
 import net.raystarkmc.craftingsimulator.domain.item.*
 import net.raystarkmc.craftingsimulator.domain.recipe.*
 import net.raystarkmc.craftingsimulator.usecase.command.recipe.RegisterRecipeCommandHandler.*
+import net.raystarkmc.craftingsimulator.lib.transaction.Transaction
 
 import java.util.UUID
 
@@ -27,7 +28,10 @@ object RegisterRecipeCommandHandler:
   enum Failure derives Eq, Hash, Show:
     case ValidationFailed(detail: String)
 
-  given [F[_]: {Monad, UUIDGen, RecipeRepository as recipeRepository}] => RegisterRecipeCommandHandler[F]:
+  given [
+      F[_]: {UUIDGen, Monad},
+      G[_]: {RecipeRepository as recipeRepository, Monad}
+  ] => (T: Transaction[G, F]) => RegisterRecipeCommandHandler[F]:
     def run(command: Command): F[Either[Failure, Output]] =
       val eitherT = for {
         name <- RecipeName
@@ -69,14 +73,16 @@ object RegisterRecipeCommandHandler:
         }
 
         recipe <- EitherT.liftF(
-          Recipe.create(
+          Recipe.create[F](
             name = name,
             inputs = inputs,
             outputs = outputs
           )
         )
-        _ <- EitherT.liftF(
-          recipeRepository.save(recipe)
-        )
+        _ <- T.withTransaction {
+          EitherT.right[Failure](
+            recipeRepository.save(recipe)
+          )
+        }
       } yield Output(recipe.id.value)
       eitherT.value
