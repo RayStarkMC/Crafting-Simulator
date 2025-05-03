@@ -48,7 +48,7 @@ trait PGRecipeRepositoryGivens:
             .map(RecipeOutput.apply)
         ).mapN(Recipe.restore)
 
-      val transactionT = for {
+      val optionT = for {
         recipeRecord <- OptionT(selectRecipe(recipeId.value))
         recipeInputRecords <- OptionT.liftF(selectRecipeInput(recipeId.value))
         recipeOutputRecords <- OptionT.liftF(selectRecipeOutput(recipeId.value))
@@ -62,7 +62,7 @@ trait PGRecipeRepositoryGivens:
         }
       } yield recipe
 
-      transactionT.value
+      optionT.value
 
     def save(recipe: Recipe): ConnectionIO[Unit] =
       for {
