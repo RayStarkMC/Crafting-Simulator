@@ -11,8 +11,11 @@ import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.instances.given
 import org.http4s.ember.server.EmberServerBuilder
 import org.http4s.server.middleware.ErrorHandling
 import org.http4s.{HttpRoutes, Response}
+import org.http4s.dsl.*
 
 import scala.concurrent.duration.*
+
+given [F[_]] => Http4sDsl[F] = Http4sDsl[F]
 
 object Main extends IOApp:
   def run(args: List[String]): IO[ExitCode] =
