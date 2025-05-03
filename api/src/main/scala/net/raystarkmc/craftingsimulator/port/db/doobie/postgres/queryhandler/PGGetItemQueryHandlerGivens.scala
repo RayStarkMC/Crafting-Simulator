@@ -6,18 +6,18 @@ import cats.effect.*
 import doobie.*
 import doobie.implicits.given
 import doobie.postgres.implicits.given
-import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.xa
 import net.raystarkmc.craftingsimulator.usecase.query.GetItemQueryHandler
 import net.raystarkmc.craftingsimulator.usecase.query.GetItemQueryHandler.*
+import net.raystarkmc.craftingsimulator.lib.transaction.Transaction
 
 import java.util.UUID
 
 trait PGGetItemQueryHandlerGivens:
-  given [F[_]: Async] => GetItemQueryHandler[F]:
+  given [F[_]] => (T: Transaction[ConnectionIO, F]) => GetItemQueryHandler[F]:
     def run(input: Input): F[Option[Item]] =
       case class ItemTableRecord(
-        id: UUID,
-        name: String
+          id: UUID,
+          name: String
       )
       val query = sql"""
         select
@@ -31,12 +31,14 @@ trait PGGetItemQueryHandlerGivens:
           item.id
       """
         .query[ItemTableRecord]
-        .option
 
-      OptionT(query.transact[F](xa)).map { record =>
-        Item(
-          id = record.id,
-          name = record.name
-        )
-      }.value
-
+      T.withTransaction {
+        val optionT = for {
+          record <- OptionT(query.option)
+          item = Item(
+            id = record.id,
+            name = record.name
+          )
+        } yield item
+        optionT.value
+      }
