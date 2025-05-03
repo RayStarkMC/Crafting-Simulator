@@ -1,15 +1,16 @@
 package net.raystarkmc.craftingsimulator.port.api.http4s.controller.item
 
 import cats.*
+import cats.data.*
 import cats.effect.*
 import cats.syntax.all.given
 import io.circe.generic.auto.given
 import io.circe.syntax.given
 import net.raystarkmc.craftingsimulator.usecase.command.RegisterItemCommandHandler
-import net.raystarkmc.craftingsimulator.usecase.command.RegisterItemCommandHandler.Command
 import org.http4s.*
 import org.http4s.circe.*
 import org.http4s.circe.CirceEntityCodec.given
+import org.http4s.dsl.*
 
 trait RegisterItemController[F[_]]:
   def run: PartialFunction[Request[F], F[Response[F]]]
@@ -17,18 +18,18 @@ trait RegisterItemController[F[_]]:
 object RegisterItemController extends RegisterItemControllerGivens
 
 trait RegisterItemControllerGivens:
-  given [F[_]: {Concurrent, RegisterItemCommandHandler}]
-    => RegisterItemController[F] =
-    object instance extends RegisterItemController[F]:
-      private val dsl = org.http4s.dsl.Http4sDsl[F]
-      import dsl.*
-      private val handler = summon[RegisterItemCommandHandler[F]]
+  given [F[_]: {RegisterItemCommandHandler as handler, Http4sDsl as dsl, Concurrent}] => RegisterItemController[F]:
+    import dsl.*
 
-      def run: PartialFunction[Request[F], F[Response[F]]] =
-        case req @ POST -> Root / "api" / "items" =>
-          for {
-            command <- req.as[Command]
-            a <- handler.run(command)
-            res <- Ok(a.toString.asJson)
-          } yield res
-    instance
+    def run: PartialFunction[Request[F], F[Response[F]]] =
+      case req @ POST -> Root / "api" / "items" =>
+        val eitherT = for {
+          command <- EitherT.right[RegisterItemCommandHandler.Failure] {
+            req.as[RegisterItemCommandHandler.Command]
+          }
+          RegisterItemCommandHandler.Output(id) <- EitherT(handler.run(command))
+          res <- EitherT.right[RegisterItemCommandHandler.Failure] {
+            Ok(id.show)
+          }
+        } yield res
+        eitherT.leftMap(_.show).valueOrF(BadRequest(_))
