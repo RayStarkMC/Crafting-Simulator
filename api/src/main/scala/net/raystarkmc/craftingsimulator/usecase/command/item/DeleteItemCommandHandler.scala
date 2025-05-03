@@ -15,12 +15,11 @@ import java.util.UUID
 trait DeleteItemCommandHandler[F[_]]:
   def run(command: Command): F[Either[Failure, Unit]]
 
-object DeleteItemCommandHandler extends DeleteItemCommandHandlerGivens:
+object DeleteItemCommandHandler:
   case class Command(id: UUID) derives Eq, Hash, Order, Show
   enum Failure derives Eq, Hash, Order, Show:
     case ModelNotFound
 
-trait DeleteItemCommandHandlerGivens:
   given [
       F[_],
       G[_]: {ItemRepository as itemRepository, Monad}
