@@ -9,6 +9,7 @@ import cats.syntax.all.given
 import net.raystarkmc.craftingsimulator.domain.recipe.*
 import net.raystarkmc.craftingsimulator.lib.domain.ModelName
 import net.raystarkmc.craftingsimulator.usecase.command.recipe.UpdateRecipeCommandHandler.*
+import net.raystarkmc.craftingsimulator.lib.transaction.Transaction
 
 import java.util.UUID
 
@@ -16,12 +17,15 @@ trait UpdateRecipeCommandHandler[F[_]]:
   def run(command: Command): F[Either[Failure, Unit]]
 
 object UpdateRecipeCommandHandler:
-  case class Command(id: UUID, name: String) derives Eq, Hash, Show
-  enum Failure derives Eq, Hash, Show:
+  case class Command(id: UUID, name: String) derives Eq, Hash, Order, Show
+  enum Failure derives Eq, Hash, Order, Show:
     case ValidationFailed(detail: String)
     case ModelNotFound
 
-  given [F[_]: {Monad, UUIDGen, RecipeRepository as recipeRepository}] => UpdateRecipeCommandHandler[F]:
+  given [
+      F[_]: Monad,
+      G[_]: {RecipeRepository as recipeRepository, Monad}
+  ] => (T: Transaction[G, F]) => UpdateRecipeCommandHandler[F]:
     def run(command: Command): F[Either[Failure, Unit]] =
       val recipeId = RecipeId(command.id)
       val eitherT: EitherT[F, Failure, Unit] = for {
@@ -31,13 +35,17 @@ object UpdateRecipeCommandHandler:
           .map(RecipeName.apply)
           .leftMap(Failure.ValidationFailed.apply)
           .toEitherT[F]
-        recipe <- EitherT.fromOptionF(
-          recipeRepository.resolveById(recipeId),
-          Failure.ModelNotFound
-        )
-        updated = recipe.update(name)
-        _ <- EitherT.right[Failure](
-          recipeRepository.save(updated)
-        )
+        _ <- T.withTransaction {
+          for {
+            recipe <- EitherT.fromOptionF(
+              recipeRepository.resolveById(recipeId),
+              Failure.ModelNotFound
+            )
+            updated = recipe.update(name)
+            _ <- EitherT.right[Failure](
+              recipeRepository.save(updated)
+            )
+          } yield ()
+        }
       } yield ()
       eitherT.value
