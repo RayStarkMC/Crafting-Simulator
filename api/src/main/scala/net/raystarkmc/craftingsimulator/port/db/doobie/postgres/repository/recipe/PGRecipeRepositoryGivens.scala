@@ -9,10 +9,9 @@ import doobie.*
 import doobie.implicits.*
 import net.raystarkmc.craftingsimulator.domain.item.*
 import net.raystarkmc.craftingsimulator.domain.recipe.*
-import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.repository.recipe.PGRecipeRepository.*
 import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.xa
 
-object PGRecipeRepository:
+trait PGRecipeRepositoryGivens:
   given [F[_]: Async] => RecipeRepository[F]:
     def resolveById(recipeId: RecipeId): F[Option[Recipe]] =
       def restoreRecipe[G[_]: ApplicativeThrow](
