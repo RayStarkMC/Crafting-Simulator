@@ -15,13 +15,9 @@ import net.raystarkmc.craftingsimulator.lib.domain.ModelName
 import java.util.UUID
 
 trait PGItemRepositoryGivens:
-  private case class ItemTableRecord(
-      id: UUID,
-      name: String
-  )
-
   given ItemRepository[ConnectionIO]:
     def resolveById(itemId: ItemId): ConnectionIO[Option[Item]] =
+      case class ItemTableRecord(id: UUID, name: String)
       val query =
         sql"select item.id, item.name from item where id = ${itemId.value}"
           .query[ItemTableRecord]
