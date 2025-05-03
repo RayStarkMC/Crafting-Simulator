@@ -19,15 +19,14 @@ import java.util.UUID
 trait GetItemController[F[_]]:
   def run: PartialFunction[Request[F], F[Response[F]]]
 
-object GetItemController extends GetItemControllerGivens {
+object GetItemController:
   case class ResponseBody(
       id: UUID,
       name: String
   )
-}
 
-trait GetItemControllerGivens:
   given [F[_]: {Concurrent, GetItemQueryHandler as handler, Http4sDsl as dsl}] => GetItemController[F]:
+
     import dsl.*
 
     def run: PartialFunction[Request[F], F[Response[F]]] = {

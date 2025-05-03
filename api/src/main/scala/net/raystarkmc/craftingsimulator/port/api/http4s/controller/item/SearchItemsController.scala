@@ -15,13 +15,11 @@ import org.http4s.dsl.*
 trait SearchItemsController[F[_]]:
   def run: PartialFunction[Request[F], F[Response[F]]]
 
-object SearchItemsController extends SearchItemsControllerGivens:
+object SearchItemsController:
   case class RequestBody(name: Option[String])
 
-trait SearchItemsControllerGivens:
   given [F[_]: {SearchItemsQueryHandler as handler, Http4sDsl as dsl, Concurrent}] => SearchItemsController[F]:
     import dsl.*
-
     def run: PartialFunction[Request[F], F[Response[F]]] =
       case req @ POST -> Root / "api" / "search" / "items" =>
         for {

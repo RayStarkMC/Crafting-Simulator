@@ -16,13 +16,11 @@ import org.http4s.dsl.*
 trait UpdateItemController[F[_]]:
   def run: PartialFunction[Request[F], F[Response[F]]]
 
-object UpdateItemController extends UpdateItemControllerGivens:
+object UpdateItemController:
   case class RequestBody(name: String)
 
-trait UpdateItemControllerGivens:
   given [F[_]: {UpdateItemCommandHandler as handler, Http4sDsl as dsl, Concurrent}] => UpdateItemController[F]:
     import dsl.*
-
     def run: PartialFunction[Request[F], F[Response[F]]] = {
       case req @ PUT -> Root / "api" / "items" / UUIDVar(itemId) =>
         val eitherT = for {
@@ -39,6 +37,6 @@ trait UpdateItemControllerGivens:
 
         eitherT.valueOrF {
           case UpdateItemCommandHandler.Failure.ValidationFailed(detail) => BadRequest()
-          case UpdateItemCommandHandler.Failure.NotFound => NotFound()
+          case UpdateItemCommandHandler.Failure.NotFound                 => NotFound()
         }
     }

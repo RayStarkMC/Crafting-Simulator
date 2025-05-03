@@ -15,10 +15,9 @@ import org.http4s.dsl.*
 trait RegisterItemController[F[_]]:
   def run: PartialFunction[Request[F], F[Response[F]]]
 
-object RegisterItemController extends RegisterItemControllerGivens
-
-trait RegisterItemControllerGivens:
+object RegisterItemController:
   given [F[_]: {RegisterItemCommandHandler as handler, Http4sDsl as dsl, Concurrent}] => RegisterItemController[F]:
+
     import dsl.*
 
     def run: PartialFunction[Request[F], F[Response[F]]] =

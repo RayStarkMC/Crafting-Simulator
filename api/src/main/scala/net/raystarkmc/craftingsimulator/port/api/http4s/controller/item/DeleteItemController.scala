@@ -12,12 +12,9 @@ import org.http4s.dsl.*
 trait DeleteItemController[F[_]]:
   def run: PartialFunction[Request[F], F[Response[F]]]
 
-object DeleteItemController extends DeleteItemControllerGivens
-
-trait DeleteItemControllerGivens:
+object DeleteItemController:
   given [F[_]: {DeleteItemCommandHandler as handler, Http4sDsl as dsl, Concurrent}] => DeleteItemController[F]:
     import dsl.*
-
     def run: PartialFunction[Request[F], F[Response[F]]] =
       case req @ DELETE -> Root / "api" / "items" / UUIDVar(itemId) =>
         val command = DeleteItemCommandHandler.Command(
