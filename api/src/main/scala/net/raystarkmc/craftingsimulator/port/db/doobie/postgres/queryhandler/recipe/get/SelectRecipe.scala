@@ -6,8 +6,8 @@ import doobie.postgres.implicits.*
 
 import java.util.UUID
 
-private[recipe] case class SelectRecipeRecord(name: String)
-private[recipe] def selectRecipe(id: UUID): ConnectionIO[Option[SelectRecipeRecord]] =
+private[get] case class SelectRecipeRecord(name: String)
+private[get] def selectRecipe(id: UUID): ConnectionIO[Option[SelectRecipeRecord]] =
   sql"""
     select
       item.name

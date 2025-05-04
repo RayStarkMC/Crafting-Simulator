@@ -3,7 +3,7 @@ package net.raystarkmc.craftingsimulator.port.db.doobie.postgres.queryhandler.re
 import java.util.UUID
 import net.raystarkmc.craftingsimulator.usecase.query.recipe.GetRecipeQueryHandler.*
 
-private[recipe] def buildRecipe(
+private[get] def buildRecipe(
   recipeID: UUID,
   recipeRecord: SelectRecipeRecord,
   recipeInputRecords: List[SelectRecipeInputRecord],
