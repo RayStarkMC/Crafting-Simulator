@@ -9,9 +9,7 @@ object RecipeInput extends RecipeInputGivens:
 
   extension (self: RecipeInput) inline def value: Seq[ItemWithCount] = self
 
-private inline def wrapRecipeInputF[F[_]](
-    f: F[Seq[ItemWithCount]]
-): F[RecipeInput] = f
+private inline def wrapRecipeInputF[F[_]](f: F[Seq[ItemWithCount]]): F[RecipeInput] = f
 
 trait RecipeInputGivens:
   given Eq[RecipeInput] = wrapRecipeInputF(Eq[Seq[ItemWithCount]])
