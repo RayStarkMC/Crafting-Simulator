@@ -10,14 +10,14 @@ private[get] case class SelectRecipeRecord(name: String)
 private[get] def selectRecipe(id: UUID): ConnectionIO[Option[SelectRecipeRecord]] =
   sql"""
     select
-      item.name
+      recipe.name
     from
-      item
+      recipe
     where
-      item.id = $id
+      recipe.id = $id
     order by
-      item.name,
-      item.id
+      recipe.name,
+      recipe.id
   """
     .query[SelectRecipeRecord]
     .option
