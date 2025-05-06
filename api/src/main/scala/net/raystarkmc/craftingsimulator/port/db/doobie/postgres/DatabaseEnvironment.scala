@@ -26,12 +26,10 @@ def xa[F[_]: Async]: Transactor[F] = Transactor.fromDriverManager[F](
 trait DoobieTransaction:
   given [F[_]: Async] => Transaction[ConnectionIO, F]:
     def withTransaction[A](program: ConnectionIO[A]): F[A] =
-      program.transact:
-        xa
+      program.transact(xa)
 
     def withTransaction[E, A](program: EitherT[ConnectionIO, E, A]): EitherT[F, E, A] =
-      program.transact:
-        xa
+      program.transact(xa)
 
 trait DbPortInstances
   extends DoobieTransaction,
