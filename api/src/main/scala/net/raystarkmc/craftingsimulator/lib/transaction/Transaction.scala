@@ -8,6 +8,8 @@ trait Transaction[F[_], G[_]]:
   def withTransaction[E, A](program: EitherT[F, E, A]): EitherT[G, E, A]
 
 object Transaction:
-  def noop[F[_]]: Transaction[F, F] = new Transaction[F, F]:
-    def withTransaction[A](program: F[A]): F[A] = program
-    def withTransaction[E, A](program: EitherT[F, E, A]): EitherT[F, E, A] = program
+  trait Noop:
+    given [F[_]] => Transaction[F, F]:
+      def withTransaction[A](program: F[A]): F[A] = program
+      def withTransaction[E, A](program: EitherT[F, E, A]): EitherT[F, E, A] = program
+  object Noop extends Noop

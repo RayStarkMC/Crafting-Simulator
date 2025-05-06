@@ -7,7 +7,7 @@ import cats.instances.all.given
 import cats.syntax.all.*
 import net.raystarkmc.craftingsimulator.domain.item.*
 import net.raystarkmc.craftingsimulator.lib.domain.ModelName
-import net.raystarkmc.craftingsimulator.lib.transaction.Transaction
+import net.raystarkmc.craftingsimulator.lib.transaction.Transaction.Noop.given
 import net.raystarkmc.craftingsimulator.usecase.command.item.RegisterItemCommandHandler
 import org.scalatest.freespec.AnyFreeSpec
 
@@ -28,8 +28,6 @@ class RegisterItemCommandHandlerTest extends AnyFreeSpec:
     given UUIDGen[MockDB]:
       def randomUUID: MockDB[UUID] = testUUID.pure
       
-    given Transaction[MockDB, MockDB] = Transaction.noop
-        
     val handler = summon[RegisterItemCommandHandler[MockDB]]
 
     val initialState = None
@@ -57,8 +55,6 @@ class RegisterItemCommandHandlerTest extends AnyFreeSpec:
 
     given UUIDGen[MockDB]:
       def randomUUID: MockDB[UUID] = testUUID.pure
-
-    given Transaction[MockDB, MockDB] = Transaction.noop
 
     val handler = summon[RegisterItemCommandHandler[MockDB]]
 
