@@ -6,7 +6,7 @@ import doobie.*
 import doobie.implicits.*
 import doobie.util.transactor.Transactor
 
-val testTransactor = Transactor.after
+val testYolo = Transactor.after
   .set(
     Transactor
       .fromDriverManager[IO](

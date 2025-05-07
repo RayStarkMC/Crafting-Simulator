@@ -1,18 +1,18 @@
 package net.raystarkmc.craftingsimulator.port.db.doobie.postgres.repository.recipe
 
-import cats.data.NonEmptyList
+import cats.*
+import cats.data.*
 import cats.instances.all.given
 import cats.syntax.all.*
 import doobie.*
 import doobie.implicits.*
 import doobie.postgres.implicits.*
+import java.util.*
+import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.CSFragments.*
 
-import java.util.UUID
-
-private[recipe] case class SelectRecipeOutput(id: UUID, name: String)
-    derives Read
+private[recipe] case class SelectRecipeOutput(id: UUID, name: String) derives Read
 private[recipe] def selectRecipe(
-    recipeId: UUID
+  recipeId: UUID
 ): ConnectionIO[Option[SelectRecipeOutput]] =
   sql"""
     select
@@ -24,10 +24,9 @@ private[recipe] def selectRecipe(
       id = $recipeId
   """.query[SelectRecipeOutput].option
 
-private[recipe] case class SelectRecipeInputRecord(itemId: UUID, count: Long)
-    derives Read
+private[recipe] case class SelectRecipeInputRecord(itemId: UUID, count: Long) derives Read
 private[recipe] def selectRecipeInput(
-    recipeId: UUID
+  recipeId: UUID
 ): ConnectionIO[Seq[SelectRecipeInputRecord]] =
   sql"""
     select
@@ -40,12 +39,11 @@ private[recipe] def selectRecipeInput(
   """.query[SelectRecipeInputRecord].to[Seq]
 
 private[recipe] case class SelectRecipeOutputRecord(
-    recipeId: UUID,
-    itemId: UUID,
-    count: Long
+  itemId: UUID,
+  count: Long,
 ) derives Read
 private[recipe] def selectRecipeOutput(
-    recipeId: UUID
+  recipeId: UUID
 ): ConnectionIO[Seq[SelectRecipeOutputRecord]] =
   sql"""
     select
@@ -82,8 +80,8 @@ private[recipe] def deleteRecipe(recipeId: UUID): ConnectionIO[Unit] =
   """.update.run.void
 
 private[recipe] def upsertRecipe(
-    recipeId: UUID,
-    recipeName: String
+  recipeId: UUID,
+  recipeName: String,
 ): ConnectionIO[Unit] =
   sql"""
     insert into recipe (id, name, created_at, updated_at)
@@ -100,41 +98,37 @@ private[recipe] def upsertRecipe(
   """.update.run.void
 
 private[recipe] case class InsertRecipeOutputsRecord(
-    recipeId: UUID,
-    itemId: UUID,
-    count: Long
+  recipeId: UUID,
+  itemId: UUID,
+  count: Long,
 )
 private[recipe] def insertRecipeOutputs(
-    records: Seq[InsertRecipeOutputsRecord]
-): ConnectionIO[Unit] = {
+  records: Seq[InsertRecipeOutputsRecord]
+): ConnectionIO[Unit] =
   val option = for {
-    values <- records.toList.toNel.map(Fragments.values)
+    values <- records.toList.toNel.map:
+      valuesFollowedBy2CurrentTimestamps
     insertSql =
       fr"""
-        insert into recipe_output (recipe_id, item_id, count)
+        insert into recipe_output (recipe_id, item_id, count, created_at, updated_at)
       """ +~+ values
-  } yield {
-    insertSql
-  }
+  } yield insertSql
   option.traverse_(_.update.run)
-}
 
 private[recipe] case class InsertRecipeInputsRecord(
-    recipeId: UUID,
-    itemId: UUID,
-    count: Long
+  recipeId: UUID,
+  itemId: UUID,
+  count: Long,
 )
 private[recipe] def insertRecipeInputs(
-    records: Seq[InsertRecipeInputsRecord]
-): ConnectionIO[Unit] = {
+  records: Seq[InsertRecipeInputsRecord]
+): ConnectionIO[Unit] =
   val option = for {
-    values <- records.toList.toNel.map(Fragments.values)
+    values <- records.toList.toNel.map:
+      valuesFollowedBy2CurrentTimestamps
     insertSql =
       fr"""
-        insert into recipe_input (recipe_id, item_id, count)
+        insert into recipe_input (recipe_id, item_id, count, created_at, updated_at)
       """ +~+ values
-  } yield {
-    insertSql
-  }
+  } yield insertSql
   option.traverse_(_.update.run)
-}
