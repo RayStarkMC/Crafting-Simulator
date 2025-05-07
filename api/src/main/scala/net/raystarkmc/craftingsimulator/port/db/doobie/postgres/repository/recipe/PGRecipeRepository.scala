@@ -96,3 +96,5 @@ trait PGRecipeRepository:
         _ <- deleteRecipe(recipe.id.value)
       } yield ()
   end given
+
+object PGRecipeRepository extends PGRecipeRepository
