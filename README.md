@@ -2,10 +2,17 @@
 
 レシピと加工装置に対するtickベースのシミュレーター。
 
-## 環境構築
+## 作業手順
+
+### 環境構築
 
 ```shell
 docker compose run --rm flyway migrate ; docker compose up -d
+```
+
+### マイグレーション
+```shell
+docker compose run --rm flyway migrate
 ```
 
 ## 疎通確認
