@@ -32,11 +32,11 @@ private[recipe] def selectRecipeInput(
   sql"""
     select
       recipe_input.item_id,
-      recipe_input.count,
+      recipe_input.count
     from
       recipe_input
     where
-      recipe_input.id = $recipeId
+      recipe_input.recipe_id = $recipeId
   """.query[SelectRecipeInputRecord].to[Seq]
 
 private[recipe] case class SelectRecipeOutputRecord(
@@ -50,11 +50,11 @@ private[recipe] def selectRecipeOutput(
   sql"""
     select
       recipe_output.item_id,
-      recipe_output.count,
+      recipe_output.count
     from
       recipe_output
     where
-      recipe_output.id = $recipeId
+      recipe_output.recipe_id = $recipeId
   """.query[SelectRecipeOutputRecord].to[Seq]
 
 private[recipe] def deleteRecipeInput(recipeId: UUID): ConnectionIO[Unit] =
