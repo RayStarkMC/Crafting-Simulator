@@ -17,4 +17,4 @@ object SearchRecipesQueryHandler:
     outputIds: Option[NonEmptySet[UUID]],
   )
   case class Recipes(recipes: List[Recipe])
-  case class Recipe(id: UUID, name: String)
+  case class Recipe(id: UUID, name: String, inputCount: Long, outputCount: Long)
