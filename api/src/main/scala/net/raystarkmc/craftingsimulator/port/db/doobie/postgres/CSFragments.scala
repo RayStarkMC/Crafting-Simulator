@@ -19,3 +19,9 @@ object CSFragments:
           comma(values(f), current_timestamp, current_timestamp)
 
   def current_timestamp: Fragment = fr"current_timestamp"
+
+  /**
+   * @param f existsの中に入れるフラグメント
+   * @return `exists (f)`
+   */
+  def exists(f: Fragment): Fragment = fr"exists" ++ parentheses(f)
