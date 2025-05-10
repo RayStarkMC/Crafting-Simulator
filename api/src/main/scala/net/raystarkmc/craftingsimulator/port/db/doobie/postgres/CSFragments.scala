@@ -18,6 +18,9 @@ object CSFragments:
         parentheses:
           comma(values(f), current_timestamp, current_timestamp)
 
+  /**
+   * @return `current_timestamp`
+   */
   def current_timestamp: Fragment = fr"current_timestamp"
 
   /**
