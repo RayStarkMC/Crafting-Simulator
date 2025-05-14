@@ -71,3 +71,5 @@ trait PGItemRepository:
             item.id = ${item.id.value}
         """.update.run
       deleteSql.void
+
+object PGItemRepository extends PGItemRepository
