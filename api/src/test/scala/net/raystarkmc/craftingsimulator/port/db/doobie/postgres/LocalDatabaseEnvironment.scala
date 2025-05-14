@@ -1,5 +1,9 @@
 package net.raystarkmc.craftingsimulator.port.db.doobie.postgres
 
+import cats.*
+import cats.data.*
+import cats.syntax.all.*
+import cats.instances.all.given
 import cats.effect.Async
 import cats.effect.IO
 import doobie.*
@@ -14,7 +18,7 @@ val testYolo = Transactor.after
         url = "jdbc:postgresql://localhost:5432/crafting_simulator",
         user = "admin",
         password = "admin",
-        logHandler = None,
+        logHandler = LogHandler.jdkLogHandler[IO].some,
       ),
     FC.rollback,
   )
