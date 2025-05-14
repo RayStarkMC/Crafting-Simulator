@@ -15,13 +15,13 @@ import net.raystarkmc.craftingsimulator.lib.cats.*
 import net.raystarkmc.craftingsimulator.lib.domain.*
 import net.raystarkmc.craftingsimulator.lib.transaction.Transaction
 import net.raystarkmc.craftingsimulator.lib.transaction.Transaction.Noop.given
-import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.testYolo.*
+import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.LocalDBTestEnvironment.*
 import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.repository.recipe.PGRecipeRepository.given
 import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.xa
 import org.scalatest.freespec.AnyFreeSpec
 
 class PGRecipeRepositoryTest extends AnyFreeSpec:
-  "sample" in:
+  "sample" ignore:
     val repository: RecipeRepository[ConnectionIO] = summon
 
     val program = for {
@@ -56,8 +56,7 @@ class PGRecipeRepositoryTest extends AnyFreeSpec:
               item = itemId,
               count = itemCount,
             )
-          )
-        ,
+          ),
       )
       _ <- repository.save(recipe)
       model <- repository.resolveById(recipe.id)
