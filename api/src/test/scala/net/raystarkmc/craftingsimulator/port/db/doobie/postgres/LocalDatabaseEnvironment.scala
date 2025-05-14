@@ -9,6 +9,13 @@ import cats.effect.IO
 import doobie.*
 import doobie.implicits.*
 import doobie.util.transactor.Transactor
+import doobie.util.yolo.Yolo
+import net.raystarkmc.craftingsimulator.lib.transaction.Transaction
+
+trait LocalDBTestEnvironment extends Transaction.Noop:
+  export testYolo.*
+
+object LocalDBTestEnvironment extends LocalDBTestEnvironment
 
 val testYolo = Transactor.after
   .set(
