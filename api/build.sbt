@@ -10,7 +10,7 @@ val logbackVersion = "1.5.18"
 
 ThisBuild / organization := "net.raystarkmc"
 ThisBuild / version := "0.1.0-SNAPSHOT"
-ThisBuild / scalaVersion := "3.6.3"
+ThisBuild / scalaVersion := "3.7.0"
 ThisBuild / scalacOptions ++= Seq(
   "-Wnonunit-statement",
   "-Yexplicit-nulls",
