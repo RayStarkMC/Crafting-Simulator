@@ -1,5 +1,7 @@
 import com.typesafe.sbt.packager.docker.DockerPlugin.autoImport.Docker
 
+import scala.tools.util.PathResolver.Environment
+
 enablePlugins(JavaAppPackaging)
 
 val http4sVersion = "0.23.30"
@@ -23,6 +25,7 @@ scalacOptions ++= Seq(
 Test / scalacOptions -= "-Wnonunit-statement"
 
 scalafmtConfig := file("./../.scalafmt.conf")
+scalafmtFilter := sys.env.get("GITHUB_BASE_REF").fold("")("diff-ref=" ++ _)
 
 lazy val root = (project in file("."))
   .settings(
