@@ -9,10 +9,10 @@ type ApplicativeErrorWithNec[E] = ApplicativeErrorWith[NonEmptyChain[E]]
 type MonadErrorWith[E] = [F[_]] =>> MonadError[F, E]
 type MonadErrorWithNec[E] = MonadErrorWith[NonEmptyChain[E]]
 
-type EitherWith[E] = [A] =>> Either[E, A]
+private type EitherWith[E] = [A] =>> Either[E, A]
 type EitherWithNec[E] = EitherWith[NonEmptyChain[E]]
 
-type ValidatedWith[E] = [A] =>> Validated[E, A]
+private type ValidatedWith[E] = [A] =>> Validated[E, A]
 type ValidatedWithNec[E] = ValidatedWith[NonEmptyChain[E]]
 
 type EitherNecT[F[_], E, A] = EitherT[F, NonEmptyChain[E], A]
