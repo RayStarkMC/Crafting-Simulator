@@ -12,7 +12,7 @@ import doobie.util.fragments.*
 
 object CSFragments:
   /** Returns `VALUES (fs0, current_timestamp, current_timestamp), (fs1, current_timestamp, current_timestamp), ...`. */
-  def valuesFollowedBy2CurrentTimestamps[F[_]: Reducible, A](fs: F[A])(implicit w: util.Write[A]): Fragment =
+  def valuesFollowedBy2CurrentTimestamps[F[_]: Reducible, A: util.Write](fs: F[A]): Fragment =
     fr"VALUES" ++ comma:
       fs.toNonEmptyList.map: f =>
         parentheses:
