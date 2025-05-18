@@ -29,7 +29,7 @@ trait PGRecipeRepository:
               .map(RecipeName.apply)
           ,
           recipeInputRecords
-            .traverse { record =>
+            .traverse: record =>
               (
                 ItemId(record.itemId).pure[G],
                 G.fromValidated:
@@ -37,10 +37,9 @@ trait PGRecipeRepository:
                     .ae[ValidatedWithNec[ItemCount.Failure]](record.count)
                     .leftMap(a => new IllegalStateException(a.show))
               ).mapN(ItemWithCount.apply)
-            }
             .map(RecipeInput.apply),
           recipeOutputRecords
-            .traverse { record =>
+            .traverse: record =>
               (
                 ItemId(record.itemId).pure[G],
                 G.fromValidated:
@@ -48,7 +47,6 @@ trait PGRecipeRepository:
                     .ae[ValidatedWithNec[ItemCount.Failure]](record.count)
                     .leftMap(a => new IllegalStateException(a.show))
               ).mapN(ItemWithCount.apply)
-            }
             .map(RecipeOutput.apply),
         ).mapN(Recipe.restore)
 
