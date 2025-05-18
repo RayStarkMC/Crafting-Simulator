@@ -15,7 +15,7 @@ jobs:
       - uses: sbt/setup-sbt@v1
       - name: fetch history
         run: |
-          git fetch origin HEAD --depth=$(( ${{github.event.pull_request.commits}} + 1))
+          git fetch origin ${{github.event.pull_request.head.ref}} --depth=$(( ${{github.event.pull_request.commits}} + 1))
           echo ""
           git rev-list HEAD
           echo ""
