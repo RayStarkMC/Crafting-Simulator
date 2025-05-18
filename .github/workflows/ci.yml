@@ -8,15 +8,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: fetch history
-        run: |
-          git fetch --depth=$(( ${{github.event.pull_request.commits}} + 1)) origin ${{ github.event.pull_request.head.sha }}
-          echo BASE_REF=$(git rev-list --max-count=1 --reverse HEAD) >> $GITHUB_ENV
       - uses: actions/setup-java@v4
         with:
           distribution: corretto
           java-version: 21
       - uses: sbt/setup-sbt@v1
+      - name: fetch history
+        run: |
+          git fetch --depth=$(( ${{github.event.pull_request.commits}} + 1)) origin ${{ github.event.pull_request.head.sha }}
+          echo BASE_REF=$(git rev-list --max-count=1 --reverse HEAD) >> $GITHUB_ENV
       - name: scalafmtCheckAll
         working-directory: api
         run: sbt scalafmtCheckAll
