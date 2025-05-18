@@ -15,7 +15,8 @@ ThisBuild / scalacOptions ++= Seq(
   "-Wnonunit-statement",
   "-Yexplicit-nulls",
   "-Xkind-projector:underscores",
-  "-source:future"
+  "-source:future",
+  "-deprecation",
 )
 
 lazy val root = (project in file("."))
