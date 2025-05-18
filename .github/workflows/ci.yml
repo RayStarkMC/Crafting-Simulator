@@ -13,9 +13,9 @@ jobs:
           distribution: corretto
           java-version: 21
       - uses: sbt/setup-sbt@v1
-      - name: run format
+      - name: scalafmtCheckAll
         working-directory: api
-        run: sbt scalafmtCheck
+        run: sbt scalafmtCheckAll
   unit-test:
     runs-on: ubuntu-latest
     steps:
