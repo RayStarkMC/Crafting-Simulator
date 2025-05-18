@@ -10,7 +10,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{github.event.pull_request.head.ref}}
-          fetch-depth: $(( ${{github.event.pull_request.commits}} ))
+          fetch-depth: $(( ${{github.event.pull_request.commits}} + 1 ))
       - uses: actions/setup-java@v4
         with:
           distribution: corretto
@@ -18,9 +18,13 @@ jobs:
       - uses: sbt/setup-sbt@v1
       - name: fetch history
         run: |
-          git rev-list HEAD
+          git fetch --depth=$(( ${{github.event.pull_request.commits}} + 1 )) origin ${{github.event.pull_request.head.ref}}
           echo ""
-          echo BASE_REF=$(git rev-list --max-count=1 HEAD) >> $GITHUB_ENV
+          git rev-list ${{github.event.pull_request.head.ref}}
+          echo ""
+          git log
+          echo ""
+          echo BASE_REF=$(git rev-list --max-count=1 --reverse HEAD) >> $GITHUB_ENV
       - name: scalafmtCheckAll
         working-directory: api
         run: sbt scalafmtCheckAll
