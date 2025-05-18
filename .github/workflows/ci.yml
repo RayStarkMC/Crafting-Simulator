@@ -13,7 +13,7 @@ jobs:
       - uses: sbt/setup-sbt@v1
       - name: fetch history
         run: |
-          git fetch --depth=$(( ${{github.event.pull_request.commits}} + 1 )) origin ${{github.event.pull_request.head.ref}}
+          git fetch --depth=$(( ${{github.event.pull_request.commits}} + 1 )) origin refs/heads/${{github.event.pull_request.head.ref}}:refs/remotes/origin/${{github.event.pull_request.head.ref}}
           echo BASE_REF=$(git rev-list --reverse ${{github.event.pull_request.head.ref}} | head -1) >> $GITHUB_ENV
       - name: scalafmtCheckAll
         working-directory: api
