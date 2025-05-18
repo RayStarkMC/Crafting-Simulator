@@ -7,11 +7,10 @@ jobs:
   format:
     runs-on: ubuntu-latest
     steps:
-      - name: commits+1
-        run: echo "PR_FETCH_DEPTH=$(( ${{ github.event.pull_request.commits }} + 1 ))" >> "${GITHUB_ENV}"
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: ${{ env.PR_FETCH_DEPTH }}
+      - name: fetch history
+        run: |
+          git fetch --depth=$(( ${{github.event.pull_request.commits}} + 1)) origin ${{ github.event.pull_request.head.sha }}
       - uses: actions/setup-java@v4
         with:
           distribution: corretto
