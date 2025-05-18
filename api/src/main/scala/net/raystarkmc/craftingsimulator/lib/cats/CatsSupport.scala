@@ -14,3 +14,6 @@ type EitherWithNec[E] = EitherWith[NonEmptyChain[E]]
 
 type ValidatedWith[E] = [A] =>> Validated[E, A]
 type ValidatedWithNec[E] = ValidatedWith[NonEmptyChain[E]]
+
+type EitherTWith[F[_], E] = [A] =>> EitherT[F, E, A]
+type EitherTWithNec[F[_], E] = EitherTWith[F, NonEmptyChain[E]]
