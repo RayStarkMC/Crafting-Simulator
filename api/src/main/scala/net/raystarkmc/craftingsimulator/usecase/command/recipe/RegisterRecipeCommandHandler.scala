@@ -6,9 +6,10 @@ import cats.derived.*
 import cats.effect.std.UUIDGen
 import cats.instances.all.given
 import cats.syntax.all.*
+
 import java.util.UUID
 import net.raystarkmc.craftingsimulator.domain.item.*
-import net.raystarkmc.craftingsimulator.domain.recipe.*
+import net.raystarkmc.craftingsimulator.domain.recipe.{ItemCount, *}
 import net.raystarkmc.craftingsimulator.lib.cats.*
 import net.raystarkmc.craftingsimulator.lib.domain.*
 import net.raystarkmc.craftingsimulator.lib.transaction.Transaction
@@ -48,7 +49,7 @@ object RegisterRecipeCommandHandler:
               command.inputs
                 .traverse: (uuid, count) =>
                   ItemCount
-                    .ae(count)
+                    .ae[ValidatedNec[ItemCount.Failure, _]](count).toEither
                     .map: c =>
                       ItemWithCount(
                         item = ItemId(uuid),
@@ -63,7 +64,7 @@ object RegisterRecipeCommandHandler:
               command.outputs
                 .traverse: (uuid, count) =>
                   ItemCount
-                    .ae(count)
+                    .ae[ValidatedNec[ItemCount.Failure, _]](count).toEither
                     .map: c =>
                       ItemWithCount(
                         item = ItemId(uuid),
