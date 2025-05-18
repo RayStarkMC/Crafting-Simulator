@@ -20,11 +20,9 @@ jobs:
         run: |
           git fetch --depth=$(( ${{github.event.pull_request.commits}} + 1 )) origin ${{github.event.pull_request.head.ref}}
           echo ""
-          git rev-list ${{github.event.pull_request.head.ref}}
+          git rev-list --reverse HEAD | head
           echo ""
-          git log
-          echo ""
-          echo BASE_REF=$(git rev-list --max-count=1 --reverse HEAD) >> $GITHUB_ENV
+          echo BASE_REF=$(git rev-list --reverse HEAD | head) >> $GITHUB_ENV
       - name: scalafmtCheckAll
         working-directory: api
         run: sbt scalafmtCheckAll
