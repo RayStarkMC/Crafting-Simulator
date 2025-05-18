@@ -6,31 +6,30 @@ import cats.derived.*
 import cats.effect.std.UUIDGen
 import cats.instances.all.given
 import cats.syntax.all.*
+import java.util.UUID
 import net.raystarkmc.craftingsimulator.domain.item.*
 import net.raystarkmc.craftingsimulator.domain.recipe.*
-import net.raystarkmc.craftingsimulator.usecase.command.recipe.RegisterRecipeCommandHandler.*
 import net.raystarkmc.craftingsimulator.lib.transaction.Transaction
-
-import java.util.UUID
+import net.raystarkmc.craftingsimulator.usecase.command.recipe.RegisterRecipeCommandHandler.*
 
 trait RegisterRecipeCommandHandler[F[_]]:
   def run(command: Command): F[Either[Failure, Output]]
 
 object RegisterRecipeCommandHandler:
   case class Command(
-      name: String,
-      inputs: Seq[(UUID, Long)],
-      outputs: Seq[(UUID, Long)]
+    name: String,
+    inputs: Seq[(UUID, Long)],
+    outputs: Seq[(UUID, Long)],
   ) derives Eq,
-        Hash,
-        Show
+      Hash,
+      Show
   case class Output(id: UUID) derives Eq, Hash, Show
   enum Failure derives Eq, Hash, Show:
     case ValidationFailed(detail: String)
 
   given [
-      F[_]: {UUIDGen, Monad},
-      G[_]: {RecipeRepository as recipeRepository, Monad}
+    F[_]: {UUIDGen, Monad},
+    G[_]: {RecipeRepository as recipeRepository, Monad},
   ] => (T: Transaction[G, F]) => RegisterRecipeCommandHandler[F]:
     def run(command: Command): F[Either[Failure, Output]] =
       val eitherT = for {
@@ -45,7 +44,7 @@ object RegisterRecipeCommandHandler:
               ItemCount.ae(count).map { c =>
                 ItemWithCount(
                   item = ItemId(uuid),
-                  count = c
+                  count = c,
                 )
               }
             }
@@ -61,7 +60,7 @@ object RegisterRecipeCommandHandler:
               ItemCount.ae(count).map { c =>
                 ItemWithCount(
                   item = ItemId(uuid),
-                  count = c
+                  count = c,
                 )
               }
             }
@@ -76,7 +75,7 @@ object RegisterRecipeCommandHandler:
           Recipe.create[F](
             name = name,
             inputs = inputs,
-            outputs = outputs
+            outputs = outputs,
           )
         )
         _ <- T.withTransaction {
