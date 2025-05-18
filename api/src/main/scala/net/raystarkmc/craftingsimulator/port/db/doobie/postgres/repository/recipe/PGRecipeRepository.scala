@@ -50,53 +50,51 @@ trait PGRecipeRepository:
             .map(RecipeOutput.apply),
         ).mapN(Recipe.restore)
 
-      val optionT = for {
-        recipeRecord <- OptionT(selectRecipe(recipeId.value))
-        recipeInputRecords <- OptionT.liftF(selectRecipeInput(recipeId.value))
-        recipeOutputRecords <- OptionT.liftF(selectRecipeOutput(recipeId.value))
+      val optionT =
+        for
+          recipeRecord <- OptionT(selectRecipe(recipeId.value))
+          recipeInputRecords <- OptionT.liftF(selectRecipeInput(recipeId.value))
+          recipeOutputRecords <- OptionT.liftF(selectRecipeOutput(recipeId.value))
 
-        recipe <- OptionT.liftF {
-          restoreRecipe[ConnectionIO](
-            recipeRecord,
-            recipeInputRecords,
-            recipeOutputRecords,
-          )
-        }
-      } yield recipe
-
+          recipe <- OptionT.liftF:
+            restoreRecipe[ConnectionIO](
+              recipeRecord,
+              recipeInputRecords,
+              recipeOutputRecords,
+            )
+        yield recipe
       optionT.value
 
     def save(recipe: Recipe): ConnectionIO[Unit] =
-      for {
+      for
         _ <- deleteRecipeInput(recipe.id.value)
         _ <- deleteRecipeOutput(recipe.id.value)
         _ <- upsertRecipe(recipe.id.value, recipe.name.value.value)
         _ <- insertRecipeOutputs(
-          recipe.output.value.map { recipeOutput =>
+          recipe.output.value.map: recipeOutput =>
             InsertRecipeOutputsRecord(
               recipeId = recipe.id.value,
               itemId = recipeOutput.item.value,
               count = recipeOutput.count.value,
             )
-          }
         )
         _ <- insertRecipeInputs(
-          recipe.input.value.map { recipeInput =>
+          recipe.input.value.map: recipeInput =>
             InsertRecipeInputsRecord(
               recipeId = recipe.id.value,
               itemId = recipeInput.item.value,
               count = recipeInput.count.value,
             )
-          }
         )
-      } yield ()
+      yield ()
 
     def delete(recipe: Recipe): ConnectionIO[Unit] =
-      for {
+      for
         _ <- deleteRecipeInput(recipe.id.value)
         _ <- deleteRecipeOutput(recipe.id.value)
         _ <- deleteRecipe(recipe.id.value)
-      } yield ()
+      yield
+        ()
   end given
 
 object PGRecipeRepository extends PGRecipeRepository
