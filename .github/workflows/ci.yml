@@ -9,3 +9,13 @@ jobs:
     steps:
       - name: echo hello
         run: echo "Hello World!"
+  unit-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+      - name: show
+        run: |
+          ls -a
+          echo ""
+          git branch -a
