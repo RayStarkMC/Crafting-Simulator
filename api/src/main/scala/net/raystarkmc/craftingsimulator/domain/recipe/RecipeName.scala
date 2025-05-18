@@ -12,9 +12,13 @@ object RecipeName extends RecipeNameGivens:
 
   def apply(modelName: ModelName): RecipeName = modelName
 
+  @deprecated
   type Failure = ModelName.Failure
+
+  @deprecated
   val Failure: ModelName.Failure.type = ModelName.Failure
 
+  @deprecated
   def ae[F[_]](value: String)(using ApplicativeError[F, NonEmptyChain[Failure]]): F[RecipeName] =
     ModelName.ae(value)
 
