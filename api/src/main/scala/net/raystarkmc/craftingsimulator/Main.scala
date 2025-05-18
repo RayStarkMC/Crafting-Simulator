@@ -8,8 +8,8 @@ import com.comcast.ip4s.ipv4
 import com.comcast.ip4s.port
 import net.raystarkmc.craftingsimulator.port.api.http4s.controller.*
 import net.raystarkmc.craftingsimulator.port.api.http4s.controller.item.*
-import net.raystarkmc.craftingsimulator.port.api.http4s.controller.recipe.*
 import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.instances.given
+import net.raystarkmc.craftingsimulator.port.api.http4s.controller.recipe.*
 import org.http4s.HttpRoutes
 import org.http4s.Response
 import org.http4s.dsl.*
