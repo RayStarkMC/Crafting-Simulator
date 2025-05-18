@@ -25,7 +25,10 @@ scalacOptions ++= Seq(
 Test / scalacOptions -= "-Wnonunit-statement"
 
 scalafmtConfig := file("./../.scalafmt.conf")
-scalafmtFilter := BASE_REF.fold("diff-dirty")("diff-ref=" ++ _)
+scalafmtFilter := {
+  println("💛" + BASE_REF)
+  BASE_REF.fold("diff-dirty")("diff-ref=" ++ _)
+}
 
 lazy val root = (project in file("."))
   .settings(
