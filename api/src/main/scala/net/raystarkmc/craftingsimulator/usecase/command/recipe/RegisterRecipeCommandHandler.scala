@@ -39,7 +39,7 @@ object RegisterRecipeCommandHandler:
         (name, inputs, outputs) <-
           (
             ModelName
-              .inParallel[EitherTWithNec[F, ModelName.Failure]](command.name)
+              .inParallel[EitherNecT[F, ModelName.Failure, _]](command.name)
               .leftMap: e =>
                 Failure.ValidationFailed(e.show)
               .map:
