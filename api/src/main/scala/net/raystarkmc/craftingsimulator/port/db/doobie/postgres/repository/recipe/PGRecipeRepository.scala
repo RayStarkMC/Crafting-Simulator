@@ -24,7 +24,7 @@ trait PGRecipeRepository:
           RecipeId(recipeRecord.id).pure[G],
           G.fromValidated:
             ModelName
-              .ae[ValidatedWithNec[ModelName.Failure]](recipeRecord.name)
+              .ae[ValidatedNec[ModelName.Failure, _]](recipeRecord.name)
               .leftMap(a => new IllegalStateException(a.show))
               .map(RecipeName.apply)
           ,
@@ -34,7 +34,7 @@ trait PGRecipeRepository:
                 ItemId(record.itemId).pure[G],
                 G.fromValidated:
                   ItemCount
-                    .ae[ValidatedWithNec[ItemCount.Failure]](record.count)
+                    .ae[ValidatedNec[ItemCount.Failure, _]](record.count)
                     .leftMap(a => new IllegalStateException(a.show))
               ).mapN(ItemWithCount.apply)
             .map(RecipeInput.apply),
@@ -44,7 +44,7 @@ trait PGRecipeRepository:
                 ItemId(record.itemId).pure[G],
                 G.fromValidated:
                   ItemCount
-                    .ae[ValidatedWithNec[ItemCount.Failure]](record.count)
+                    .ae[ValidatedNec[ItemCount.Failure, _]](record.count)
                     .leftMap(a => new IllegalStateException(a.show))
               ).mapN(ItemWithCount.apply)
             .map(RecipeOutput.apply),

@@ -12,7 +12,4 @@ type MonadErrorWithNec[E] = MonadErrorWith[NonEmptyChain[E]]
 private type EitherWith[E] = [A] =>> Either[E, A]
 type EitherWithNec[E] = EitherWith[NonEmptyChain[E]]
 
-private type ValidatedWith[E] = [A] =>> Validated[E, A]
-type ValidatedWithNec[E] = ValidatedWith[NonEmptyChain[E]]
-
 type EitherNecT[F[_], E, A] = EitherT[F, NonEmptyChain[E], A]
