@@ -9,16 +9,16 @@ import doobie.*
 import doobie.implicits.*
 import net.raystarkmc.craftingsimulator.domain.item.*
 import net.raystarkmc.craftingsimulator.domain.recipe.*
-import net.raystarkmc.craftingsimulator.lib.domain.ModelName
 import net.raystarkmc.craftingsimulator.lib.cats.*
+import net.raystarkmc.craftingsimulator.lib.domain.*
 
 trait PGRecipeRepository:
   given RecipeRepository[ConnectionIO]:
     def resolveById(recipeId: RecipeId): ConnectionIO[Option[Recipe]] =
       def restoreRecipe[G[_]: ApplicativeThrow as G](
-          recipeRecord: SelectRecipeOutput,
-          recipeInputRecords: Seq[SelectRecipeInputRecord],
-          recipeOutputRecords: Seq[SelectRecipeOutputRecord]
+        recipeRecord: SelectRecipeOutput,
+        recipeInputRecords: Seq[SelectRecipeInputRecord],
+        recipeOutputRecords: Seq[SelectRecipeOutputRecord],
       ): G[Recipe] =
         (
           RecipeId(recipeRecord.id).pure[G],
@@ -26,7 +26,8 @@ trait PGRecipeRepository:
             ModelName
               .ae[ValidatedWithNec[ModelName.Failure]](recipeRecord.name)
               .leftMap(a => new IllegalStateException(a.show))
-              .map(RecipeName.apply),
+              .map(RecipeName.apply)
+          ,
           recipeInputRecords
             .traverse { record =>
               (
@@ -34,7 +35,7 @@ trait PGRecipeRepository:
                 ItemCount
                   .ae[[A] =>> ValidatedNec[ItemCount.Failure, A]](record.count)
                   .leftMap(a => new IllegalStateException(a.show))
-                  .fold[G[ItemCount]](_.raiseError, _.pure)
+                  .fold[G[ItemCount]](_.raiseError, _.pure),
               ).mapN(ItemWithCount.apply)
             }
             .map(RecipeInput.apply),
@@ -45,10 +46,10 @@ trait PGRecipeRepository:
                 ItemCount
                   .ae[[A] =>> ValidatedNec[ItemCount.Failure, A]](record.count)
                   .leftMap(a => new IllegalStateException(a.show))
-                  .fold[G[ItemCount]](_.raiseError, _.pure)
+                  .fold[G[ItemCount]](_.raiseError, _.pure),
               ).mapN(ItemWithCount.apply)
             }
-            .map(RecipeOutput.apply)
+            .map(RecipeOutput.apply),
         ).mapN(Recipe.restore)
 
       val optionT = for {
@@ -60,7 +61,7 @@ trait PGRecipeRepository:
           restoreRecipe[ConnectionIO](
             recipeRecord,
             recipeInputRecords,
-            recipeOutputRecords
+            recipeOutputRecords,
           )
         }
       } yield recipe
@@ -77,7 +78,7 @@ trait PGRecipeRepository:
             InsertRecipeOutputsRecord(
               recipeId = recipe.id.value,
               itemId = recipeOutput.item.value,
-              count = recipeOutput.count.value
+              count = recipeOutput.count.value,
             )
           }
         )
@@ -86,7 +87,7 @@ trait PGRecipeRepository:
             InsertRecipeInputsRecord(
               recipeId = recipe.id.value,
               itemId = recipeInput.item.value,
-              count = recipeInput.count.value
+              count = recipeInput.count.value,
             )
           }
         )
