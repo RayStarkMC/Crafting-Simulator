@@ -34,56 +34,47 @@ object RegisterRecipeCommandHandler:
     G[_]: {RecipeRepository as recipeRepository, Monad},
   ] => (T: Transaction[G, F]) => RegisterRecipeCommandHandler[F]:
     def run(command: Command): F[Either[Failure, Output]] =
-      val eitherT = for {
-        modelName <- ModelName
+      val eitherT = for
+        name <- ModelName
           .inParallel[EitherTWithNec[F, ModelName.Failure]](command.name)
           .leftMap: e =>
             Failure.ValidationFailed(e.show)
-        name = RecipeName(modelName)
-        inputs: RecipeInput <- EitherT.fromEither[F] {
+          .map:
+            RecipeName.apply
+        inputs: RecipeInput <- EitherT.fromEither[F]:
           command.inputs
-            .traverse { (uuid, count) =>
-              ItemCount.ae(count).map { c =>
+            .traverse: (uuid, count) =>
+              ItemCount.ae(count).map: c =>
                 ItemWithCount(
                   item = ItemId(uuid),
                   count = c,
                 )
-              }
-            }
-            .map { icSeq =>
-              RecipeInput.apply(icSeq)
-            }
-            .leftMap(_.toString)
-            .leftMap(Failure.ValidationFailed(_))
-        }
-        outputs: RecipeOutput <- EitherT.fromEither[F] {
+            .map:
+              RecipeInput.apply
+            .leftMap: e =>
+              Failure.ValidationFailed(e.show)
+        outputs: RecipeOutput <- EitherT.fromEither[F]:
           command.outputs
-            .traverse { (uuid, count) =>
-              ItemCount.ae(count).map { c =>
+            .traverse: (uuid, count) =>
+              ItemCount.ae(count).map: c =>
                 ItemWithCount(
                   item = ItemId(uuid),
                   count = c,
                 )
-              }
-            }
-            .map { icSeq =>
-              RecipeOutput.apply(icSeq)
-            }
-            .leftMap(_.toString)
-            .leftMap(Failure.ValidationFailed(_))
-        }
-
-        recipe <- EitherT.liftF(
+            .map:
+              RecipeOutput.apply
+            .leftMap: e =>
+              Failure.ValidationFailed(e.show)
+        recipe <- EitherT.liftF:
           Recipe.create[F](
             name = name,
             inputs = inputs,
             outputs = outputs,
           )
-        )
-        _ <- T.withTransaction {
-          EitherT.right[Failure](
+        _ <- T.withTransaction:
+          EitherT.right[Failure]:
             recipeRepository.save(recipe)
-          )
-        }
-      } yield Output(recipe.id.value)
+        output = Output(recipe.id.value)
+      yield
+        output
       eitherT.value
