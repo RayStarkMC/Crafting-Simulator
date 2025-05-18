@@ -32,10 +32,10 @@ trait PGRecipeRepository:
             .traverse { record =>
               (
                 ItemId(record.itemId).pure[G],
-                ItemCount
-                  .ae[ValidatedWithNec[ItemCount.Failure]](record.count)
-                  .leftMap(a => new IllegalStateException(a.show))
-                  .fold[G[ItemCount]](_.raiseError, _.pure),
+                G.fromValidated:
+                  ItemCount
+                    .ae[ValidatedWithNec[ItemCount.Failure]](record.count)
+                    .leftMap(a => new IllegalStateException(a.show))
               ).mapN(ItemWithCount.apply)
             }
             .map(RecipeInput.apply),
@@ -43,10 +43,10 @@ trait PGRecipeRepository:
             .traverse { record =>
               (
                 ItemId(record.itemId).pure[G],
-                ItemCount
-                  .ae[ValidatedWithNec[ItemCount.Failure]](record.count)
-                  .leftMap(a => new IllegalStateException(a.show))
-                  .fold[G[ItemCount]](_.raiseError, _.pure),
+                G.fromValidated:
+                  ItemCount
+                    .ae[ValidatedWithNec[ItemCount.Failure]](record.count)
+                    .leftMap(a => new IllegalStateException(a.show))
               ).mapN(ItemWithCount.apply)
             }
             .map(RecipeOutput.apply),
