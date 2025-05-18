@@ -9,21 +9,24 @@ import doobie.*
 import doobie.implicits.*
 import net.raystarkmc.craftingsimulator.domain.item.*
 import net.raystarkmc.craftingsimulator.domain.recipe.*
+import net.raystarkmc.craftingsimulator.lib.domain.ModelName
+import net.raystarkmc.craftingsimulator.lib.cats.*
 
 trait PGRecipeRepository:
   given RecipeRepository[ConnectionIO]:
     def resolveById(recipeId: RecipeId): ConnectionIO[Option[Recipe]] =
-      def restoreRecipe[G[_]: ApplicativeThrow](
+      def restoreRecipe[G[_]: ApplicativeThrow as G](
           recipeRecord: SelectRecipeOutput,
           recipeInputRecords: Seq[SelectRecipeInputRecord],
           recipeOutputRecords: Seq[SelectRecipeOutputRecord]
       ): G[Recipe] =
         (
           RecipeId(recipeRecord.id).pure[G],
-          RecipeName
-            .ae[[A] =>> ValidatedNec[RecipeName.Failure, A]](recipeRecord.name)
-            .leftMap(a => new IllegalStateException(a.show))
-            .fold[G[RecipeName]](_.raiseError, _.pure),
+          G.fromValidated:
+            ModelName
+              .ae[ValidatedWithNec[ModelName.Failure]](recipeRecord.name)
+              .leftMap(a => new IllegalStateException(a.show))
+              .map(RecipeName.apply),
           recipeInputRecords
             .traverse { record =>
               (
