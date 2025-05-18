@@ -68,7 +68,7 @@ trait PGRecipeRepository:
       for {
         _ <- deleteRecipeInput(recipe.id.value)
         _ <- deleteRecipeOutput(recipe.id.value)
-        _ <- upsertRecipe(recipe.id.value, recipe.name.value)
+        _ <- upsertRecipe(recipe.id.value, recipe.name.value.value)
         _ <- insertRecipeOutputs(
           recipe.output.value.map { recipeOutput =>
             InsertRecipeOutputsRecord(

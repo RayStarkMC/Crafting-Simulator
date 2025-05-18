@@ -8,7 +8,7 @@ import net.raystarkmc.craftingsimulator.lib.domain.ModelName
 opaque type RecipeName = ModelName
 
 object RecipeName extends RecipeNameGivens:
-  extension (self: RecipeName) def value: String = unwrap(self)
+  extension (self: RecipeName) def value: ModelName = self
 
   def apply(modelName: ModelName): RecipeName = modelName
 
