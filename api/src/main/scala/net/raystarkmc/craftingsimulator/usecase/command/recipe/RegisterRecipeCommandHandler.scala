@@ -36,10 +36,10 @@ object RegisterRecipeCommandHandler:
   ] => (T: Transaction[G, F]) => RegisterRecipeCommandHandler[F]:
     def run(command: Command): F[Either[Failure, Output]] =
       val eitherT = for
-        (name, inputs, outputs) <-
+        (name, inputs, outputs) <- EitherT.fromEither[F]:
           (
             ModelName
-              .inParallel[EitherNecT[F, ModelName.Failure, _]](command.name)
+              .inParallel[EitherNec[ModelName.Failure, _]](command.name)
               .leftMap: e =>
                 Failure.ValidationFailed(e.show)
               .map:
@@ -50,7 +50,8 @@ object RegisterRecipeCommandHandler:
                 ItemCount
                   .ae[ValidatedNec[ItemCount.Failure, _]](count)
                   .toEither
-                  .toEitherT[F]
+                  .leftMap: e =>
+                    Failure.ValidationFailed(e.show)
                   .map: c =>
                     ItemWithCount(
                       item = ItemId(uuid),
@@ -58,25 +59,23 @@ object RegisterRecipeCommandHandler:
                     )
               .map:
                 RecipeInput.apply
-              .leftMap: e =>
-                Failure.ValidationFailed(e.show),
+            ,
             command.outputs
               .traverse: (uuid, count) =>
                 ItemCount
                   .ae[ValidatedNec[ItemCount.Failure, _]](count)
                   .toEither
-                  .toEitherT[F]
+                  .leftMap: e =>
+                    Failure.ValidationFailed(e.show)
                   .map: c =>
                     ItemWithCount(
                       item = ItemId(uuid),
                       count = c,
                     )
               .map:
-                RecipeOutput.apply
-              .leftMap: e =>
-                Failure.ValidationFailed(e.show),
+                RecipeOutput.apply,
           ).tupled
-        recipe <- EitherT.liftF:
+        recipe <- EitherT.right[Failure]:
           Recipe.create[F](
             name = name,
             inputs = inputs,
