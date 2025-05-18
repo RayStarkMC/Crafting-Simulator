@@ -8,5 +8,3 @@ type ApplicativeErrorWithNec[E] = ApplicativeErrorWith[NonEmptyChain[E]]
 
 type MonadErrorWith[E] = [F[_]] =>> MonadError[F, E]
 type MonadErrorWithNec[E] = MonadErrorWith[NonEmptyChain[E]]
-
-type EitherNecT[F[_], E, A] = EitherT[F, NonEmptyChain[E], A]
