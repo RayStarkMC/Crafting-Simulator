@@ -18,7 +18,6 @@ object RecipeName extends RecipeNameGivens:
   def ae[F[_]](value: String)(using ApplicativeError[F, NonEmptyChain[Failure]]): F[RecipeName] =
     ModelName.ae(value)
 
-private inline def unwrap(modelName: ModelName): String = modelName.value
 private inline def wrapF[F[_]](f: F[ModelName]): F[RecipeName] = f
 
 trait RecipeNameGivens:
