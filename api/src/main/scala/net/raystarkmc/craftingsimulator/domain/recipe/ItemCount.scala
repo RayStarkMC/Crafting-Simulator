@@ -19,6 +19,12 @@ object ItemCount extends ItemCountGivens:
     F.raiseWhen(value <= 0)(NonEmptyChain.one(Failure.IsNotGreaterThen0)) *>
       F.pure(value)
 
+  def inParallel[
+    M[_]: {Parallel as P, MonadErrorWithNec[Failure]}
+  ](value: Long): M[ItemCount] =
+    given ApplicativeError[P.F, NonEmptyChain[Failure]] = P.applicativeError
+    P.sequential(ae(value))
+
 private inline def wrapItemCountF[F[_]](f: F[Long]): F[ItemCount] = f
 
 trait ItemCountGivens:
