@@ -20,35 +20,42 @@ trait PGRecipeRepository:
         recipeInputRecords: Seq[SelectRecipeInputRecord],
         recipeOutputRecords: Seq[SelectRecipeOutputRecord],
       ): G[Recipe] =
-        (
-          RecipeId(recipeRecord.id).pure[G],
-          G.fromValidated:
+        G.fromEither:
+          (
+            RecipeId(recipeRecord.id).pure[EitherNec[String, _]],
             ModelName
-              .ae[ValidatedNec[ModelName.Failure, _]](recipeRecord.name)
-              .leftMap(a => new IllegalStateException(a.show))
-              .map(RecipeName.apply)
-          ,
-          recipeInputRecords
-            .traverse: record =>
-              (
-                ItemId(record.itemId).pure[G],
-                G.fromValidated:
+              .inParallel[EitherNec[ModelName.Failure, _]](recipeRecord.name)
+              .leftMap:
+                _.map:
+                  _.show
+              .map(RecipeName.apply),
+            recipeInputRecords
+              .traverse: record =>
+                (
+                  ItemId(record.itemId).pure[EitherNec[String, _]],
                   ItemCount
-                    .ae[ValidatedNec[ItemCount.Failure, _]](record.count)
-                    .leftMap(a => new IllegalStateException(a.show))
-              ).mapN(ItemWithCount.apply)
-            .map(RecipeInput.apply),
-          recipeOutputRecords
-            .traverse: record =>
-              (
-                ItemId(record.itemId).pure[G],
-                G.fromValidated:
+                    .inParallel[EitherNec[ItemCount.Failure, _]](record.count)
+                    .leftMap:
+                      _.map:
+                        _.show,
+                ).parMapN(ItemWithCount.apply)
+              .map(RecipeInput.apply),
+            recipeOutputRecords
+              .traverse: record =>
+                (
+                  ItemId(record.itemId).pure[EitherNec[String, _]],
                   ItemCount
-                    .ae[ValidatedNec[ItemCount.Failure, _]](record.count)
-                    .leftMap(a => new IllegalStateException(a.show))
-              ).mapN(ItemWithCount.apply)
-            .map(RecipeOutput.apply),
-        ).mapN(Recipe.restore)
+                    .inParallel[EitherNec[ItemCount.Failure, _]](record.count)
+                    .leftMap:
+                      _.map:
+                        _.show,
+                ).parMapN(ItemWithCount.apply)
+              .map(RecipeOutput.apply),
+          )
+            .parMapN(Recipe.restore)
+            .leftMap(_.show)
+            .leftMap(new IllegalStateException(_))
+      end restoreRecipe
 
       val optionT =
         for
@@ -93,8 +100,7 @@ trait PGRecipeRepository:
         _ <- deleteRecipeInput(recipe.id.value)
         _ <- deleteRecipeOutput(recipe.id.value)
         _ <- deleteRecipe(recipe.id.value)
-      yield
-        ()
+      yield ()
   end given
 
 object PGRecipeRepository extends PGRecipeRepository
