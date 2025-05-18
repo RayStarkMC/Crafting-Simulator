@@ -33,7 +33,7 @@ trait PGRecipeRepository:
               (
                 ItemId(record.itemId).pure[G],
                 ItemCount
-                  .ae[[A] =>> ValidatedNec[ItemCount.Failure, A]](record.count)
+                  .ae[ValidatedWithNec[ItemCount.Failure]](record.count)
                   .leftMap(a => new IllegalStateException(a.show))
                   .fold[G[ItemCount]](_.raiseError, _.pure),
               ).mapN(ItemWithCount.apply)
@@ -44,7 +44,7 @@ trait PGRecipeRepository:
               (
                 ItemId(record.itemId).pure[G],
                 ItemCount
-                  .ae[[A] =>> ValidatedNec[ItemCount.Failure, A]](record.count)
+                  .ae[ValidatedWithNec[ItemCount.Failure]](record.count)
                   .leftMap(a => new IllegalStateException(a.show))
                   .fold[G[ItemCount]](_.raiseError, _.pure),
               ).mapN(ItemWithCount.apply)
