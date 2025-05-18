@@ -17,7 +17,7 @@ jobs:
         run: |
           git fetch origin HEAD --depth=$(( ${{github.event.pull_request.commits}} + 1))
           echo ""
-          git rev-list --reverse HEAD
+          git rev-list HEAD
           echo ""
           git log
           echo ""
