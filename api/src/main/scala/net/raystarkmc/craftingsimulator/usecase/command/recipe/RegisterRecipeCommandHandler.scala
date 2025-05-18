@@ -35,36 +35,45 @@ object RegisterRecipeCommandHandler:
   ] => (T: Transaction[G, F]) => RegisterRecipeCommandHandler[F]:
     def run(command: Command): F[Either[Failure, Output]] =
       val eitherT = for
-        name <- ModelName
-          .inParallel[EitherTWithNec[F, ModelName.Failure]](command.name)
-          .leftMap: e =>
-            Failure.ValidationFailed(e.show)
-          .map:
-            RecipeName.apply
-        inputs: RecipeInput <- EitherT.fromEither[F]:
-          command.inputs
-            .traverse: (uuid, count) =>
-              ItemCount.ae(count).map: c =>
-                ItemWithCount(
-                  item = ItemId(uuid),
-                  count = c,
-                )
-            .map:
-              RecipeInput.apply
-            .leftMap: e =>
-              Failure.ValidationFailed(e.show)
-        outputs: RecipeOutput <- EitherT.fromEither[F]:
-          command.outputs
-            .traverse: (uuid, count) =>
-              ItemCount.ae(count).map: c =>
-                ItemWithCount(
-                  item = ItemId(uuid),
-                  count = c,
-                )
-            .map:
-              RecipeOutput.apply
-            .leftMap: e =>
-              Failure.ValidationFailed(e.show)
+        (name, inputs, outputs) <-
+          (
+            ModelName
+              .inParallel[EitherTWithNec[F, ModelName.Failure]](command.name)
+              .leftMap: e =>
+                Failure.ValidationFailed(e.show)
+              .map:
+                RecipeName.apply
+            ,
+            EitherT.fromEither[F]:
+              command.inputs
+                .traverse: (uuid, count) =>
+                  ItemCount
+                    .ae(count)
+                    .map: c =>
+                      ItemWithCount(
+                        item = ItemId(uuid),
+                        count = c,
+                      )
+                .map:
+                  RecipeInput.apply
+                .leftMap: e =>
+                  Failure.ValidationFailed(e.show)
+            ,
+            EitherT.fromEither[F]:
+              command.outputs
+                .traverse: (uuid, count) =>
+                  ItemCount
+                    .ae(count)
+                    .map: c =>
+                      ItemWithCount(
+                        item = ItemId(uuid),
+                        count = c,
+                      )
+                .map:
+                  RecipeOutput.apply
+                .leftMap: e =>
+                  Failure.ValidationFailed(e.show),
+          ).tupled
         recipe <- EitherT.liftF:
           Recipe.create[F](
             name = name,
@@ -75,6 +84,5 @@ object RegisterRecipeCommandHandler:
           EitherT.right[Failure]:
             recipeRepository.save(recipe)
         output = Output(recipe.id.value)
-      yield
-        output
+      yield output
       eitherT.value
