@@ -3,8 +3,8 @@ package net.raystarkmc.craftingsimulator.port.db.doobie.postgres.queryhandler.re
 import cats.*
 import cats.data.*
 import cats.effect.*
-import cats.effect.std.*
 import cats.effect.instances.all.given
+import cats.effect.std.*
 import cats.effect.unsafe.implicits.global
 import cats.instances.all.given
 import cats.syntax.all.*
@@ -15,6 +15,7 @@ import doobie.util.fragments
 import doobie.util.transactor.Transactor
 import java.time.*
 import java.util.UUID
+import net.raystarkmc.craftingsimulator.lib.cats.effect.UUIDGenFromSync.given
 import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.LocalDBTestEnvironment.given
 import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.queryhandler.recipe.search.PGSearchRecipeQueryHandler.given
 import net.raystarkmc.craftingsimulator.usecase.query.recipe.SearchRecipesQueryHandler
