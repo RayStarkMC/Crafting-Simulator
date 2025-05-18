@@ -22,7 +22,7 @@ scalacOptions ++= Seq(
 
 Test / scalacOptions -= "-Wnonunit-statement"
 
-ThisBuild / scalafmtConfig := file("./../.scalafmt.conf")
+scalafmtConfig := file("./../.scalafmt.conf")
 
 lazy val root = (project in file("."))
   .settings(
