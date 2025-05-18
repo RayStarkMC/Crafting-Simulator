@@ -4,25 +4,15 @@ on:
   workflow_dispatch:
 
 jobs:
-  hello:
-    runs-on: ubuntu-latest
-    steps:
-      - name: echo hello
-        run: echo "Hello World!"
   unit-test:
     runs-on: ubuntu-latest
     steps:
-      - name: checkout
-        uses: actions/checkout@v4
-      - name: setup-java
-        uses: actions/setup-java@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
         with:
           distribution: corretto
           java-version: 21
-      - name: setup-sbt
-        uses: sbt/setup-sbt@v1
-      - name: show
-        run: |
-          ls -a
-          echo ""
-          git branch -a
+      - uses: sbt/setup-sbt@v1
+      - name: run test
+        working-directory: api
+        run: sbt test
