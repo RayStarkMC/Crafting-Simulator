@@ -6,10 +6,10 @@ import cats.derived.*
 import cats.effect.std.UUIDGen
 import cats.instances.all.given
 import cats.syntax.all.*
-
 import java.util.UUID
 import net.raystarkmc.craftingsimulator.domain.item.*
-import net.raystarkmc.craftingsimulator.domain.recipe.{ItemCount, *}
+import net.raystarkmc.craftingsimulator.domain.recipe.*
+import net.raystarkmc.craftingsimulator.domain.recipe.ItemCount
 import net.raystarkmc.craftingsimulator.lib.cats.*
 import net.raystarkmc.craftingsimulator.lib.domain.*
 import net.raystarkmc.craftingsimulator.lib.transaction.Transaction
@@ -45,35 +45,36 @@ object RegisterRecipeCommandHandler:
               .map:
                 RecipeName.apply
             ,
-            EitherT.fromEither[F]:
-              command.inputs
-                .traverse: (uuid, count) =>
-                  ItemCount
-                    .ae[ValidatedNec[ItemCount.Failure, _]](count).toEither
-                    .map: c =>
-                      ItemWithCount(
-                        item = ItemId(uuid),
-                        count = c,
-                      )
-                .map:
-                  RecipeInput.apply
-                .leftMap: e =>
-                  Failure.ValidationFailed(e.show)
-            ,
-            EitherT.fromEither[F]:
-              command.outputs
-                .traverse: (uuid, count) =>
-                  ItemCount
-                    .ae[ValidatedNec[ItemCount.Failure, _]](count).toEither
-                    .map: c =>
-                      ItemWithCount(
-                        item = ItemId(uuid),
-                        count = c,
-                      )
-                .map:
-                  RecipeOutput.apply
-                .leftMap: e =>
-                  Failure.ValidationFailed(e.show),
+            command.inputs
+              .traverse: (uuid, count) =>
+                ItemCount
+                  .ae[ValidatedNec[ItemCount.Failure, _]](count)
+                  .toEither
+                  .toEitherT[F]
+                  .map: c =>
+                    ItemWithCount(
+                      item = ItemId(uuid),
+                      count = c,
+                    )
+              .map:
+                RecipeInput.apply
+              .leftMap: e =>
+                Failure.ValidationFailed(e.show),
+            command.outputs
+              .traverse: (uuid, count) =>
+                ItemCount
+                  .ae[ValidatedNec[ItemCount.Failure, _]](count)
+                  .toEither
+                  .toEitherT[F]
+                  .map: c =>
+                    ItemWithCount(
+                      item = ItemId(uuid),
+                      count = c,
+                    )
+              .map:
+                RecipeOutput.apply
+              .leftMap: e =>
+                Failure.ValidationFailed(e.show),
           ).tupled
         recipe <- EitherT.liftF:
           Recipe.create[F](
