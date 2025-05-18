@@ -9,6 +9,8 @@ import cats.syntax.all.*
 import java.util.UUID
 import net.raystarkmc.craftingsimulator.domain.item.*
 import net.raystarkmc.craftingsimulator.domain.recipe.*
+import net.raystarkmc.craftingsimulator.lib.cats.*
+import net.raystarkmc.craftingsimulator.lib.domain.*
 import net.raystarkmc.craftingsimulator.lib.transaction.Transaction
 import net.raystarkmc.craftingsimulator.usecase.command.recipe.RegisterRecipeCommandHandler.*
 
@@ -33,11 +35,11 @@ object RegisterRecipeCommandHandler:
   ] => (T: Transaction[G, F]) => RegisterRecipeCommandHandler[F]:
     def run(command: Command): F[Either[Failure, Output]] =
       val eitherT = for {
-        name <- RecipeName
-          .ae(command.name)
-          .leftMap(_.toString)
-          .leftMap(Failure.ValidationFailed(_))
-          .toEitherT[F]
+        modelName <- ModelName
+          .inParallel[EitherTWithNec[F, ModelName.Failure]](command.name)
+          .leftMap: e =>
+            Failure.ValidationFailed(e.show)
+        name = RecipeName(modelName)
         inputs: RecipeInput <- EitherT.fromEither[F] {
           command.inputs
             .traverse { (uuid, count) =>
