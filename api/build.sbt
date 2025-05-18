@@ -1,8 +1,8 @@
 import com.typesafe.sbt.packager.docker.DockerPlugin.autoImport.Docker
 
-import scala.tools.util.PathResolver.Environment
-
 enablePlugins(JavaAppPackaging)
+
+val BASE_REF = sys.env.get("BASE_REF")
 
 val http4sVersion = "0.23.30"
 val circeVersion = "0.14.13"
@@ -25,7 +25,7 @@ scalacOptions ++= Seq(
 Test / scalacOptions -= "-Wnonunit-statement"
 
 scalafmtConfig := file("./../.scalafmt.conf")
-scalafmtFilter := sys.env.get("BASE_REF").fold("")("diff-ref=" ++ _)
+scalafmtFilter := BASE_REF.fold("diff-dirty")("diff-ref=" ++ _)
 
 lazy val root = (project in file("."))
   .settings(
