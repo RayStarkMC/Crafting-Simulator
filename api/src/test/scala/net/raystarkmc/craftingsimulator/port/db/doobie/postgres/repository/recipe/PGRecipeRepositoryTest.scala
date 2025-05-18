@@ -28,7 +28,7 @@ class PGRecipeRepositoryTest extends AnyFreeSpec:
     val program = for {
       name <- ApplicativeThrow[ConnectionIO].fromEither:
         ModelName
-          .inParallel[EitherWithNec[ModelName.Failure]]:
+          .inParallel[EitherNec[ModelName.Failure, _]]:
             "name"
           .leftMap: _ =>
             fail()
@@ -36,7 +36,7 @@ class PGRecipeRepositoryTest extends AnyFreeSpec:
             RecipeName.apply
       itemCount <- ApplicativeThrow[ConnectionIO].fromEither:
         ItemCount
-          .ae[EitherWithNec[ItemCount.Failure]]:
+          .ae[EitherNec[ItemCount.Failure, _]]:
             10L
           .leftMap: _ =>
             fail()

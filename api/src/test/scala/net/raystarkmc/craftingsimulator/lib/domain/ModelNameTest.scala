@@ -52,7 +52,7 @@ class ModelNameTest extends AnyFreeSpec:
       Failure.LengthExceeded,
       Failure.ContainsControlCharacter
     )
-    val actual = ModelName.inParallel[EitherWithNec[ModelName.Failure]](
+    val actual = ModelName.inParallel[EitherNec[ModelName.Failure, _]](
       "\naaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
     )
 

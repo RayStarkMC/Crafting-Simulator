@@ -32,7 +32,7 @@ object RegisterItemCommandHandler:
     ): F[Either[Failure, Output]] =
       val eitherT = for {
         name <- ModelName
-          .inParallel[EitherWithNec[ModelName.Failure]](command.name)
+          .inParallel[EitherNec[ModelName.Failure, _]](command.name)
           .map(ItemName.apply)
           .leftMap { e => Failure.ValidationFailed(e.show) }
           .toEitherT[F]
