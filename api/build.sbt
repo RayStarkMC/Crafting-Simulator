@@ -1,3 +1,7 @@
+import com.typesafe.sbt.packager.docker.DockerPlugin.autoImport.Docker
+
+import scala.tools.util.PathResolver.Environment
+
 enablePlugins(JavaAppPackaging)
 
 val http4sVersion = "0.23.30"
@@ -20,6 +24,9 @@ scalacOptions ++= Seq(
 
 Test / scalacOptions -= "-Wnonunit-statement"
 
+scalafmtConfig := file("./../.scalafmt.conf")
+scalafmtFilter := sys.env.get("BASE_REF").fold("")("diff-ref=" ++ _)
+
 lazy val root = (project in file("."))
   .settings(
     name := "api",
@@ -32,16 +39,15 @@ lazy val root = (project in file("."))
       "io.circe" %% "circe-literal" % circeVersion,
       "org.typelevel" %% "kittens" % kittensVersion,
       "ch.qos.logback" % "logback-classic" % logbackVersion,
-      "org.tpolecat" %% "doobie-core"      % doobieVersion,
-      "org.tpolecat" %% "doobie-postgres"  % doobieVersion,
+      "org.tpolecat" %% "doobie-core" % doobieVersion,
+      "org.tpolecat" %% "doobie-postgres" % doobieVersion,
       "org.scalatest" %% "scalatest" % scalaTestVersion % "test",
-      "org.scalatest" %% "scalatest-freespec" % scalaTestVersion % "test"
+      "org.scalatest" %% "scalatest-freespec" % scalaTestVersion % "test",
     ),
     dockerBaseImage := "amazoncorretto:21",
     dockerExposedPorts := Seq(8080),
-    Compile / run / fork := true
+    Compile / run / fork := true,
+    Docker / packageName := "crafting-simulator",
+    Docker / daemonUserUid := None,
+    Docker / daemonUser := "daemon",
   )
-
-Docker / packageName := "crafting-simulator"
-Docker / daemonUserUid := None
-Docker / daemonUser := "daemon"
