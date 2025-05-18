@@ -1,16 +1,11 @@
 name: CI
 on:
   pull_request:
-  workflow_dispatch:
-
 jobs:
   format:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: ${{github.event.pull_request.head.ref}}
-          fetch-depth: $(( ${{github.event.pull_request.commits}} + 1 ))
       - uses: actions/setup-java@v4
         with:
           distribution: corretto
@@ -19,9 +14,6 @@ jobs:
       - name: fetch history
         run: |
           git fetch --depth=$(( ${{github.event.pull_request.commits}} + 1 )) origin ${{github.event.pull_request.head.ref}}
-          echo ""
-          git rev-list --reverse HEAD | head
-          echo ""
           echo BASE_REF=$(git rev-list --reverse HEAD | head -1) >> $GITHUB_ENV
       - name: scalafmtCheckAll
         working-directory: api
