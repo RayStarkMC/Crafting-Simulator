@@ -13,14 +13,14 @@ jobs:
           distribution: corretto
           java-version: 21
       - uses: sbt/setup-sbt@v1
-      - name: scalafmtCheckAll
-        working-directory: api
-        run: sbt scalafmtCheckAll
       - name: show
         run: |
           ls -a
           echo ""
           git branch -a
+      - name: scalafmtCheckAll
+        working-directory: api
+        run: sbt scalafmtCheckAll
   unit-test:
     runs-on: ubuntu-latest
     steps:
