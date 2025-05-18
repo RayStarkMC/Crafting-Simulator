@@ -25,7 +25,7 @@ scalacOptions ++= Seq(
 Test / scalacOptions -= "-Wnonunit-statement"
 
 scalafmtConfig := file("./../.scalafmt.conf")
-scalafmtFilter := sys.env.get("GITHUB_BASE_REF").fold("")("diff-ref=" ++ _)
+scalafmtFilter := sys.env.get("BASE_REF").fold("")("diff-ref=" ++ _)
 
 lazy val root = (project in file("."))
   .settings(

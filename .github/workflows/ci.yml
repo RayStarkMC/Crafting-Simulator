@@ -12,6 +12,7 @@ jobs:
         run: |
           git fetch --depth=$(( ${{github.event.pull_request.commits}} + 1)) origin ${{ github.event.pull_request.head.sha }}
           echo ${{ github.event.pull_request.base.sha }}
+          echo "BASE_REF=${{ github.event.pull_request.base.sha }}"
       - uses: actions/setup-java@v4
         with:
           distribution: corretto
