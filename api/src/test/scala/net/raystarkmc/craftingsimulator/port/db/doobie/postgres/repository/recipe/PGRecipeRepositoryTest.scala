@@ -12,6 +12,7 @@ import doobie.postgres.implicits.*
 import net.raystarkmc.craftingsimulator.domain.item.*
 import net.raystarkmc.craftingsimulator.domain.recipe.*
 import net.raystarkmc.craftingsimulator.lib.cats.*
+import net.raystarkmc.craftingsimulator.lib.cats.effect.UUIDGenFromSync.given
 import net.raystarkmc.craftingsimulator.lib.domain.*
 import net.raystarkmc.craftingsimulator.lib.transaction.Transaction
 import net.raystarkmc.craftingsimulator.lib.transaction.Transaction.Noop.given
