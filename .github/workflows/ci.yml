@@ -16,7 +16,7 @@ jobs:
       - name: fetch history
         run: |
           git fetch --depth=$(( ${{github.event.pull_request.commits}} + 1)) origin ${{ github.event.pull_request.head.sha }}
-          git rev-list --max-count=1 --reverse HEAD
+          git rev-list --reverse HEAD
           echo BASE_REF=$(git rev-list --max-count=1 --reverse HEAD) >> $GITHUB_ENV
       - name: scalafmtCheckAll
         working-directory: api
