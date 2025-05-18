@@ -22,7 +22,7 @@ jobs:
           echo ""
           git rev-list --reverse HEAD | head
           echo ""
-          echo BASE_REF=$(git rev-list --reverse HEAD | head) >> $GITHUB_ENV
+          echo BASE_REF=$(git rev-list --reverse HEAD | head -1) >> $GITHUB_ENV
       - name: scalafmtCheckAll
         working-directory: api
         run: sbt scalafmtCheckAll
