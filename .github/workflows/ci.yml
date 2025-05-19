@@ -13,8 +13,11 @@ jobs:
           echo "---"
           git fetch origin ${{github.event.pull_request.head.ref}}:refs/remotes/origin/${{github.event.pull_request.head.ref}}
           echo "---"
-          git rev-list
-
+          git branch -a
+          echo "---"
+          git rev-list HEAD
+          echo "---"
+          git rev-list ${{github.event.pull_request.head.ref}}
   format:
     runs-on: ubuntu-latest
     steps:
