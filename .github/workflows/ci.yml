@@ -7,13 +7,13 @@ jobs:
   format:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
         with:
           distribution: corretto
           java-version: 21
           cache: sbt
       - uses: sbt/setup-sbt@v1
-      - uses: actions/checkout@v4
       - name: fetch history
         run: |
           git fetch --depth=$(( ${{github.event.pull_request.commits}} + 1 )) origin ${{github.event.pull_request.head.ref}}:refs/remotes/origin/${{github.event.pull_request.head.ref}}
@@ -24,13 +24,13 @@ jobs:
   unit-test:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
         with:
           distribution: corretto
           java-version: 21
           cache: sbt
       - uses: sbt/setup-sbt@v1
-      - uses: actions/checkout@v4
       - name: run test
         working-directory: api
         run: sbt test
