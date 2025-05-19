@@ -27,6 +27,10 @@ Test / scalacOptions -= "-Wnonunit-statement"
 scalafmtConfig := file("./../.scalafmt.conf")
 scalafmtFilter := BASE_REF.fold("diff-dirty")("diff-ref=" ++ _)
 
+Global / excludeLintKeys ++= Set(
+  scalafmtFilter
+)
+
 lazy val root = (project in file("."))
   .settings(
     name := "api",

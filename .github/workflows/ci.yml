@@ -7,30 +7,28 @@ jobs:
   format:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
         with:
           distribution: corretto
           java-version: 21
       - uses: sbt/setup-sbt@v1
+      - uses: actions/checkout@v4
       - name: fetch history
         run: |
-          git fetch --depth=$(( ${{github.event.pull_request.commits}} + 1)) origin ${{ github.event.pull_request.head.sha }}
-          echo BASE_REF=$(git rev-list --max-count=1 --reverse HEAD) >> $GITHUB_ENV
+          git fetch --depth=$(( ${{github.event.pull_request.commits}} + 1 )) origin ${{github.event.pull_request.head.ref}}:refs/remotes/origin/${{github.event.pull_request.head.ref}}
+          echo BASE_REF=$(git rev-list --reverse remotes/origin/${{github.event.pull_request.head.ref}} | head -1) >> $GITHUB_ENV
       - name: scalafmtCheckAll
         working-directory: api
         run: sbt scalafmtCheckAll
   unit-test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
         with:
           distribution: corretto
           java-version: 21
       - uses: sbt/setup-sbt@v1
-      - name: clone base branch
-        run: git fetch origin master
+      - uses: actions/checkout@v4
       - name: run test
         working-directory: api
         run: sbt test
