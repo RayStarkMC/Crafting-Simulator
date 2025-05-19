@@ -12,6 +12,7 @@ import net.raystarkmc.craftingsimulator.lib.transaction.Transaction
 import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.queryhandler.PGGetItemQueryHandler
 import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.queryhandler.PGSearchItemsQueryHandler
 import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.queryhandler.recipe.get.PGGetRecipeQueryHandler
+import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.queryhandler.recipe.search.PGSearchRecipeQueryHandler
 import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.repository.item.PGItemRepository
 import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.repository.recipe.PGRecipeRepository
 
@@ -37,6 +38,7 @@ trait DbPortInstances
     PGRecipeRepository,
     PGGetItemQueryHandler,
     PGSearchItemsQueryHandler,
-    PGGetRecipeQueryHandler
+    PGGetRecipeQueryHandler,
+    PGSearchRecipeQueryHandler
 
 object instances extends DbPortInstances
