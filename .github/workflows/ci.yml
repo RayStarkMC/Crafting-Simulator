@@ -15,7 +15,6 @@ jobs:
       - uses: actions/checkout@v4
       - name: fetch history
         run: |
-#         プルリクの最初のコミットの直前の参照を取得し、sbt-scalafmtに渡して差分のみ検証する
           git fetch --depth=$(( ${{github.event.pull_request.commits}} + 1 )) origin ${{github.event.pull_request.head.ref}}:refs/remotes/origin/${{github.event.pull_request.head.ref}}
           echo BASE_REF=$(git rev-list --reverse remotes/origin/${{github.event.pull_request.head.ref}} | head -1) >> $GITHUB_ENV
       - name: scalafmtCheckAll
