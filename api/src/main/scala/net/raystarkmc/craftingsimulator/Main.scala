@@ -12,8 +12,8 @@ import net.raystarkmc.craftingsimulator.port.api.http4s.controller.recipe.*
 import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.instances.given
 import org.http4s.HttpRoutes
 import org.http4s.Response
-import org.http4s.ember.server.EmberServerBuilder
 import org.http4s.dsl.*
+import org.http4s.ember.server.EmberServerBuilder
 import org.http4s.implicits.*
 import org.http4s.server.middleware.ErrorHandling
 import scala.concurrent.duration.*
