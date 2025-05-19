@@ -2,6 +2,17 @@ name: CI
 on:
   pull_request:
 jobs:
+  sample:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          ls -l
+          echo "---"
+          git branch -a
+          echo "---"
+          git rev-list
+
   format:
     runs-on: ubuntu-latest
     steps:
