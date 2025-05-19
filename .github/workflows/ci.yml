@@ -11,7 +11,7 @@ jobs:
           echo "---"
           git branch -a
           echo "---"
-          git fetch origin ${{github.event.pull_request.head.ref}}:refs/remotes/origin/${{github.event.pull_request.head.ref}}
+          git fetch origin refs/heads/${{github.event.pull_request.head.ref}}:refs/remotes/origin/${{github.event.pull_request.head.ref}}
           echo "---"
           git branch -a
           echo "---"
