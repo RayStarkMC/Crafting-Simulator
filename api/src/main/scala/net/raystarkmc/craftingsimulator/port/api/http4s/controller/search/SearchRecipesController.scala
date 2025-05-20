@@ -1,4 +1,4 @@
-package net.raystarkmc.craftingsimulator.port.api.http4s.controller.recipe
+package net.raystarkmc.craftingsimulator.port.api.http4s.controller.search
 
 import cats.*
 import cats.data.*
@@ -10,6 +10,7 @@ import cats.syntax.all.*
 import io.circe.generic.auto.given
 import io.circe.syntax.given
 import java.util.UUID
+import net.raystarkmc.craftingsimulator.port.api.http4s.controller.recipe.*
 import net.raystarkmc.craftingsimulator.usecase.query.recipe.SearchRecipesQueryHandler
 import org.http4s.HttpRoutes
 import org.http4s.circe.*

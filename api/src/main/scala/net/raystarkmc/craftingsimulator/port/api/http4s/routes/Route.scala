@@ -8,6 +8,7 @@ import cats.syntax.all.*
 import net.raystarkmc.craftingsimulator.port.api.http4s.controller.*
 import net.raystarkmc.craftingsimulator.port.api.http4s.controller.item.*
 import net.raystarkmc.craftingsimulator.port.api.http4s.controller.recipe.*
+import net.raystarkmc.craftingsimulator.port.api.http4s.controller.search.*
 import net.raystarkmc.craftingsimulator.port.api.http4s.routes.allRoutes
 import net.raystarkmc.craftingsimulator.port.db.doobie.postgres.instances.given
 import org.http4s.HttpRoutes

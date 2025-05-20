@@ -1,13 +1,12 @@
-package net.raystarkmc.craftingsimulator.port.api.http4s.controller.item
+package net.raystarkmc.craftingsimulator.port.api.http4s.controller.search
 
 import cats.*
 import cats.effect.*
 import cats.syntax.all.given
 import io.circe.generic.auto.given
 import io.circe.syntax.given
-import net.raystarkmc.craftingsimulator.port.api.http4s.controller.item.SearchItemsController.RequestBody
-import net.raystarkmc.craftingsimulator.usecase.query.item.SearchItemsQueryHandler.Input
 import net.raystarkmc.craftingsimulator.usecase.query.item.SearchItemsQueryHandler
+import net.raystarkmc.craftingsimulator.usecase.query.item.SearchItemsQueryHandler.Input
 import org.http4s.*
 import org.http4s.circe.CirceEntityCodec.given
 import org.http4s.dsl.*
