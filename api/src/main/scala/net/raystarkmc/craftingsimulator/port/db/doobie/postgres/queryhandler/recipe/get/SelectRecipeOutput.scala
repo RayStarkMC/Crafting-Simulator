@@ -6,18 +6,18 @@ import doobie.postgres.implicits.*
 
 import java.util.UUID
 
-private[get] case class SelectRecipeOutputRecord(id: UUID, name: String, count: Long)
-private[get] def selectRecipeOutput(id: UUID): ConnectionIO[List[SelectRecipeOutputRecord]] =
+private[get] case class SelectRecipeOutputRecord(id: UUID, name: Option[String], count: Long)
+private[get] def selectRecipeOutput(recipeId: UUID): ConnectionIO[List[SelectRecipeOutputRecord]] =
   sql"""
     select
-      item.id,
+      recipe_output.item_id,
       item.name,
       recipe_output.count
     from
       recipe_output
-      join item on item.id = recipe_output.item_id
+      left join item on item.id = recipe_output.item_id
     where
-      recipe_output.id = $id
+      recipe_output.recipe_id = $recipeId
     order by
       item.name,
       item.id

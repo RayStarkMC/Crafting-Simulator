@@ -16,4 +16,4 @@ object GetRecipeQueryHandler:
     input: List[Item],
     output: List[Item],
   )
-  case class Item(id: UUID, name: String, count: Long)
+  case class Item(id: UUID, name: Option[String], count: Long)
