@@ -11,18 +11,16 @@ private[get] def buildRecipe(
 ): Recipe = Recipe(
   id = recipeID,
   name = recipeRecord.name,
-  input = recipeInputRecords
-    .map: record =>
-      record.id -> ItemNameWithCount(
-        record.name,
-        record.count,
-      )
-    .toMap,
-  output = recipeOutputRecords
-    .map: record =>
-      record.id -> ItemNameWithCount(
-        record.name,
-        record.count,
-      )
-    .toMap,
+  input = recipeInputRecords.map: record =>
+    Item(
+      id = record.id,
+      name = record.name,
+      count = record.count,
+    ),
+  output = recipeOutputRecords.map: record =>
+    Item(
+      id = record.id,
+      name = record.name,
+      count = record.count,
+    ),
 )

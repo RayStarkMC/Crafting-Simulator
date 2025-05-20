@@ -15,11 +15,12 @@ import org.http4s.dsl.Http4sDsl
 
 given [F[_]] => Http4sDsl[F] = Http4sDsl[F]
 
-def allRoutes[F[_]: Async]: HttpRoutes[F] =
+def allRoutes[F[_]: {Async, UUIDGen}]: HttpRoutes[F] =
   HttpRoutes.empty[F]
     <+> summon[RegisterRecipeController[F]].route
     <+> summon[SearchRecipesController[F]].route
     <+> summon[UpdateRecipeController[F]].route
+    <+> summon[GetRecipeController[F]].route
     <+> HttpRoutes.of[F](
       PartialFunction.empty
         orElse summon[RegisterItemController[F]].run
