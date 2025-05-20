@@ -2,7 +2,6 @@ name: CI
 on:
   pull_request:
   workflow_dispatch:
-
 jobs:
   format:
     runs-on: ubuntu-latest
@@ -15,6 +14,7 @@ jobs:
           cache: sbt
       - uses: sbt/setup-sbt@v1
       - name: fetch history
+        if: ${{ github.event_name == 'pull_request' }}
         run: |
           git fetch --depth=$(( ${{github.event.pull_request.commits}} + 1 )) origin ${{github.event.pull_request.head.ref}}:refs/remotes/origin/${{github.event.pull_request.head.ref}}
           echo BASE_REF=$(git rev-list --reverse remotes/origin/${{github.event.pull_request.head.ref}} | head -1) >> $GITHUB_ENV
