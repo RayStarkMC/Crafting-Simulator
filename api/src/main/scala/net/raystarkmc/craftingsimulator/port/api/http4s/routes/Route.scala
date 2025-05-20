@@ -12,7 +12,7 @@ def allRoutes[
   F[_]: {Monad, RegisterItemController as RegisterItemController, SearchItemsController as SearchItemsController,
     GetItemController as GetItemController, UpdateItemController as UpdateItemController,
     DeleteItemController as DeleteItemController, RegisterRecipeController as RegisterRecipeController,
-  SearchRecipesController as SearchRecipesController, UpdateRecipeController as UpdateRecipeController}
+    SearchRecipesController as SearchRecipesController, UpdateRecipeController as UpdateRecipeController}
 ]: HttpRoutes[F] =
   HttpRoutes.empty[F]
     <+> RegisterRecipeController.route
