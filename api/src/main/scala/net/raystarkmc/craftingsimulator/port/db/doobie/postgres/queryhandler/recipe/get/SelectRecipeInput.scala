@@ -3,7 +3,6 @@ package net.raystarkmc.craftingsimulator.port.db.doobie.postgres.queryhandler.re
 import doobie.*
 import doobie.implicits.*
 import doobie.postgres.implicits.*
-
 import java.util.UUID
 
 private[get] case class SelectRecipeInputRecord(id: UUID, name: Option[String], count: Long)
