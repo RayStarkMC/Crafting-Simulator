@@ -41,6 +41,6 @@ jobs:
       - uses: dorny/test-reporter@v2
         if: ${{ !cancelled() }}
         with:
-          name: 'Scalatest'
+          name: 'JUnit Test Report'
           path: '**/target/test-reports/TEST-*.xml'
-          reporter: java-junit
+          reporter: 'java-junit'
