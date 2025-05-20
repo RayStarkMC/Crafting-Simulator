@@ -13,7 +13,7 @@ object GetRecipeQueryHandler:
   case class Recipe(
     id: UUID,
     name: String,
-    input: Map[UUID, ItemNameWithCount],
-    output: Map[UUID, ItemNameWithCount],
+    input: List[Item],
+    output: List[Item],
   )
-  case class ItemNameWithCount(name: String, count: Long)
+  case class Item(id: UUID, name: String, count: Long)
