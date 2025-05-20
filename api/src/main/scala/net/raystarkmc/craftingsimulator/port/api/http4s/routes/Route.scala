@@ -18,13 +18,13 @@ given [F[_]] => Http4sDsl[F] = Http4sDsl[F]
 
 def allRoutes[F[_]: {Async, UUIDGen}]: HttpRoutes[F] =
   HttpRoutes.empty[F]
-    <+> summon[RegisterRecipeController[F]].route
-    <+> summon[SearchRecipesController[F]].route
-    <+> summon[UpdateRecipeController[F]].route
-    <+> summon[GetRecipeController[F]].route
-    <+> summon[DeleteRecipeController[F]].route
-    <+> summon[SearchItemsController[F]].route
     <+> summon[RegisterItemController[F]].route
     <+> summon[GetItemController[F]].route
     <+> summon[UpdateItemController[F]].route
     <+> summon[DeleteItemController[F]].route
+    <+> summon[RegisterRecipeController[F]].route
+    <+> summon[UpdateRecipeController[F]].route
+    <+> summon[GetRecipeController[F]].route
+    <+> summon[DeleteRecipeController[F]].route
+    <+> summon[SearchItemsController[F]].route
+    <+> summon[SearchRecipesController[F]].route
