@@ -23,11 +23,8 @@ def allRoutes[F[_]: {Async, UUIDGen}]: HttpRoutes[F] =
     <+> summon[UpdateRecipeController[F]].route
     <+> summon[GetRecipeController[F]].route
     <+> summon[DeleteRecipeController[F]].route
-    <+> HttpRoutes.of[F](
-      PartialFunction.empty
-        orElse summon[RegisterItemController[F]].run
-        orElse summon[SearchItemsController[F]].run
-        orElse summon[GetItemController[F]].run
-        orElse summon[UpdateItemController[F]].run
-        orElse summon[DeleteItemController[F]].run
-    )
+    <+> summon[SearchItemsController[F]].route
+    <+> summon[RegisterItemController[F]].route
+    <+> summon[GetItemController[F]].route
+    <+> summon[UpdateItemController[F]].route
+    <+> summon[DeleteItemController[F]].route

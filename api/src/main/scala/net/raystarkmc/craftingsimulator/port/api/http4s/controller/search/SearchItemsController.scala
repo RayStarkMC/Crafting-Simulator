@@ -12,17 +12,18 @@ import org.http4s.circe.CirceEntityCodec.given
 import org.http4s.dsl.*
 
 trait SearchItemsController[F[_]]:
-  def run: PartialFunction[Request[F], F[Response[F]]]
+  def route: HttpRoutes[F]
 
 object SearchItemsController:
   case class RequestBody(name: Option[String])
 
   given [F[_]: {SearchItemsQueryHandler as handler, Http4sDsl as dsl, Concurrent}] => SearchItemsController[F]:
     import dsl.*
-    def run: PartialFunction[Request[F], F[Response[F]]] =
-      case req @ POST -> Root / "api" / "search" / "items" =>
-        for {
-          body <- req.as[RequestBody]
-          queryModel <- handler.run(Input(name = body.name))
-          res <- Ok(queryModel.asJson)
-        } yield res
+    def route: HttpRoutes[F] =
+      HttpRoutes.of:
+        case req @ POST -> Root / "api" / "search" / "items" =>
+          for
+            body <- req.as[RequestBody]
+            queryModel <- handler.run(Input(name = body.name))
+            res <- Ok(queryModel.asJson)
+          yield res
