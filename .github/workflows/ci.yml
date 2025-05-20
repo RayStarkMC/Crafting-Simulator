@@ -42,3 +42,4 @@ jobs:
         with:
           report_paths: '**/target/test-reports/TEST-*.xml'
           detailed_summary: true
+          include_time_in_summary: true
