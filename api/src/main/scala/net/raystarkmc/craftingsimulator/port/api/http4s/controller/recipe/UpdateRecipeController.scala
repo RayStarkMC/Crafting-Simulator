@@ -51,3 +51,4 @@ object UpdateRecipeController:
             yield response
           eitherT.valueOrF:
             case Failure.ValidationFailed(detail) => BadRequest(detail.show)
+            case Failure.ModelNotFound            => NotFound()
