@@ -20,6 +20,7 @@ scalacOptions ++= Seq(
   "-Xkind-projector:underscores",
   "-source:future",
   "-deprecation",
+  "-Wconf:msg=match may not be exhaustive:error"
 )
 
 Test / scalacOptions -= "-Wnonunit-statement"
