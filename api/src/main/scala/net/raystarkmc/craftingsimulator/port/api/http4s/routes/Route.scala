@@ -12,11 +12,12 @@ def allRoutes[
   F[_]: {Monad, RegisterItemController as RegisterItemController, SearchItemsController as SearchItemsController,
     GetItemController as GetItemController, UpdateItemController as UpdateItemController,
     DeleteItemController as DeleteItemController, RegisterRecipeController as RegisterRecipeController,
-    SearchRecipesController as SearchRecipesController}
+  SearchRecipesController as SearchRecipesController, UpdateRecipeController as UpdateRecipeController}
 ]: HttpRoutes[F] =
   HttpRoutes.empty[F]
     <+> RegisterRecipeController.route
     <+> SearchRecipesController.route
+    <+> UpdateRecipeController.route
     <+> HttpRoutes.of[F](
       PartialFunction.empty
         orElse RegisterItemController.run
