@@ -22,9 +22,4 @@ class ItemTest extends AnyFreeSpec {
     )
     assert(expected === actual)
   }
-
-  //FIXME: CI検証終わったら削除
-  "失敗させる" in {
-    fail("Oops!")
-  }
 }
