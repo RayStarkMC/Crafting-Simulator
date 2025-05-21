@@ -41,7 +41,6 @@ jobs:
         if: success() || failure()
         with:
           report_paths: '**/target/test-reports/TEST-*.xml'
-          comment: true
           detailed_summary: true
           flaky_summary: true
           include_passed: true
