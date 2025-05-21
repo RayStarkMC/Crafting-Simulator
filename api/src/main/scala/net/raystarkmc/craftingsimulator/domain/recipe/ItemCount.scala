@@ -9,13 +9,12 @@ import net.raystarkmc.craftingsimulator.lib.cats.*
 
 opaque type ItemCount = Long
 object ItemCount extends ItemCountGivens:
-  extension (self: ItemCount)
-    def value: Long = self
+  extension (self: ItemCount) def value: Long = self
 
   enum Failure derives Eq, Hash, Order, Show:
     case IsNotGreaterThen0
 
-  def ae[F[_] : ApplicativeErrorWithNec[Failure] as F](value: Long): F[ItemCount] =
+  def ae[F[_]: ApplicativeErrorWithNec[Failure] as F](value: Long): F[ItemCount] =
     F.raiseWhen(value <= 0)(NonEmptyChain.one(Failure.IsNotGreaterThen0)) *>
       F.pure(value)
 
