@@ -10,16 +10,16 @@ import net.raystarkmc.craftingsimulator.lib.domain.ModelName.Failure
 class ModelNameTest extends AnyFreeSpec:
   type F[A] = EitherNec[ModelName.Failure, A]
 
-  "制御文字が含まれる場合失敗" in:
+  "空文字列の場合失敗" in:
+    val expected = ModelName.Failure.IsBlank.asLeft[ModelName].toEitherNec
+    val actual = ModelName.ae[F]("")
+    assert(expected eqv actual)
+
+  "制御文字が含まれる場合失敗" in :
     val expected =
       ModelName.Failure.ContainsControlCharacter.asLeft[ModelName].toEitherNec
     val actual = ModelName.ae[F]("a\t")
 
-    assert(expected eqv actual)
-
-  "空文字列の場合失敗" in:
-    val expected = ModelName.Failure.IsBlank.asLeft[ModelName].toEitherNec
-    val actual = ModelName.ae[F]("")
     assert(expected eqv actual)
 
   "空白のみの場合失敗" in:
